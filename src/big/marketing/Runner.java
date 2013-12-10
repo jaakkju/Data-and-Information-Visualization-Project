@@ -3,6 +3,12 @@ package big.marketing;
 import big.marketing.data.node;
 
 public class Runner {
+	
+	private static final String FILE_DESCRIPTION 	= "2013MC3AnswerSheetandDataDescriptions.zip";
+	private static final String FILE_SUPLEMENTARY 	= "Supplementary Data Descriptions for Week 2.zip";
+	private static final String FILE_BIGBROTHER 		= "VAST2013MC3_BigBrother.zip";
+	private static final String FILE_NETWORKFLOW 	= "VAST2013MC3_NetworkFlow.zip";
+	private static final String FILE_WEEK2DATA 		= "week2data.zip";
 
 	public static void main(String[] args) {
 
