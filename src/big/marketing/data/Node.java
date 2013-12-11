@@ -5,7 +5,7 @@ package big.marketing.data;
  *  #Column 2:  Host Name. Hosts with a "WSS" prefix are user workstations. "Administrator" is the administrator workstation. Others are servers.
  *  #Column 3 (Optional): Comments
  */
-public class node {
+public class Node {
 
 	public static final int TYPE_WORKSTATION = 0;
 	public static final int TYPE_ADMINISTRATOR = 1;
@@ -27,7 +27,7 @@ public class node {
 	 * @param description
 	 *           line from the txt file that describes one network node
 	 */
-	public node(String strLine) {
+	public Node(String strLine) {
 
 		String[] split = strLine.split(regex, reglimit);
 
@@ -36,28 +36,28 @@ public class node {
 
 		if (split.length == 3) {
 			this.comment = split[2];
-			this.type = node.TYPE_SERVER;
+			this.type = Node.TYPE_SERVER;
 			
-		} else if (split[1].contains(node.administrator)) {
-			this.type = node.TYPE_ADMINISTRATOR;
+		} else if (split[1].contains(Node.administrator)) {
+			this.type = Node.TYPE_ADMINISTRATOR;
 			this.comment = null;
 			
 		} else {
-			this.type = node.TYPE_WORKSTATION;
+			this.type = Node.TYPE_WORKSTATION;
 			this.comment = null;
 		}
 	}
 
 	public boolean isServer() {
-		return this.type == node.TYPE_SERVER;
+		return this.type == Node.TYPE_SERVER;
 	}
 
 	public boolean isWorkstation() {
-		return this.type == node.TYPE_WORKSTATION;
+		return this.type == Node.TYPE_WORKSTATION;
 	}
 
 	public boolean isAdministator() {
-		return this.type == node.TYPE_ADMINISTRATOR;
+		return this.type == Node.TYPE_ADMINISTRATOR;
 	}
 
 	public String getAddress() {
