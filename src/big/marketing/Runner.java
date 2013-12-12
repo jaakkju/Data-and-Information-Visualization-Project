@@ -3,18 +3,20 @@ package big.marketing;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import big.marketing.data.FileReader;
 import big.marketing.data.Node;
+import big.marketing.readers.NetwordDescriptionReader;
 import big.marketing.ui.NetworkMonitorFrame;
 
 public class Runner {
+	public static final String FILE_FOLDER = "./data/";
+	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
 
 	public static void main(String[] args) {
 
 		// THIS IS ALSO JUST A TEST TO SEE THAT THINGS WORK - READS UNZIPPED DESCRIPTION FILE TO Arraylist<Node>
-		FileReader reader = new FileReader();
+		NetwordDescriptionReader nReader = new NetwordDescriptionReader();
 		try {
-			ArrayList<Node> network = reader.readNetworkDescription(FileReader.FILE_FOLDER + FileReader.FILE_DESCRIPTION);
+			ArrayList<Node> network = nReader.readNetworkDescription(Runner.FILE_FOLDER + Runner.FILE_DESCRIPTION);
 			
 			for (Node node : network) {
 	         System.out.println(node.toString());
@@ -26,7 +28,4 @@ public class Runner {
 
 		NetworkMonitorFrame monitor = new NetworkMonitorFrame();
 	}
-	
-	
-
 }
