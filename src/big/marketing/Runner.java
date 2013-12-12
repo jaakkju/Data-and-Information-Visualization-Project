@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import big.marketing.data.FileReader;
 import big.marketing.data.Node;
+import big.marketing.ui.NetworkMonitorFrame;
 
 public class Runner {
 
@@ -23,6 +24,9 @@ public class Runner {
 			e.printStackTrace();
 		}
 
+		NetworkMonitorFrame monitor = new NetworkMonitorFrame();
 	}
+	
+	
 
 }
