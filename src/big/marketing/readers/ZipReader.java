@@ -138,6 +138,8 @@ public class ZipReader {
 		String[] nextLine;
 		while ((nextLine = reader.readNext()) != null && !STOP) {
 			// nextLine[] is an array of values from the line
+			// Before passing an array to HealthMessage constructor we hae to take some indexes away
+			// Removing element with ArrayUtils.removeElement(array, element)
 			System.out.println(Arrays.toString(nextLine));
 		}
 		reader.close();
