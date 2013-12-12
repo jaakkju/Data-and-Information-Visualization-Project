@@ -14,6 +14,9 @@ import big.marketing.data.Node;
  */
 public class NetwordDescriptionReader {
 	
+	private static final String regex = "\\s";
+	private static final int regLimit = 3;
+	
 	/**
 	 * reads network description file to arraylist<Node>
 	 * @param filePath file location
@@ -30,7 +33,7 @@ public class NetwordDescriptionReader {
 		String strLine;
 		while ((strLine = br.readLine()) != null) {
 			if (!strLine.startsWith("#") && strLine.length() > 0) {
-				network.add(new Node(strLine));
+				network.add(new Node(strLine.split(regex, regLimit)));
 			}
 		}
 
