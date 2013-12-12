@@ -131,7 +131,7 @@ public class FileReader {
 	/**
 	 * reads network description file to arraylist<Node>
 	 * @param filePath file location
-	 * @return network as arraylist<Node>
+	 * @return network as arraylist<Node> or null if no nodes were read from the file
 	 * @throws IOException
 	 */
 	public ArrayList<Node> readNetworkDescription(String filePath) throws IOException {
@@ -149,7 +149,7 @@ public class FileReader {
 		}
 
 		fileIn.close();
-		return network;
+		return network.isEmpty() ? null : network;
 	}
 
 	public String[][] read(int type, int week) {
