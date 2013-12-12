@@ -14,6 +14,7 @@ public class Runner {
 		System.out.println(test.getHostName());
 		System.out.println(test.getComment());
 		System.out.println(test.isServer());
+		System.out.println(test.getSite());
 		
 		System.out.println("\nWorkstation");		
 		
@@ -23,6 +24,7 @@ public class Runner {
 		System.out.println(test2.getHostName());
 		System.out.println(test2.isWorkstation());
 		System.out.println(test2.getComment());
+		System.out.println(test2.getSite());
 		
 		System.out.println("\nAdministrator");
 		
@@ -32,6 +34,7 @@ public class Runner {
 		System.out.println(test3.getHostName());
 		System.out.println(test3.isAdministator());
 		System.out.println(test3.getComment());
+		System.out.println(test3.getSite());
 		// TEST END
 
 	}

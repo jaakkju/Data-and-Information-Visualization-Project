@@ -12,24 +12,25 @@ public class Node {
 	public static final int TYPE_SERVER = 2;
 
 	private static final String regex = "\\s";
-	private static final int reglimit = 3;
+	private static final int regLimit = 3;
+	private static final String addressRegex = "\\.";
 	private static final String administrator = "Administrator";
 
 	private final String address;
 	private final String hostName;
 	private final String comment;
+	private final int site;
 	private final int type;
 
 	/**
 	 * Constructor takes the one line from the BigMktNetwork.txt and uses regex
 	 * to split string to address, hostname, comment
 	 * 
-	 * @param description
-	 *           line from the txt file that describes one network node
+	 * @param description line from the txt file that describes one network node
 	 */
 	public Node(String strLine) {
 
-		String[] split = strLine.split(regex, reglimit);
+		String[] split = strLine.split(regex, regLimit);
 
 		this.address = split[0];
 		this.hostName = split[1];
@@ -46,6 +47,8 @@ public class Node {
 			this.type = Node.TYPE_WORKSTATION;
 			this.comment = null;
 		}
+
+		site = Integer.valueOf(this.address.split(addressRegex)[1]); 
 	}
 
 	public boolean isServer() {
@@ -75,4 +78,13 @@ public class Node {
 	public int getType() {
 		return type;
 	}
+
+	public int getSite() {
+		return site;
+	}
+
+	@Override
+   public String toString() {
+	   return this.address + " " + this.hostName + " " + this.comment;
+   }
 }

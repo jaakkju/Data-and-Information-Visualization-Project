@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class ZipReader {
+public class FileReader {
 
 	private static final String FILE_FOLDER 			= "./data/";
 	public static final String FILE_DESCRIPTION 		= "2013MC3AnswerSheetandDataDescriptions.zip";
