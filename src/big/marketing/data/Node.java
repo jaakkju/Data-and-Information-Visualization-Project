@@ -1,7 +1,7 @@
 package big.marketing.data;
 
 /*
- * #Column 1:  IP
+ *  #Column 1:  IP
  *  #Column 2:  Host Name. Hosts with a "WSS" prefix are user workstations. "Administrator" is the administrator workstation. Others are servers.
  *  #Column 3 (Optional): Comments
  */

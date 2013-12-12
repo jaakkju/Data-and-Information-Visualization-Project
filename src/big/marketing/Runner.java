@@ -5,7 +5,6 @@ import big.marketing.data.Node;
 public class Runner {
 	
 	public static void main(String[] args) {
-
 		
 		// THIS IS JUST A TEST TO SEE IF WORKS, DELETE THNX
 		System.out.println("\nServer");
