@@ -10,7 +10,6 @@ public class HealthMessage {
 	public static final int STATUS_GOOD = 1; 
 	public static final int STATUS_WARNING = 2;
 	public static final int STATUS_PROBLEM = 3;
-	public static final int STATUS_ = 4;
 	
 	public static final int CONN_OK = 1;
 	public static final int CONN_NOK = 0;
