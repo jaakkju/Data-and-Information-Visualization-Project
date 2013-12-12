@@ -32,18 +32,18 @@ public class HealthMessage {
 	 * @param args healthMessage values string array [id, hostname, serviceName, statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage, physicalMemomyUsage, connMade]
 	 */
 	public HealthMessage(String[] args) {
-	   this.id = Integer.valueOf(args[0]);
-	   this.hostname = args[1];
-	   this.serviceName = args[2];
-	   this.statusVal = Integer.valueOf(args[3]);
-	   this.receivedFrom = args[4];
-	   this.currentTime = Integer.valueOf(args[5]);
-	   this.diskUsage = Integer.valueOf(args[6]);
-	   this.pageFileUsage = Integer.valueOf(args[7]);
-	   this.numProcs = Integer.valueOf(args[8]);
-	   this.loadAverage = Integer.valueOf(args[9]);
+	   this.id 						= Integer.valueOf(args[0]);
+	   this.hostname 				= args[1];
+	   this.serviceName 			= args[2];
+	   this.statusVal 			= Integer.valueOf(args[3]);
+	   this.receivedFrom 		= args[4];
+	   this.currentTime 			= Integer.valueOf(args[5]);
+	   this.diskUsage 			= Integer.valueOf(args[6]);
+	   this.pageFileUsage 		= Integer.valueOf(args[7]);
+	   this.numProcs 				= Integer.valueOf(args[8]);
+	   this.loadAverage			= Integer.valueOf(args[9]);
 	   this.physicalMemoryUsage = Integer.valueOf(args[10]);
-	   this.connMade = Integer.valueOf(args[11]);
+	   this.connMade 				= Integer.valueOf(args[11]);
    }
 	
 	public int getId() {
