@@ -2,6 +2,7 @@ package big.marketing.data;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
@@ -14,12 +15,12 @@ public class Reader {
 	public static final String FILE_SUPLEMENTARY = "Supplementary Data Descriptions for Week 2.zip";
 	public static final String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
-	public static final String FILE_WEEK2DATA = "week2data.zip";
+	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
 
 	public static final int BIG_BROTHER=0, 
 			FLOW=1, 
 			IPS=2, 
-			ROWS=10;
+			ROWS=Integer.MAX_VALUE;
 	/**
 	 * Read a csv table from the given input stream.
 	 * @param is stream to read from
@@ -27,20 +28,33 @@ public class Reader {
 	 * @return 
 	 */
 	String [][] readCsvTable(InputStream is, int rows){
-		if (rows == Integer.MAX_VALUE){
-			// TODO: use an ArrayList for unbounded input reading...
-		}
-			
-		String[][] out = new String[rows][];
+		long start = System.currentTimeMillis();
+
 		Scanner sc = new Scanner(is);
 		sc.useDelimiter("\\r");
 		String headings = sc.next().trim();
 		int columns = (headings.split("\"").length+1)/2;
-		
-		for (int i=0;i<out.length;i++){
-			out[i]=splitLine(sc.next().trim(), columns);
+		String [][] out=null;
+		if (rows == Integer.MAX_VALUE){
+			ArrayList<String[]> tmpList = new ArrayList<>(2000000);
+			int i=0;
+			while (sc.hasNext()){
+//				tmpList.add(splitLine(sc.next().trim(), columns));
+				sc.next();
+				if (i++ % 100000 == 0)
+					System.out.println(i);
+			}
+			System.out.println(i);
+			System.out.println("found "+tmpList.size());
+			out = (String[][]) tmpList.toArray(new String[tmpList.size()][]); 
+		}else{
+			out = new String[rows][];
+			for (int i=0;i<out.length;i++){
+				out[i]=splitLine(sc.next().trim(), columns);
+			}
 		}
 		sc.close();
+		System.out.println((System.currentTimeMillis()-start));
 		return out;
 	}
 	
@@ -94,28 +108,29 @@ public class Reader {
 	 * @return array that contains one string for each cell
 	 */
 	String [] splitLine(String entry, int columns){
-		if (columns != 18)
+		if (columns != 14)
 			return entry.split(",");
-		String [] splitted = new String[columns];
-		int idx=0;
-		for (int j=0;j<splitted.length;j++){
-			int nextidx=entry.indexOf('"', idx+1);
-			splitted[j] = entry.substring(idx+1,nextidx);
-			idx = entry.indexOf('"', nextidx+1);
-			
-		}
-		return splitted;
+
+		String [] cleanedSplit = new String[columns];
+		String[] rawSplit = entry.split("\"");
+		for (int i=0;i<cleanedSplit.length;i++){
+			cleanedSplit[i] = rawSplit[ i*2 +1];
+		}		
+		
+		return cleanedSplit;
 	}
 	
 	public static void main(String[] args) {
-//		Reader r = new Reader(null);
+		Reader r = new Reader(null);
 		// some testing
-//		String [][] test = null;
-//		test = r.read(BIG_BROTHER, 1);
-//		test = r.read(BIG_BROTHER, 2); // NOT WORKING YET because of invalid header exception ???
-//		test = r.read(FLOW, 0);
-//		test = r.read(FLOW, 2 ); // invalid header...
-//		test = r.read(IPS, 2); // invalid header...
+		String [][] test = null;
+//		test = r.read(BIG_BROTHER, 1); 	//  3407968 lines
+//		test = r.read(BIG_BROTHER, 2); 	//  2165508 lines
+//		test = r.read(FLOW, 0); //	chunk1 15172768 lines
+//								//	chunk2 21526139 lines
+//								//	chunk3  9439406 lines
+//		test = r.read(FLOW, 2 ); 		// 23258686 lines
+//		test = r.read(IPS, 2); 			// 16600932 lines
 		
 	}
 	
