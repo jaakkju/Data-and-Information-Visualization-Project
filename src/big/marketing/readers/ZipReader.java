@@ -1,21 +1,19 @@
-package big.marketing.data;
+package big.marketing.readers;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class FileReader {
+import au.com.bytecode.opencsv.CSVReader;
+
+public class ZipReader {
 
 	public static final String FILE_FOLDER = "./data/";
-	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
 	public static final String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data.zip";
@@ -79,7 +77,6 @@ public class FileReader {
 				}
 				System.out.println("Found " + entry.getName());
 				result = readCsvTable(is, ROWS);
-
 			}
 		}
 
@@ -88,7 +85,6 @@ public class FileReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		return result;
 	}
 
@@ -127,29 +123,24 @@ public class FileReader {
 		// test = r.read(IPS, 2); // invalid header...
 
 	}
-
+	
+	// TODO Here is a nicer way to read CSV files with a opencsv reader
+	
 	/**
-	 * reads network description file to arraylist<Node>
-	 * @param filePath file location
-	 * @return network as arraylist<Node> or null if no nodes were read from the file
+	 * reading inputstream with opencsv reader that returns a array of values
+	 * http://opencsv.sourceforge.net/
+	 * @param in input stream to read
 	 * @throws IOException
 	 */
-	public ArrayList<Node> readNetworkDescription(String filePath) throws IOException {
-		ArrayList<Node> network = new ArrayList<>();
-
-		File file = new File(filePath);
-		FileInputStream fileIn = new FileInputStream(file);
-		BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
-
-		String strLine;
-		while ((strLine = br.readLine()) != null) {
-			if (!strLine.startsWith("#") && strLine.length() > 0) {
-				network.add(new Node(strLine));
-			}
+	public void readCSVStream(InputStream in) throws IOException {
+		boolean STOP = false;
+		CSVReader reader = new CSVReader(new InputStreamReader(in));
+		String[] nextLine;
+		while ((nextLine = reader.readNext()) != null && !STOP) {
+			// nextLine[] is an array of values from the line
+			System.out.println(Arrays.toString(nextLine));
 		}
-
-		fileIn.close();
-		return network.isEmpty() ? null : network;
+		reader.close();
 	}
 
 	public String[][] read(int type, int week) {
