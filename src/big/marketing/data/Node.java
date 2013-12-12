@@ -1,6 +1,8 @@
 package big.marketing.data;
 
-/*
+/**
+ * @author jaakkju
+ *
  *  #Column 1:  IP
  *  #Column 2:  Host Name. Hosts with a "WSS" prefix are user workstations. "Administrator" is the administrator workstation. Others are servers.
  *  #Column 3 (Optional): Comments
@@ -85,6 +87,6 @@ public class Node {
 
 	@Override
    public String toString() {
-	   return this.address + " " + this.hostName + " " + this.comment;
+		return this.comment != null ? this.address + " " + this.hostName + " " + this.comment : this.address + " " + this.hostName;
    }
 }

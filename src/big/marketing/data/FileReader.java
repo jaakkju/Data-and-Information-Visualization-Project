@@ -1,7 +1,12 @@
 package big.marketing.data;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
 import java.util.zip.ZipEntry;
@@ -9,24 +14,22 @@ import java.util.zip.ZipFile;
 
 public class FileReader {
 
-	private static final String FILE_FOLDER 			= "./data/";
-	public static final String FILE_DESCRIPTION 		= "2013MC3AnswerSheetandDataDescriptions.zip";
-	public static final String FILE_SUPLEMENTARY 	= "Supplementary Data Descriptions for Week 2.zip";
-	public static final String FILE_BIGBROTHER 		= "VAST2013MC3_BigBrother.zip";
-	public static final String FILE_NETWORKFLOW 		= "VAST2013MC3_NetworkFlow.zip";
-	public static final String FILE_WEEK2DATA 		= "week2data.zip";
+	public static final String FILE_FOLDER = "./data/";
+	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
+	public static final String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
+	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
+	public static final String FILE_WEEK2DATA = "week2data.zip";
 
 	public static final int BIG_BROTHER = 0, FLOW = 1, IPS = 2, ROWS = 10;
 
 	/**
 	 * Read a csv table from the given input stream.
-	 * 
 	 * @param is stream to read from
 	 * @param row amount of rows to scan
 	 * @return
 	 */
 	String[][] readCsvTable(InputStream is, int rows) {
-		
+
 		if (rows == Integer.MAX_VALUE) {
 			// TODO: use an ArrayList for unbounded input reading...
 		}
@@ -49,11 +52,8 @@ public class FileReader {
 	 * that are read in are specified by the regex streamName. This may be a
 	 * single filename or a regex matching several files.
 	 * 
-	 * @param zipFile
-	 *           name of the actual zip file
-	 * @param streamName
-	 *           path of the file inside the zip file (may be a regex for several
-	 *           files)
+	 * @param zipFile name of the actual zip file
+	 * @param streamName path of the file inside the zip file (may be a regex for several files)
 	 * @return read rows of the
 	 */
 	String[][] readFromZip(String zipFile, String streamName) {
@@ -97,10 +97,8 @@ public class FileReader {
 	 * additional quotes, that have to be removed. All other data can be simply
 	 * split at each ",".
 	 * 
-	 * @param entry
-	 *           line of the table to split
-	 * @param columns
-	 *           amount of columns in this entry
+	 * @param entry line of the table to split
+	 * @param columns amount of columns in this entry
 	 * @return array that contains one string for each cell
 	 */
 	String[] splitLine(String entry, int columns) {
@@ -128,6 +126,30 @@ public class FileReader {
 		// test = r.read(FLOW, 2 ); // invalid header...
 		// test = r.read(IPS, 2); // invalid header...
 
+	}
+
+	/**
+	 * reads network description file to arraylist<Node>
+	 * @param filePath file location
+	 * @return network as arraylist<Node>
+	 * @throws IOException
+	 */
+	public ArrayList<Node> readNetworkDescription(String filePath) throws IOException {
+		ArrayList<Node> network = new ArrayList<>();
+
+		File file = new File(filePath);
+		FileInputStream fileIn = new FileInputStream(file);
+		BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
+
+		String strLine;
+		while ((strLine = br.readLine()) != null) {
+			if (!strLine.startsWith("#") && strLine.length() > 0) {
+				network.add(new Node(strLine));
+			}
+		}
+
+		fileIn.close();
+		return network;
 	}
 
 	public String[][] read(int type, int week) {
@@ -158,6 +180,5 @@ public class FileReader {
 		if (zipFile == null || streamName == null)
 			throw new IllegalArgumentException("invalid type or week");
 		return readFromZip(zipFile, streamName);
-
 	}
 }
