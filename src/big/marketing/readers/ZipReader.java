@@ -1,5 +1,6 @@
 package big.marketing.readers;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,6 +11,7 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
 public class ZipReader {
@@ -19,7 +21,7 @@ public class ZipReader {
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
 
-	public static final int BIG_BROTHER=0, FLOW=1, IPS=2, ROWS=10;
+	public static final int BIG_BROTHER=0, FLOW=1, IPS=2, ROWS=Integer.MAX_VALUE;
 	/**
 	 * Read a csv table from the given input stream.
 	 * @param is stream to read from
@@ -47,10 +49,7 @@ public class ZipReader {
 			System.out.println("found "+tmpList.size());
 			out = (String[][]) tmpList.toArray(new String[tmpList.size()][]); 
 		}else{
-			out = new String[rows][];
-			for (int i=0;i<out.length;i++){
-				out[i]=splitLine(sc.next().trim(), columns);
-			}
+			
 		}
 		sc.close();
 		System.out.println((System.currentTimeMillis()-start));
@@ -84,11 +83,14 @@ public class ZipReader {
 				InputStream is = null;
 				try {
 					is = zip.getInputStream(entry);
+					System.out.println("Found " + entry.getName());
+					long start = System.currentTimeMillis();
+					readCSVStream(is);
+//					result = readCsvTable(is, ROWS);
+					System.out.println(System.currentTimeMillis()-start);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				System.out.println("Found " + entry.getName());
-				result = readCsvTable(is, ROWS);
 			}
 		}
 
@@ -123,15 +125,15 @@ public class ZipReader {
 	}
 
 	public static void main(String[] args) {
-		// Reader r = new Reader(null);
+		 ZipReader r = new ZipReader();
 		// some testing
 		String [][] test = null;
 //		test = r.read(BIG_BROTHER, 1); 	//  3407968 lines
 //		test = r.read(BIG_BROTHER, 2); 	//  2165508 lines
-//		test = r.read(FLOW, 0); //	chunk1 15172768 lines
+		test = r.read(FLOW, 0); //	chunk1 15172768 lines
 //								//	chunk2 21526139 lines
 //								//	chunk3  9439406 lines
-//		test = r.read(FLOW, 2 ); 		// 23258686 lines
+		test = r.read(FLOW, 2 ); 		// 23258686 lines
 //		test = r.read(IPS, 2); 			// 16600932 lines
 		
 	}
@@ -148,11 +150,42 @@ public class ZipReader {
 		boolean STOP = false;
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
 		String[] nextLine;
+		int i=0;
+//		CSVParser csvp = new CSVParser(',');
+//		
+//		Scanner sc = new Scanner(in);
+//		sc.useDelimiter("\\r");
+//		String [][] out = new String[ROWS][];
+//		for (i=0;i<ROWS;i++){
+//			nextLine =csvp.parseLine(sc.next());
+//			if (!"0".equals(nextLine[9]) || !"0".equals(nextLine[10]) || !"0".equals(nextLine[18]) )
+//				System.out.println(nextLine[9] + "\t"+nextLine[10]+"\t"+nextLine[18]);
+//		}
+		
+		
+//		String [][] out = new String[ROWS][];
+		
+		// for more than 100 000 lines, reader.readNext gives a heap error
+		// we have 63 000 000 lines in total, so this doesn't work
 		while ((nextLine = reader.readNext()) != null && !STOP) {
 			// nextLine[] is an array of values from the line
 			// Before passing an array to HealthMessage constructor we hae to take some indexes away
 			// Removing element with ArrayUtils.removeElement(array, element)
-			System.out.println(Arrays.toString(nextLine));
+//			System.out.println(Arrays.toString(nextLine));
+//			System.out.println(nextLine.length);
+			if (!"0".equals(nextLine[18]) && !"1".equals(nextLine[18]))
+				System.out.println("18"+nextLine[18]);
+			if (!"0".equals(nextLine[10]) && !"1".equals(nextLine[10]))
+				System.out.println("10"+nextLine[10]);
+			if (!"0".equals(nextLine[9]) && !"1".equals(nextLine[9]))
+				System.out.println("9"+nextLine[9]);
+//			
+			//			out[i]=nextLine;
+			i++;
+			if (++i % 1000000 == 0)
+				System.out.println(i);
+//			if (i>=ROWS)
+//				STOP=true;
 		}
 		reader.close();
 	}
