@@ -165,7 +165,6 @@ public class ZipReader {
 	 * @throws IOException
 	 */
 	public void readCSVStream(InputStream in) throws IOException {
-		boolean STOP = false;
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
 		String[] nextLine;
 		int i = 0;
@@ -174,18 +173,10 @@ public class ZipReader {
 		reader.readNext();
 
 		// String [][] out = new String[ROWS][];
-		while ((nextLine = reader.readNext()) != null && !STOP) {
-			// nextLine[] is an array of values from the line
-			// Before passing an array to HealthMessage constructor we hae to
-			// take some indexes away
-			// Removing element with ArrayUtils.removeElement(array, element)
-			// System.out.println(Arrays.toString(nextLine));
-			// System.out.println(nextLine.length);
+		while ((nextLine = reader.readNext()) != null) {
 			handleRow(nextLine);
 			if (++i % 100000 == 0)
 				System.out.println(i);
-			// if (i>=ROWS)
-			// STOP=true;
 		}
 		reader.close();
 	}
