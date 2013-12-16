@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import big.marketing.data.Node;
 import big.marketing.readers.NetwordDescriptionReader;
-import big.marketing.ui.NetworkMonitorFrame;
+import big.marketing.view.NetworkMonitorFrame;
 
 public class Runner {
 	public static final String FILE_FOLDER = "./data/";

@@ -1,4 +1,4 @@
-package big.marketing.ui;
+package big.marketing.view;
 
 import javax.swing.JPanel;
 

@@ -28,7 +28,7 @@ public class HealthMessage {
 	private final int connMade;
 	
 	/**
-	 * @param args healthMessage values string array [id, hostname, serviceName, statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage, physicalMemomyUsage, connMade]
+	 * @param args healthMessage values string array [id, hostname, serviceName, statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage, loadAverage, numProcs, physicalMemomyUsage, connMade]
 	 */
 	public HealthMessage(String[] args) {
 	   this.id 						= Integer.valueOf(args[0]);

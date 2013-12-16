@@ -1,4 +1,4 @@
-package big.marketing.ui;
+package big.marketing.view;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -28,6 +28,6 @@ public class NetworkMonitorFrame extends JFrame {
 	private void addPanels() {
 		this.add(new ControlsJPanel());
 		this.add(new GraphJPanel());
-		this.add(new ParallerCoordinatesJPanel());
+		this.add(new ParallelCoordinatesJPanel());
 	}
 }
