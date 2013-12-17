@@ -15,7 +15,6 @@ public class NetworkMonitorFrame extends JFrame {
 	
 	
 	public NetworkMonitorFrame() {
-		addPanels();
 		
 		this.setTitle(FRAME_TITLE);
 		this.setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
@@ -24,10 +23,4 @@ public class NetworkMonitorFrame extends JFrame {
 		this.pack();
 		this.setVisible(true);
    }
-	
-	private void addPanels() {
-		this.add(new ControlsJPanel());
-		this.add(new GraphJPanel());
-		this.add(new ParallelCoordinatesJPanel());
-	}
 }

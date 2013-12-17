@@ -1,4 +1,4 @@
-package big.marketing.readers;
+package big.marketing.reader;
 
 import java.io.FileInputStream;
 import java.io.IOException;
