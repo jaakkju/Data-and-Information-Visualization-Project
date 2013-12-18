@@ -1,8 +1,10 @@
 package big.marketing.data;
 
+import com.mongodb.BasicDBObject;
+
 public class SingleFlow {
 
-	private final String dateTime;
+	private final int time;
 	private final int protocol;
 	private final byte[] sourceIP;
 	private final byte[] destinationIP;
@@ -21,7 +23,7 @@ public class SingleFlow {
 
 	public SingleFlow(String[] args) {
 		super();
-		this.dateTime = args[1];
+		this.time = (int) Double.parseDouble(args[0]);
 		this.protocol = Integer.parseInt(args[3]);
 		this.sourceIP = parseIP(args[5]); // split in bytes
 		this.destinationIP = parseIP(args[6]); // split in bytes
@@ -39,8 +41,8 @@ public class SingleFlow {
 		this.recordForceOut = "1".equals(args[18]); // 0 or 1
 	}
 
-	public String getDateTime() {
-		return dateTime;
+	public int getDateTime() {
+		return time;
 	}
 
 	public int getProtocol() {
@@ -110,7 +112,25 @@ public class SingleFlow {
 			ip[i] = (byte) Integer.parseInt(split[i]);
 		return ip;
 	}
-
+	public BasicDBObject asDBObject(){
+		BasicDBObject dbo = new BasicDBObject();
+		// TODO: remove unused features
+		dbo.append("Time", time);
+		dbo.append("SourceIP", sourceIP);
+		dbo.append("DestIP", destinationIP);
+		dbo.append("Protocol", protocol);
+		dbo.append("sourcePort", sourcePort);
+		dbo.append("destinationPort", destinationPort);
+		dbo.append("Duration", duration);
+		dbo.append("srcPayload", sourcePayloadBytes);
+		dbo.append("destPayload", destinationPayloadBytes);
+		dbo.append("srcTotal", sourceTotalBytes);
+		dbo.append("destTotal", destinationTotalBytes);
+		dbo.append("sourcePackets", sourcePacketCount);
+		dbo.append("destinationPackets", destinationPacketCount);
+		dbo.append("forceOut", recordForceOut);
+		return dbo;
+	}
 	public static void main(String[] args) {
 
 	}
