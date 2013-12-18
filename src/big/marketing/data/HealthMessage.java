@@ -1,11 +1,14 @@
 package big.marketing.data;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 /**
  * Class stores the information from a single network health message from a node
  * @author jaakkju
  *
  */
-public class HealthMessage {
+public class HealthMessage implements DBWritable{
 	
 	public static final int STATUS_GOOD = 1; 
 	public static final int STATUS_WARNING = 2;
@@ -91,5 +94,23 @@ public class HealthMessage {
 
 	public int getConnMade() {
 		return connMade;
-	} 
+	}
+	public DBObject asDBObject(){
+		BasicDBObject bdbo = new BasicDBObject();
+		bdbo.append("id", id);
+		bdbo.append("hostname", hostname);
+		bdbo.append("serviceName", serviceName);
+		bdbo.append("statusVal", statusVal);
+		bdbo.append("receivedFrom", receivedFrom);
+		bdbo.append("currentTime", currentTime);
+		bdbo.append("diskUsage", diskUsage);
+		bdbo.append("pageFileUsage", pageFileUsage);
+		bdbo.append("numProcs", numProcs);
+		bdbo.append("loadAverage", loadAverage);
+		bdbo.append("physicalMemoryUsage", physicalMemoryUsage);
+		bdbo.append("connMade", connMade);
+		return bdbo;
+		
+		
+	}
 }

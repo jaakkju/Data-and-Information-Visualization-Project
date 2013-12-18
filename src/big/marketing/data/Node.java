@@ -1,5 +1,8 @@
 package big.marketing.data;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+
 /**
  * @author jaakkju
  * 
@@ -7,7 +10,7 @@ package big.marketing.data;
  *         user workstations. "Administrator" is the administrator workstation.
  *         Others are servers. #Column 3 (Optional): Comments
  */
-public class Node {
+public class Node implements DBWritable{
 
 	public static final int TYPE_WORKSTATION = 0;
 	public static final int TYPE_ADMINISTRATOR = 1;
@@ -74,5 +77,15 @@ public class Node {
 	@Override
 	public String toString() {
 		return this.comment != null ? this.address + " " + this.hostName + " " + this.comment : this.address + " " + this.hostName;
+	}
+
+	@Override
+	public DBObject asDBObject() {
+		BasicDBObject bas = new BasicDBObject();
+		bas.append("adress", address);
+		bas.append("hostName", hostName);
+		bas.append("type", type);
+		bas.append("comment", comment);
+		return bas;
 	}
 }

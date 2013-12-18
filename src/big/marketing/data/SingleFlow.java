@@ -1,13 +1,14 @@
 package big.marketing.data;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 
-public class SingleFlow {
+public class SingleFlow implements DBWritable{
 
 	private final int time;
 	private final int protocol;
-	private final byte[] sourceIP;
-	private final byte[] destinationIP;
+	private final int sourceIP;
+	private final int destinationIP;
 	private final int sourcePort;
 	private final int destinationPort;
 	private final boolean last;
@@ -25,8 +26,8 @@ public class SingleFlow {
 		super();
 		this.time = (int) Double.parseDouble(args[0]);
 		this.protocol = Integer.parseInt(args[3]);
-		this.sourceIP = parseIP(args[5]); // split in bytes
-		this.destinationIP = parseIP(args[6]); // split in bytes
+		this.sourceIP = encodeIP(args[5]); 
+		this.destinationIP = encodeIP(args[6]); 
 		this.sourcePort = Integer.parseInt(args[7]);
 		this.destinationPort = Integer.parseInt(args[8]);
 		this.last = "1".equals(args[9]); // 0 or 1
@@ -49,11 +50,11 @@ public class SingleFlow {
 		return protocol;
 	}
 
-	public byte[] getSourceIP() {
+	public int getSourceIP() {
 		return sourceIP;
 	}
 
-	public byte[] getDestinationIP() {
+	public int getDestinationIP() {
 		return destinationIP;
 	}
 
@@ -104,15 +105,22 @@ public class SingleFlow {
 	public boolean getRecordForceOut() {
 		return recordForceOut;
 	}
-
-	private byte[] parseIP(String strIP) {
-		byte[] ip = new byte[4];
-		String[] split = strIP.split("\\.");
-		for (int i = 0; i < ip.length; i++)
-			ip[i] = (byte) Integer.parseInt(split[i]);
-		return ip;
+	private static String decodeIP(int ip){
+		String out ="";
+		for (int i=3;i>=0;i--){
+			 out += ((ip >> (i*8)) & 255) + ".";
+		}
+		return out.substring(0, out.length()-1);
 	}
-	public BasicDBObject asDBObject(){
+	private static int encodeIP(String strIP) {
+		int ipNum = 0;
+		String[] split = strIP.split("\\.");
+		for (int i = 0; i < split.length; i++){
+			ipNum += Integer.parseInt(split[split.length-1-i]) << (i*8);
+		}
+		return ipNum;
+	}
+	public DBObject asDBObject(){
 		BasicDBObject dbo = new BasicDBObject();
 		// TODO: remove unused features
 		dbo.append("Time", time);
@@ -132,6 +140,5 @@ public class SingleFlow {
 		return dbo;
 	}
 	public static void main(String[] args) {
-
 	}
 }

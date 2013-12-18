@@ -13,8 +13,8 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import big.marketing.controller.MongoController;
 import big.marketing.data.SingleFlow;
-
 import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -28,7 +28,7 @@ public class ZipReader {
 	public static final int BIG_BROTHER = 0, FLOW = 1, IPS = 2,
 	// for production a value of 25 000 000 is sufficient
 	// for testing change this value to read only ROWS many rows
-			ROWS = 25000000;
+			ROWS = 500000;//25000000;
 
 	/**
 	 * Read a csv table from the given input stream.
@@ -146,12 +146,14 @@ public class ZipReader {
 		String[][] test = null;
 		// test = r.read(BIG_BROTHER, 1); // 3407968 lines
 		// test = r.read(BIG_BROTHER, 2); // 2165508 lines
+//		long start = System.currentTimeMillis();
 		test = r.read(FLOW, 0); // chunk1 15172768 lines
+//		System.out.println(System.currentTimeMillis()-start);
 		// // chunk2 21526139 lines
 		// // chunk3 9439406 lines
 		test = r.read(FLOW, 2); // 23258686 lines
 		// test = r.read(IPS, 2); // 16600932 lines
-
+//		mc.printAllFlowEntries();
 	}
 
 	// TODO Here is a nicer way to read CSV files with a opencsv reader
@@ -173,17 +175,19 @@ public class ZipReader {
 		reader.readNext();
 
 		// String [][] out = new String[ROWS][];
-		while ((nextLine = reader.readNext()) != null) {
+		while ((nextLine = reader.readNext()) != null && i<ROWS) {
 			handleRow(nextLine);
 			if (++i % 100000 == 0)
 				System.out.println(i);
 		}
 		reader.close();
 	}
-
+	// just for testing
+	public static MongoController mc=new MongoController();
 	// ArrayList<SingleFlow> list = new ArrayList<>(20000000);
 	private void handleRow(String[] nextLine) {
-
+		SingleFlow flow = new SingleFlow(nextLine);
+		mc.storeSingleFlow(flow);
 		// boolean mode=false;
 		// modify and fill data structures here
 		// list.add(new SingleFlow(nextLine));
