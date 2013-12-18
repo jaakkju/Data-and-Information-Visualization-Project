@@ -24,5 +24,4 @@ public class ControlsJPanel extends JPanel implements Observer {
 	      System.out.println(controller.getSelectedNodes()[i].toString());
       }		
    }
-
 }

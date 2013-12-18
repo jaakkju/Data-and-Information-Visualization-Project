@@ -14,6 +14,7 @@ public class GraphJPanel extends JPanel implements Observer {
 	public GraphJPanel(DataController controller) {
 	   this.controller = controller;
    }
+	
 
 	@Override
    public void update(Observable o, Object arg) {
