@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import big.marketing.controller.DataController;
 import big.marketing.data.Node;
-import big.marketing.reader.NetwordDescriptionReader;
+import big.marketing.reader.NetworkReader;
 import big.marketing.view.ControlsJPanel;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.ParallelCoordinatesJPanel;
@@ -18,7 +18,7 @@ public class Application {
 
 		// THIS IS ALSO JUST A TEST TO SEE THAT THINGS WORK - READS UNZIPPED
 		// DESCRIPTION FILE TO Arraylist<Node>
-		NetwordDescriptionReader nReader = new NetwordDescriptionReader();
+		NetworkReader nReader = new NetworkReader();
 		ArrayList<Node> network = null;
 		try {
 			network = nReader.readNetworkDescription(Application.FILE_FOLDER + Application.FILE_DESCRIPTION);
@@ -40,9 +40,9 @@ public class Application {
 
 		System.out.println(test.getClass() + " Observers: " + test.countObservers());
 		
-		Node[] selectedNodes = {network.get(0), network.get(1)};
+		Node[] highlightedNodes = {network.get(0), network.get(1)};
 		
-		test.setSelectedNodes(selectedNodes);
+		test.setHighlightedNodes(highlightedNodes);
 		test.notifyObservers();
 
 		// TEST TO SEE THAT THE FRAME WORKS NetworkMonitorFrame monitor = new
