@@ -12,7 +12,7 @@ import big.marketing.data.Node;
 /**
  * @author jaakkju
  */
-public class NetwordDescriptionReader {
+public class NetworkReader {
 	
 	private static final String regex = "\\s";
 	private static final int regLimit = 3;
