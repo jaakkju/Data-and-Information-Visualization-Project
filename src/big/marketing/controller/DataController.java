@@ -7,17 +7,24 @@ import big.marketing.data.Node;
 public class DataController extends Observable {
 	// http://docs.oracle.com/javase/7/docs/api/java/util/Observable.html
 	
-	// Controller stores selected nodes that are updated from the views
-	private Node[] selectedNodes = null;
+	private Node[] highlightedNodes = null;
+	private Node selectedNode = null;
 
-	public boolean setSelectedNodes(Node[] nodes) {
-		this.selectedNodes = nodes;
+	public void setHighlightedNodes(Node[] highlightedNodes) {
+		this.highlightedNodes = highlightedNodes;
 		setChanged();
-		
-		return true;
 	}
-	
-	public Node[] getSelectedNodes() {
-		return this.selectedNodes;
+
+	public void setSelectedNode(Node selectedNode) {
+		this.selectedNode = selectedNode;
+		setChanged();
+	}
+
+	public Node[] getHighlightedNodes() {
+		return highlightedNodes;
+	}
+
+	public Node getSelectedNode() {
+		return selectedNode;
 	}
 }

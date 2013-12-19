@@ -20,8 +20,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		System.out.println(this.getClass() + " Selected nodes: ");
 		
 		// THIS IS REALLY NOT NICE WAY TO CODE THIS, BUT FOR AN EXAMPLE IT WORKS
-		for (int i = 0; i < controller.getSelectedNodes().length; i++) {
-	      System.out.println(controller.getSelectedNodes()[i].toString());
+		for (int i = 0; i < controller.getHighlightedNodes().length; i++) {
+	      System.out.println(controller.getHighlightedNodes()[i].toString());
       }		
    }
 }
