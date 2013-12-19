@@ -1,12 +1,11 @@
 package big.marketing.controller;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-import big.marketing.data.DBWritable;
-import big.marketing.data.HealthMessage;
-import big.marketing.data.SingleFlow;
+import big.marketing.data.DataType;
 import big.marketing.reader.ZipReader;
 
 import com.mongodb.BasicDBObject;
@@ -14,9 +13,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
-import com.mongodb.WriteConcern;
 /*
  * Tutorial on Mongo with java:
  * http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-java-driver/#getting-started-with-java-driver
@@ -27,7 +24,9 @@ public class MongoController implements Runnable{
 	 * handling read requests in a seperate thread doesn't make sense, since reads are always synchronous (as a value has to be returned)
 	 */
 	Thread writer;
-	BlockingQueue<DBWritable> writeQueue;
+	BlockingQueue<DBObject> flowBuffer;
+	BlockingQueue<DBObject> healthBuffer;
+	BlockingQueue<DBObject> ipsBuffer;
 	
 	/*
 	 * MongoDB should be started on the default port.
@@ -49,7 +48,9 @@ public class MongoController implements Runnable{
 		flowCollection = database.getCollection(FLOW_COLLECTION_NAME);
 		healthCollection = database.getCollection(HEALTH_COLLECTION_NAME);
 		ipsCollection = database.getCollection(IPS_COLLECTION_NAME);
-		writeQueue = new ArrayBlockingQueue<>(100);
+		flowBuffer = new ArrayBlockingQueue<>(1000);
+		ipsBuffer = new ArrayBlockingQueue<>(1000);
+		healthBuffer = new ArrayBlockingQueue<>(1000);
 		
 		writer = new Thread(this);
 		writer.start();
@@ -65,61 +66,72 @@ public class MongoController implements Runnable{
 		database = mongo.getDB(DB_NAME);
 	}
 	
-	public void getConstrainedFlowEntries(String key, int min, int max){
+	public void getConstrainedEntries(DataType t, String key, int min, int max){
 		
 		BasicDBObject query = new BasicDBObject(key,
 				new BasicDBObject("$lt", max).append("$gt", min)
 				);
-		DBCursor cursor = flowCollection.find(query);
+		DBCursor cursor = getCollection(t).find(query);
 		for (DBObject dbo : cursor){
 			System.out.println(dbo);
 		}
 	}
 	
-	public void printAllFlowEntries(){
-		DBCursor c = flowCollection.find();
+	public void printAllEntries(DataType t){
+		DBCursor c = getCollection(t).find();
 		for (int i=0;i<ZipReader.ROWS;i++){
 			System.out.println(c.next());
 		}
 		
+	}
+	private BlockingQueue<DBObject> getBuffer(DataType t){
+		switch(t){
+		case FLOW:
+			return flowBuffer;
+		case HEALTH:
+			return healthBuffer;
+		default:
+			return ipsBuffer;
+		}
+	}
+	private DBCollection getCollection(DataType t){
+		switch(t){
+		case FLOW:
+			return flowCollection;
+		case HEALTH:
+			return healthCollection;
+		default:
+			return ipsCollection;
+		}
 	}
 	public void getSingleFlowEntry(){
 		// return the first flow entry
 		System.out.println(flowCollection.findOne());
 	}
 	
-	public void storeSingleFlow(DBWritable dbw){
+	public void storeEntry(DataType t, DBObject object){
 		try {
-			writeQueue.put(dbw);
+			getBuffer(t).put(object);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		flowCollection.insert(dbw.asDBObject());
 	}
 	
 	public static void main(String[] args) {
-		new MongoController().getConstrainedFlowEntries("i", 30, 40);
+//		new MongoController().getConstrainedFlowEntries("i", 30, 40);
 	}
 
 	@Override
 	public void run() {
+		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection};
+		BlockingQueue<?> [] buffers = {flowBuffer, healthBuffer, ipsBuffer};
 		while (true){
-			DBWritable dbw=null;
-			try {
-				dbw = writeQueue.take();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for (int i=0;i<colls.length;i++){
+				BlockingQueue<DBObject> buffer = (BlockingQueue<DBObject>) buffers[i];
+				ArrayList<DBObject> bufferList = new ArrayList<>(buffer.size());
+				buffer.drainTo(bufferList);
+				colls[i].insert(bufferList);
 			}
-			DBCollection target = ipsCollection;
-			if (dbw instanceof SingleFlow){
-				target = flowCollection;
-			}else if (dbw instanceof HealthMessage)
-				target = healthCollection;
-			target.insert(dbw.asDBObject());
-			// TODO: handle Node and IPS messages
-				
 		}
 				
 	}

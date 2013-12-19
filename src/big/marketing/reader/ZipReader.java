@@ -1,22 +1,16 @@
 package big.marketing.reader;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import big.marketing.controller.MongoController;
-import big.marketing.data.SingleFlow;
-import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
+import big.marketing.controller.MongoController;
+import big.marketing.data.DataType;
+import big.marketing.data.SingleFlow;
 
 public class ZipReader {
 
@@ -25,47 +19,10 @@ public class ZipReader {
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
 
-	public static final int BIG_BROTHER = 0, FLOW = 1, IPS = 2,
 	// for production a value of 25 000 000 is sufficient
 	// for testing change this value to read only ROWS many rows
-			ROWS = 500000;//25000000;
+	public static final int ROWS = 500000;//25000000;
 
-	/**
-	 * Read a csv table from the given input stream.
-	 * 
-	 * @param is
-	 *            stream to read from
-	 * @param row
-	 *            amount of rows to scan
-	 * @return
-	 */
-	String[][] readCsvTable(InputStream is, int rows) {
-		long start = System.currentTimeMillis();
-
-		Scanner sc = new Scanner(is);
-		sc.useDelimiter("\\r");
-		String headings = sc.next().trim();
-		int columns = (headings.split("\"").length + 1) / 2;
-		String[][] out = null;
-		if (rows == Integer.MAX_VALUE) {
-			ArrayList<String[]> tmpList = new ArrayList<>(2000000);
-			int i = 0;
-			while (sc.hasNext()) {
-				// tmpList.add(splitLine(sc.next().trim(), columns));
-				sc.next();
-				if (i++ % 100000 == 0)
-					System.out.println(i);
-			}
-			System.out.println(i);
-			System.out.println("found " + tmpList.size());
-			out = (String[][]) tmpList.toArray(new String[tmpList.size()][]);
-		} else {
-
-		}
-		sc.close();
-		System.out.println((System.currentTimeMillis() - start));
-		return out;
-	}
 
 	/**
 	 * Reads in some csv tables from a zip file. The files inside the zipFile
@@ -100,7 +57,6 @@ public class ZipReader {
 					System.out.println("Found " + entry.getName());
 					long start = System.currentTimeMillis();
 					readCSVStream(is);
-					// result = readCsvTable(is, ROWS);
 					System.out.println(System.currentTimeMillis() - start);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -116,42 +72,18 @@ public class ZipReader {
 		return result;
 	}
 
-	/**
-	 * handles different splitting behaviour. The big brother data contains
-	 * additional quotes, that have to be removed. All other data can be simply
-	 * split at each ",".
-	 * 
-	 * @param entry
-	 *            line of the table to split
-	 * @param columns
-	 *            amount of columns in this entry
-	 * @return array that contains one string for each cell
-	 */
-	String[] splitLine(String entry, int columns) {
-		if (columns != 14)
-			return entry.split(",");
-
-		String[] cleanedSplit = new String[columns];
-		String[] rawSplit = entry.split("\"");
-		for (int i = 0; i < cleanedSplit.length; i++) {
-			cleanedSplit[i] = rawSplit[i * 2 + 1];
-		}
-
-		return cleanedSplit;
-	}
-
 	public static void main(String[] args) {
 		ZipReader r = new ZipReader();
 		// some testing
 		String[][] test = null;
 		// test = r.read(BIG_BROTHER, 1); // 3407968 lines
 		// test = r.read(BIG_BROTHER, 2); // 2165508 lines
-//		long start = System.currentTimeMillis();
-		test = r.read(FLOW, 0); // chunk1 15172768 lines
-//		System.out.println(System.currentTimeMillis()-start);
+		long start = System.currentTimeMillis();
+		test = r.read(DataType.FLOW, 0); // chunk1 15172768 lines
+		System.out.println(System.currentTimeMillis()-start);
 		// // chunk2 21526139 lines
 		// // chunk3 9439406 lines
-		test = r.read(FLOW, 2); // 23258686 lines
+//		test = r.read(FLOW, 2); // 23258686 lines
 		// test = r.read(IPS, 2); // 16600932 lines
 //		mc.printAllFlowEntries();
 	}
@@ -182,33 +114,24 @@ public class ZipReader {
 		}
 		reader.close();
 	}
+	
 	// just for testing
 	public static MongoController mc=new MongoController();
-	// ArrayList<SingleFlow> list = new ArrayList<>(20000000);
+	
 	private void handleRow(String[] nextLine) {
-		SingleFlow flow = new SingleFlow(nextLine);
-		mc.storeSingleFlow(flow);
-		// boolean mode=false;
+		
 		// modify and fill data structures here
-		// list.add(new SingleFlow(nextLine));
-		// if (!mode)
-		// mode = nextLine[9].equals("1");
-		// if (mode &&
-		// nextLine[5].equals("172.10.1.109")
-		//
-		// && nextLine[6].equals("10.199.250.2"))
-		// System.out.println(Arrays.toString(nextLine));
-		// if (mode)
-		// mode = nextLine[9].equals("1");
+		SingleFlow flow = new SingleFlow(nextLine);
+		mc.storeEntry(DataType.FLOW, flow.asDBObject());
 
 	}
 
-	public String[][] read(int type, int week) {
+	public String[][] read(DataType type, int week) {
 		String zipFile = null, streamName = null;
 		if (week == 2) {
 			zipFile = FILE_WEEK2DATA;
 			switch (type) {
-			case BIG_BROTHER:
+			case HEALTH:
 				streamName = "bb-week2.csv";
 				break;
 			case FLOW:
@@ -217,16 +140,19 @@ public class ZipReader {
 			case IPS:
 				streamName = "IPS-syslog-week2.csv";
 				break;
-			default:
 			}
 		} else {
-			if (type == BIG_BROTHER) {
+			switch(type){
+			case HEALTH:
 				streamName = "bbexport-wiz2 - Copy.csv";
 				zipFile = FILE_BIGBROTHER;
-			} else if (type == FLOW) {
+				break;
+			case FLOW:
 				zipFile = FILE_NETWORKFLOW;
 				streamName = "nf/nf-chunk\\d\\.csv";
+			default:
 			}
+			
 		}
 		if (zipFile == null || streamName == null)
 			throw new IllegalArgumentException("invalid type or week");

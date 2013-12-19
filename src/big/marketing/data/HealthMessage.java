@@ -96,20 +96,20 @@ public class HealthMessage implements DBWritable{
 		return connMade;
 	}
 	public DBObject asDBObject(){
-		BasicDBObject bdbo = new BasicDBObject();
-		bdbo.append("id", id);
-		bdbo.append("hostname", hostname);
-		bdbo.append("serviceName", serviceName);
-		bdbo.append("statusVal", statusVal);
-		bdbo.append("receivedFrom", receivedFrom);
-		bdbo.append("currentTime", currentTime);
-		bdbo.append("diskUsage", diskUsage);
-		bdbo.append("pageFileUsage", pageFileUsage);
-		bdbo.append("numProcs", numProcs);
-		bdbo.append("loadAverage", loadAverage);
-		bdbo.append("physicalMemoryUsage", physicalMemoryUsage);
-		bdbo.append("connMade", connMade);
-		return bdbo;
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.append("id", id);
+		dbObject.append("hostname", hostname);
+		dbObject.append("serviceName", serviceName);
+		dbObject.append("statusVal", statusVal);
+		dbObject.append("receivedFrom", receivedFrom);
+		dbObject.append("currentTime", currentTime);
+		dbObject.append("diskUsage", diskUsage);
+		dbObject.append("pageFileUsage", pageFileUsage);
+		dbObject.append("numProcs", numProcs);
+		dbObject.append("loadAverage", loadAverage);
+		dbObject.append("physicalMemoryUsage", physicalMemoryUsage);
+		dbObject.append("connMade", connMade);
+		return dbObject;
 		
 		
 	}

@@ -81,11 +81,11 @@ public class Node implements DBWritable{
 
 	@Override
 	public DBObject asDBObject() {
-		BasicDBObject bas = new BasicDBObject();
-		bas.append("adress", address);
-		bas.append("hostName", hostName);
-		bas.append("type", type);
-		bas.append("comment", comment);
-		return bas;
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.append("adress", address);
+		dbObject.append("hostName", hostName);
+		dbObject.append("type", type);
+		dbObject.append("comment", comment);
+		return dbObject;
 	}
 }
