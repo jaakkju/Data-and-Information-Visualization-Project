@@ -37,9 +37,9 @@ public class Node implements DBWritable{
 			this.comment = args[2].trim();
 		}
 
-		if (this.address.contains(Node.administrator)) {
+		if (this.hostName.startsWith(Node.administrator)) {
 			this.type = Node.TYPE_ADMINISTRATOR;
-		} else if (this.address.contains(Node.workstation)) {
+		} else if (this.hostName.startsWith(Node.workstation)) {
 			this.type = Node.TYPE_WORKSTATION;
 		} else {
 			this.type = Node.TYPE_SERVER;
