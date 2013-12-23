@@ -2,6 +2,7 @@ package big.marketing;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import big.marketing.controller.DataController;
 import big.marketing.controller.MongoController;
@@ -20,21 +21,9 @@ public class Application {
 		// THIS IS ALSO JUST A TEST TO SEE THAT THINGS WORK - READS UNZIPPED
 		// DESCRIPTION FILE TO Arraylist<Node>
 		MongoController mongo = new MongoController();
-		NetwordDescriptionReader nReader = new NetwordDescriptionReader(mongo);
-		ArrayList<Node> network = null;
-		try {
-			network = nReader.readNetworkDescription(Application.FILE_FOLDER + Application.FILE_DESCRIPTION);
-
-			for (Node node : network) {
-				// TEST System.out.println(node.toString());
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// DataController implements observer pattern and passes changes in data to JPanels
 		DataController test = new DataController(mongo);
+		List<Node> network = test.getNetwork();
+		// DataController implements observer pattern and passes changes in data to JPanels
 
 		test.addObserver(new ParallelCoordinatesJPanel(test));
 		test.addObserver(new ControlsJPanel(test));

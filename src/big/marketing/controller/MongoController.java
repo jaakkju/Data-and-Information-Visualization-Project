@@ -2,6 +2,9 @@ package big.marketing.controller;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -102,6 +105,14 @@ public class MongoController implements Runnable{
 			return null;
 		}
 	}
+	
+	private Set<String> getDomainOf(DataType t, String fieldName){
+		Set<String> values = new HashSet<>();
+		DBCursor dbc = flowCollection.find(new BasicDBObject(fieldName, 1));
+		
+		return values;
+	}
+	
 	private DBCollection getCollection(DataType t){
 		switch(t){
 		case FLOW:

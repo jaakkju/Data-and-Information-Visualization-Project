@@ -3,7 +3,9 @@ package big.marketing.reader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -14,6 +16,7 @@ import big.marketing.controller.MongoController;
 import big.marketing.data.DBWritable;
 import big.marketing.data.DataType;
 import big.marketing.data.HealthMessage;
+import big.marketing.data.IPSMessage;
 import big.marketing.data.SingleFlow;
 
 public class ZipReader {
@@ -23,25 +26,32 @@ public class ZipReader {
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
 
-	// for production a value of 25 000 000 is sufficient
+	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
 	public static final int ROWS = 500000;//25000000;
-	private ZipFile openZIP;
-
+	
+	
 	/**
-	 * Reads in some csv tables from a zip file. The files inside the zipFile
-	 * that are read in are specified by the regex streamName. This may be a
-	 * single filename or a regex matching several files.
-	 * 
-	 * @param zipFile
-	 *            name of the actual zip file
-	 * @param streamName
-	 *            path of the file inside the zip file (may be a regex for
-	 *            several files)
-	 * @return read rows of the
+	 * current open zipFile, needs to be remembered to close it after usage.
 	 */
-	private InputStream getZipInputStream(String zipFile, String streamName) {
+	private ZipFile openZIP;
+	
+	
+	/**
+	 * Mongo instance to store all entries into. 
+	 */
+	private MongoController mongo;
+
+	
+	/**
+	 * Look into the zipFile and collections InputStreams for all files, that are matching the Regex <b>streamName</b>
+	 * @param zipFile Path of the ZipFile to open
+	 * @param streamName Regex for files within the zipFile
+	 * @return InputStreams for all matched files in the ZipFile
+	 */
+	private List<InputStream> getZipInputStreams(String zipFile, String streamName) {
 		System.out.println("Loading " + FILE_FOLDER + zipFile);
+		List<InputStream> matchedStreams = new ArrayList<>(5);
 		try {
 			openZIP = new ZipFile(FILE_FOLDER + zipFile);
 		} catch (IOException e) {
@@ -49,12 +59,11 @@ public class ZipReader {
 		}
 
 		Enumeration<? extends ZipEntry> entries = openZIP.entries();
-		InputStream is = null;
 		while (entries.hasMoreElements()) {
 			ZipEntry entry = entries.nextElement();
 			if (entry.getName().matches(streamName)) {
 				try {
-					is = openZIP.getInputStream(entry);
+					matchedStreams.add(openZIP.getInputStream(entry));
 					System.out.println("Found " + entry.getName());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -62,32 +71,23 @@ public class ZipReader {
 			}
 		}
 
-		return is;
+		return matchedStreams;
 	}
-
-	public static void main(String[] args) {
-		ZipReader r = new ZipReader();
-		// some testing
-		String[][] test = null;
-		// test = r.read(BIG_BROTHER, 1); // 3407968 lines
-		// test = r.read(BIG_BROTHER, 2); // 2165508 lines
-		long start = System.currentTimeMillis();
-//		test = r.read(DataType.FLOW, 0); // chunk1 15172768 lines
-		System.out.println(System.currentTimeMillis()-start);
-		// // chunk2 21526139 lines
-		// // chunk3 9439406 lines
-//		test = r.read(FLOW, 2); // 23258686 lines
-		// test = r.read(IPS, 2); // 16600932 lines
-//		mc.printAllFlowEntries();
-	}
-
+	
 	/**
-	 * reading inputstream with opencsv reader that returns a array of values
-	 * http://opencsv.sourceforge.net/
-	 * 
-	 * @param in
-	 *            input stream to read
-	 * @throws IOException
+	 * @param mongo database where the entries will be stored.
+	 */
+	public ZipReader(MongoController mongo) {
+		super();
+		this.mongo = mongo;
+	}
+	
+	/**
+	 * Reading InputStream <b>in </b> and store each entry as <b>type</b> into the database.
+	 * Uses CSV-Reader to parse the InputStream See: http://opencsv.sourceforge.net/
+	 * @param in InputStream to read from
+	 * @param type Found entries are handled as this type and thus stored in the database with this type.
+	 * @throws IOException is thrown when IOException occurs within the Inputstream
 	 */
 	public void readCSVStream(InputStream in, DataType type) throws IOException {
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
@@ -107,37 +107,44 @@ public class ZipReader {
 		reader.close();
 	}
 	
-	// just for testing
-	private static MongoController mongo=new MongoController();
 	
-	private DBWritable createDataStructure(String[] nextLine, DataType type) {
+	/**
+	 * Create an Object according to <b>type</b>. This object is not inserted in the database here.
+	 * @param entry entry from the CSV-table to create the object from.
+	 * @param type the type of the object that will be created
+	 * @return the created object
+	 */
+	private DBWritable createDataStructure(String[] entry, DataType type) {
 		DBWritable out = null;
 		// modify and fill data structures here
 		switch (type) {
 		case FLOW:
-			out = new SingleFlow(nextLine);
+			out = new SingleFlow(entry);
 			break;
 		case HEALTH:
-			out = new HealthMessage(nextLine);
+			out = new HealthMessage(entry);
 			break;
 		case IPS:
-			// TODO: create datastructure for IPS-messages
-//			out = new SingleFlow(nextLine);
-//			break;
+			out = new IPSMessage(entry);
 		default:
 		}
-		mongo.storeEntry(type, out.asDBObject());
 		return out;
 		
 	}
 
+	/**
+	 * Read data of type <b>type</b> of week <b>week</b> into the database.
+	 * @param type which type of data to read
+	 * @param week which week to read
+	 */
 	public void read(DataType type, int week) {
 		String[] streamLocation = getFileNames(type, week);
-		InputStream is = getZipInputStream(streamLocation[0], streamLocation[1]);
+		List<InputStream> streams = getZipInputStreams(streamLocation[0], streamLocation[1]);
 		
 		// Do two try-catch blocks independently to ensure that openZIP is really getting closed.
 		try {
-			readCSVStream(is, type);
+			for (InputStream is : streams)
+				readCSVStream(is, type);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -149,6 +156,14 @@ public class ZipReader {
 		}
 		
 	}
+	/** 
+	 * Gives the filename of the zipFile and the path of the file within the zipFile
+	 * @param type 
+	 * @param week
+	 * @return an array of length 2, <br>
+	 * [0] is the path to the zipFile<br>
+	 * [1] is the path (or regex) within the zipFile.
+	 */
 	private String [] getFileNames(DataType type, int week){
 		String zipFile = null, streamName = null;
 		if (week == 2) {
