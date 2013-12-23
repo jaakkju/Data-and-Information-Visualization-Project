@@ -27,6 +27,7 @@ public class MongoController implements Runnable{
 	BlockingQueue<DBObject> flowBuffer;
 	BlockingQueue<DBObject> healthBuffer;
 	BlockingQueue<DBObject> ipsBuffer;
+	BlockingQueue<DBObject> descBuffer;
 	
 	/*
 	 * MongoDB should be started on the default port.
@@ -39,18 +40,21 @@ public class MongoController implements Runnable{
 								DB_NAME  ="network",
 								FLOW_COLLECTION_NAME = "flow",
 								IPS_COLLECTION_NAME = "ips",
-								HEALTH_COLLECTION_NAME = "health";
+								HEALTH_COLLECTION_NAME = "health",
+								DESCRIPTION_COLLECTION_NAME = "nodes";
 	
-	private final DBCollection flowCollection, healthCollection, ipsCollection;
+	private final DBCollection flowCollection, healthCollection, ipsCollection, descriptionCollection;
 	
 	public MongoController() {
 		connectToDatabase();
 		flowCollection = database.getCollection(FLOW_COLLECTION_NAME);
 		healthCollection = database.getCollection(HEALTH_COLLECTION_NAME);
 		ipsCollection = database.getCollection(IPS_COLLECTION_NAME);
+		descriptionCollection = database.getCollection(DESCRIPTION_COLLECTION_NAME);
 		flowBuffer = new ArrayBlockingQueue<>(1000);
 		ipsBuffer = new ArrayBlockingQueue<>(1000);
 		healthBuffer = new ArrayBlockingQueue<>(1000);
+		descBuffer = new ArrayBlockingQueue<>(1000);
 		
 		writer = new Thread(this);
 		writer.start();
@@ -90,8 +94,12 @@ public class MongoController implements Runnable{
 			return flowBuffer;
 		case HEALTH:
 			return healthBuffer;
-		default:
+		case IPS:
 			return ipsBuffer;
+		case DESCRIPTION:
+			return descBuffer;
+		default:
+			return null;
 		}
 	}
 	private DBCollection getCollection(DataType t){
@@ -100,8 +108,12 @@ public class MongoController implements Runnable{
 			return flowCollection;
 		case HEALTH:
 			return healthCollection;
-		default:
+		case IPS:
 			return ipsCollection;
+		case DESCRIPTION:
+			return descriptionCollection;
+		default:
+			return null;
 		}
 	}
 	public void getSingleFlowEntry(){
@@ -123,8 +135,8 @@ public class MongoController implements Runnable{
 
 	@Override
 	public void run() {
-		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection};
-		BlockingQueue<?> [] buffers = {flowBuffer, healthBuffer, ipsBuffer};
+		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection, descriptionCollection};
+		BlockingQueue<?> [] buffers = {flowBuffer, healthBuffer, ipsBuffer,descBuffer};
 		while (true){
 			for (int i=0;i<colls.length;i++){
 				BlockingQueue<DBObject> buffer = (BlockingQueue<DBObject>) buffers[i];

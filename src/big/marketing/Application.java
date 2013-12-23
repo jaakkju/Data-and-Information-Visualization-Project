@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import big.marketing.controller.DataController;
+import big.marketing.controller.MongoController;
 import big.marketing.data.Node;
 import big.marketing.reader.NetwordDescriptionReader;
 import big.marketing.view.ControlsJPanel;
@@ -18,7 +19,8 @@ public class Application {
 
 		// THIS IS ALSO JUST A TEST TO SEE THAT THINGS WORK - READS UNZIPPED
 		// DESCRIPTION FILE TO Arraylist<Node>
-		NetwordDescriptionReader nReader = new NetwordDescriptionReader();
+		MongoController mongo = new MongoController();
+		NetwordDescriptionReader nReader = new NetwordDescriptionReader(mongo);
 		ArrayList<Node> network = null;
 		try {
 			network = nReader.readNetworkDescription(Application.FILE_FOLDER + Application.FILE_DESCRIPTION);
@@ -32,7 +34,7 @@ public class Application {
 		}
 
 		// DataController implements observer pattern and passes changes in data to JPanels
-		DataController test = new DataController();
+		DataController test = new DataController(mongo);
 
 		test.addObserver(new ParallelCoordinatesJPanel(test));
 		test.addObserver(new ControlsJPanel(test));

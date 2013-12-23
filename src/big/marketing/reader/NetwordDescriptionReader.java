@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import big.marketing.controller.MongoController;
+import big.marketing.data.DataType;
 import big.marketing.data.Node;
 
 /**
@@ -16,7 +18,17 @@ public class NetwordDescriptionReader {
 	
 	private static final String regex = "\\s";
 	private static final int regLimit = 3;
+	private MongoController mongo;
 	
+	
+	
+	public NetwordDescriptionReader(MongoController mongo) {
+		super();
+		this.mongo = mongo;
+	}
+
+
+
 	/**
 	 * reads network description file to arraylist<Node>
 	 * @param filePath file location
@@ -33,7 +45,9 @@ public class NetwordDescriptionReader {
 		String strLine;
 		while ((strLine = br.readLine()) != null) {
 			if (!strLine.startsWith("#") && strLine.length() > 0) {
-				network.add(new Node(strLine.split(regex, regLimit)));
+				Node node = new Node(strLine.split(regex, regLimit));
+				mongo.storeEntry(DataType.DESCRIPTION, node.asDBObject());
+				network.add(node);
 			}
 		}
 
