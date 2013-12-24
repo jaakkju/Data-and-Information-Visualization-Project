@@ -19,15 +19,11 @@ public class NetworkReader {
 	private static final String regex = "\\s";
 	private static final int regLimit = 3;
 	private MongoController mongo;
-	
-	
-	
-	public NetwordDescriptionReader(MongoController mongo) {
-		super();
-		this.mongo = mongo;
-	}
 
-
+	public NetworkReader(MongoController mongo) {
+	   super();
+	   this.mongo = mongo;
+   }
 
 	/**
 	 * reads network description file to arraylist<Node>
@@ -35,7 +31,7 @@ public class NetworkReader {
 	 * @return network as arraylist<Node> or null if no nodes were read from the file
 	 * @throws IOException
 	 */
-	public ArrayList<Node> readNetworkDescription(String filePath) throws IOException {
+	public ArrayList<Node> readNetwork(String filePath) throws IOException {
 		ArrayList<Node> network = new ArrayList<>();
 
 		File file = new File(filePath);
