@@ -1,11 +1,10 @@
 package big.marketing;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import big.marketing.controller.DataController;
+import big.marketing.controller.MongoController;
 import big.marketing.data.Node;
-import big.marketing.reader.NetworkReader;
 import big.marketing.view.ControlsJPanel;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.ParallelCoordinatesJPanel;
@@ -16,23 +15,11 @@ public class Application {
 
 	public static void main(String[] args) {
 
-		// THIS IS ALSO JUST A TEST TO SEE THAT THINGS WORK - READS UNZIPPED
-		// DESCRIPTION FILE TO Arraylist<Node>
-		NetworkReader nReader = new NetworkReader();
-		ArrayList<Node> network = null;
-		try {
-			network = nReader.readNetworkDescription(Application.FILE_FOLDER + Application.FILE_DESCRIPTION);
-
-			for (Node node : network) {
-				// TEST System.out.println(node.toString());
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		MongoController mongo = new MongoController();
+		DataController test = new DataController(mongo);
+		List<Node> network = test.getNetwork();
+		
 		// DataController implements observer pattern and passes changes in data to JPanels
-		DataController test = new DataController();
 
 		test.addObserver(new ParallelCoordinatesJPanel(test));
 		test.addObserver(new ControlsJPanel(test));

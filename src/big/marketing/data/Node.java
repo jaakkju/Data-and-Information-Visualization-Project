@@ -37,9 +37,9 @@ public class Node implements DBWritable{
 			this.comment = args[2].trim();
 		}
 
-		if (this.address.contains(Node.administrator)) {
+		if (this.hostName.startsWith(Node.administrator)) {
 			this.type = Node.TYPE_ADMINISTRATOR;
-		} else if (this.address.contains(Node.workstation)) {
+		} else if (this.hostName.startsWith(Node.workstation)) {
 			this.type = Node.TYPE_WORKSTATION;
 		} else {
 			this.type = Node.TYPE_SERVER;
@@ -81,11 +81,11 @@ public class Node implements DBWritable{
 
 	@Override
 	public DBObject asDBObject() {
-		BasicDBObject bas = new BasicDBObject();
-		bas.append("adress", address);
-		bas.append("hostName", hostName);
-		bas.append("type", type);
-		bas.append("comment", comment);
-		return bas;
+		BasicDBObject dbObject = new BasicDBObject();
+		dbObject.append("adress", address);
+		dbObject.append("hostName", hostName);
+		dbObject.append("type", type);
+		dbObject.append("comment", comment);
+		return dbObject;
 	}
 }

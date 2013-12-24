@@ -1,22 +1,23 @@
 package big.marketing.reader;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import big.marketing.controller.MongoController;
-import big.marketing.data.SingleFlow;
-import au.com.bytecode.opencsv.CSVParser;
+import com.csvreader.CsvReader;
+
 import au.com.bytecode.opencsv.CSVReader;
+import big.marketing.controller.MongoController;
+import big.marketing.data.DBWritable;
+import big.marketing.data.DataType;
+import big.marketing.data.HealthMessage;
+import big.marketing.data.IPSMessage;
+import big.marketing.data.SingleFlow;
 
 public class ZipReader {
 
@@ -25,190 +26,150 @@ public class ZipReader {
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
 
-	public static final int BIG_BROTHER = 0, FLOW = 1, IPS = 2,
-	// for production a value of 25 000 000 is sufficient
+	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
-			ROWS = 500000;//25000000;
-
+	public static final int ROWS = 500000;//25000000;
+	
+	
 	/**
-	 * Read a csv table from the given input stream.
-	 * 
-	 * @param is
-	 *            stream to read from
-	 * @param row
-	 *            amount of rows to scan
-	 * @return
+	 * current open zipFile, needs to be remembered to close it after usage.
 	 */
-	String[][] readCsvTable(InputStream is, int rows) {
-		long start = System.currentTimeMillis();
-
-		Scanner sc = new Scanner(is);
-		sc.useDelimiter("\\r");
-		String headings = sc.next().trim();
-		int columns = (headings.split("\"").length + 1) / 2;
-		String[][] out = null;
-		if (rows == Integer.MAX_VALUE) {
-			ArrayList<String[]> tmpList = new ArrayList<>(2000000);
-			int i = 0;
-			while (sc.hasNext()) {
-				// tmpList.add(splitLine(sc.next().trim(), columns));
-				sc.next();
-				if (i++ % 100000 == 0)
-					System.out.println(i);
-			}
-			System.out.println(i);
-			System.out.println("found " + tmpList.size());
-			out = (String[][]) tmpList.toArray(new String[tmpList.size()][]);
-		} else {
-
-		}
-		sc.close();
-		System.out.println((System.currentTimeMillis() - start));
-		return out;
-	}
-
+	private ZipFile openZIP;
+	
+	
 	/**
-	 * Reads in some csv tables from a zip file. The files inside the zipFile
-	 * that are read in are specified by the regex streamName. This may be a
-	 * single filename or a regex matching several files.
-	 * 
-	 * @param zipFile
-	 *            name of the actual zip file
-	 * @param streamName
-	 *            path of the file inside the zip file (may be a regex for
-	 *            several files)
-	 * @return read rows of the
+	 * Mongo instance to store all entries into. 
 	 */
-	String[][] readFromZip(String zipFile, String streamName) {
+	private MongoController mongo;
+
+	
+	/**
+	 * Look into the zipFile and collections InputStreams for all files, that are matching the Regex <b>streamName</b>
+	 * @param zipFile Path of the ZipFile to open
+	 * @param streamName Regex for files within the zipFile
+	 * @return InputStreams for all matched files in the ZipFile
+	 */
+	private List<InputStream> getZipInputStreams(String zipFile, String streamName) {
 		System.out.println("Loading " + FILE_FOLDER + zipFile);
-		ZipFile zip = null;
-
+		List<InputStream> matchedStreams = new ArrayList<>(5);
 		try {
-			zip = new ZipFile(FILE_FOLDER + zipFile);
+			openZIP = new ZipFile(FILE_FOLDER + zipFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		Enumeration<? extends ZipEntry> entries = zip.entries();
-		String[][] result = null;
+		Enumeration<? extends ZipEntry> entries = openZIP.entries();
 		while (entries.hasMoreElements()) {
 			ZipEntry entry = entries.nextElement();
 			if (entry.getName().matches(streamName)) {
-				InputStream is = null;
 				try {
-					is = zip.getInputStream(entry);
+					matchedStreams.add(openZIP.getInputStream(entry));
 					System.out.println("Found " + entry.getName());
-					long start = System.currentTimeMillis();
-					readCSVStream(is);
-					// result = readCsvTable(is, ROWS);
-					System.out.println(System.currentTimeMillis() - start);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
 
-		try {
-			zip.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
+		return matchedStreams;
 	}
-
+	
 	/**
-	 * handles different splitting behaviour. The big brother data contains
-	 * additional quotes, that have to be removed. All other data can be simply
-	 * split at each ",".
-	 * 
-	 * @param entry
-	 *            line of the table to split
-	 * @param columns
-	 *            amount of columns in this entry
-	 * @return array that contains one string for each cell
+	 * @param mongo database where the entries will be stored.
 	 */
-	String[] splitLine(String entry, int columns) {
-		if (columns != 14)
-			return entry.split(",");
-
-		String[] cleanedSplit = new String[columns];
-		String[] rawSplit = entry.split("\"");
-		for (int i = 0; i < cleanedSplit.length; i++) {
-			cleanedSplit[i] = rawSplit[i * 2 + 1];
-		}
-
-		return cleanedSplit;
+	public ZipReader(MongoController mongo) {
+		super();
+		this.mongo = mongo;
 	}
-
-	public static void main(String[] args) {
-		ZipReader r = new ZipReader();
-		// some testing
-		String[][] test = null;
-		// test = r.read(BIG_BROTHER, 1); // 3407968 lines
-		// test = r.read(BIG_BROTHER, 2); // 2165508 lines
-//		long start = System.currentTimeMillis();
-		test = r.read(FLOW, 0); // chunk1 15172768 lines
-//		System.out.println(System.currentTimeMillis()-start);
-		// // chunk2 21526139 lines
-		// // chunk3 9439406 lines
-		test = r.read(FLOW, 2); // 23258686 lines
-		// test = r.read(IPS, 2); // 16600932 lines
-//		mc.printAllFlowEntries();
-	}
-
-	// TODO Here is a nicer way to read CSV files with a opencsv reader
-
+	
 	/**
-	 * reading inputstream with opencsv reader that returns a array of values
-	 * http://opencsv.sourceforge.net/
-	 * 
-	 * @param in
-	 *            input stream to read
-	 * @throws IOException
+	 * Reading InputStream <b>in </b> and store each entry as <b>type</b> into the database.
+	 * Uses CSV-Reader to parse the InputStream See: http://opencsv.sourceforge.net/
+	 * @param in InputStream to read from
+	 * @param type Found entries are handled as this type and thus stored in the database with this type.
+	 * @throws IOException is thrown when IOException occurs within the Inputstream
 	 */
-	public void readCSVStream(InputStream in) throws IOException {
+	public void readCSVStream(InputStream in, DataType type) throws IOException {
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
+		
 		String[] nextLine;
 		int i = 0;
 
 		// discard first line with descriptions
 		reader.readNext();
 
-		// String [][] out = new String[ROWS][];
 		while ((nextLine = reader.readNext()) != null && i<ROWS) {
-			handleRow(nextLine);
+			DBWritable dbw = createDataStructure(nextLine,type);
+			mongo.storeEntry(type, dbw.asDBObject());
 			if (++i % 100000 == 0)
 				System.out.println(i);
 		}
 		reader.close();
 	}
-	// just for testing
-	public static MongoController mc=new MongoController();
-	// ArrayList<SingleFlow> list = new ArrayList<>(20000000);
-	private void handleRow(String[] nextLine) {
-		SingleFlow flow = new SingleFlow(nextLine);
-		mc.storeSingleFlow(flow);
-		// boolean mode=false;
+	
+	
+	/**
+	 * Create an Object according to <b>type</b>. This object is not inserted in the database here.
+	 * @param entry entry from the CSV-table to create the object from.
+	 * @param type the type of the object that will be created
+	 * @return the created object
+	 */
+	private DBWritable createDataStructure(String[] entry, DataType type) {
+		DBWritable out = null;
 		// modify and fill data structures here
-		// list.add(new SingleFlow(nextLine));
-		// if (!mode)
-		// mode = nextLine[9].equals("1");
-		// if (mode &&
-		// nextLine[5].equals("172.10.1.109")
-		//
-		// && nextLine[6].equals("10.199.250.2"))
-		// System.out.println(Arrays.toString(nextLine));
-		// if (mode)
-		// mode = nextLine[9].equals("1");
-
+		switch (type) {
+		case FLOW:
+			out = new SingleFlow(entry);
+			break;
+		case HEALTH:
+			out = new HealthMessage(entry);
+			break;
+		case IPS:
+			out = new IPSMessage(entry);
+		default:
+		}
+		return out;
+		
 	}
 
-	public String[][] read(int type, int week) {
+	/**
+	 * Read data of type <b>type</b> of week <b>week</b> into the database.
+	 * @param type which type of data to read
+	 * @param week which week to read
+	 */
+	public void read(DataType type, int week) {
+		String[] streamLocation = getFileNames(type, week);
+		List<InputStream> streams = getZipInputStreams(streamLocation[0], streamLocation[1]);
+		
+		// Do two try-catch blocks independently to ensure that openZIP is really getting closed.
+		try {
+			for (InputStream is : streams)
+				readCSVStream(is, type);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			openZIP.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	/** 
+	 * Gives the filename of the zipFile and the path of the file within the zipFile
+	 * @param type 
+	 * @param week
+	 * @return an array of length 2, <br>
+	 * [0] is the path to the zipFile<br>
+	 * [1] is the path (or regex) within the zipFile.
+	 */
+	private String [] getFileNames(DataType type, int week){
 		String zipFile = null, streamName = null;
 		if (week == 2) {
 			zipFile = FILE_WEEK2DATA;
 			switch (type) {
-			case BIG_BROTHER:
+			case HEALTH:
 				streamName = "bb-week2.csv";
 				break;
 			case FLOW:
@@ -220,16 +181,17 @@ public class ZipReader {
 			default:
 			}
 		} else {
-			if (type == BIG_BROTHER) {
+			switch(type){
+			case HEALTH:
 				streamName = "bbexport-wiz2 - Copy.csv";
 				zipFile = FILE_BIGBROTHER;
-			} else if (type == FLOW) {
+				break;
+			case FLOW:
 				zipFile = FILE_NETWORKFLOW;
 				streamName = "nf/nf-chunk\\d\\.csv";
+			default:
 			}
 		}
-		if (zipFile == null || streamName == null)
-			throw new IllegalArgumentException("invalid type or week");
-		return readFromZip(zipFile, streamName);
+		return new String [] {zipFile,streamName};
 	}
 }

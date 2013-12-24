@@ -115,6 +115,5 @@ public class HealthMessage implements DBWritable {
 		bdbo.append("physicalMemoryUsage", this.physicalMemoryUsage);
 		bdbo.append("connMade", this.connMade);
 		return bdbo;
-
 	}
 }
