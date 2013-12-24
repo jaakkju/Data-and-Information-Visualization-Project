@@ -32,9 +32,9 @@ public class HealthMessage implements DBWritable {
 
 	/**
 	 * @param args
-	 *           healthMessage values string array [id, hostname, serviceName,
-	 *           statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage,
-	 *           loadAverage, numProcs, physicalMemomyUsage, connMade]
+	 * healthMessage values string array 
+	 * [id, hostname, serviceName, statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage, 
+	 * loadAverage, numProcs, physicalMemomyUsage, connMade]
 	 */
 	public HealthMessage(String[] args) {
 		this.id = Integer.valueOf(args[0]);
