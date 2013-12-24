@@ -7,7 +7,6 @@ import com.mongodb.DBObject;
  * Class stores the information from a single network health message from a node
  * 
  * @author jaakkju
- * 
  */
 public class HealthMessage implements DBWritable {
 
