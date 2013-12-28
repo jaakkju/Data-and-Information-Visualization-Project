@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Observable;
 
-import big.marketing.Application;
+import org.apache.log4j.Logger;
+
 import big.marketing.data.DataType;
 import big.marketing.data.Node;
 import big.marketing.reader.NetworkReader;
@@ -13,40 +14,42 @@ import big.marketing.reader.ZipReader;
 public class DataController extends Observable {
 	// http://docs.oracle.com/javase/7/docs/api/java/util/Observable.html
 	
+	static Logger logger = Logger.getLogger(DataController.class);
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 	private MongoController mongoController;
-	
-	private List<Node> network;
-	
-	public DataController(MongoController mc) {
-		super();
-		this.mongoController = mc;
 
-		// read in the data:
-		NetworkReader nReader = new NetworkReader(mc);
+	private List<Node> network;
+
+	public DataController() {
+		this.mongoController = new MongoController();
+
+		NetworkReader nReader = new NetworkReader(this.mongoController);
+		ZipReader zReader = new ZipReader(this.mongoController);
+		
 		try {
-			network = nReader.readNetwork(Application.FILE_FOLDER + Application.FILE_DESCRIPTION);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// TODO Catch all reading error in DataController
+			network = nReader.readNetwork();
+		} catch (IOException err) {
+			logger.error("Error while reading network description", err);
 		}
-		ZipReader zReader = new ZipReader(mongoController);
-		for (int week=1;week<=2;week++){
+		
+		for (int week = 1; week <= 2; week++) {
 			zReader.read(DataType.FLOW, week);
 			zReader.read(DataType.HEALTH, week);
 			zReader.read(DataType.IPS, week);
 			// DESCRIPTIONs have been read above with the NetworkDescriptionReader
 		}
 	}
-	
+
 	public List<Node> getNetwork() {
 		return network;
 	}
-	
+
 	public void setMongoController(MongoController mongoController) {
 		this.mongoController = mongoController;
 	}
+
 	public MongoController getMongoController() {
 		return mongoController;
 	}
