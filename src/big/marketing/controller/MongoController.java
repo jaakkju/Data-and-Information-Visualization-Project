@@ -39,7 +39,7 @@ public class MongoController implements Runnable{
 	private static DB database;
 		
 	public static final String 	HOST_NAME="localhost",
-								DB_NAME  ="network",
+								DB_NAME  ="eyeNet",
 								FLOW_COLLECTION_NAME = "flow",
 								IPS_COLLECTION_NAME = "ips",
 								HEALTH_COLLECTION_NAME = "health",
