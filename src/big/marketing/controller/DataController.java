@@ -30,15 +30,13 @@ public class DataController extends Observable {
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
+			for (int week = 1; week <= 2; week++) {
+				//zReader.read(DataType.FLOW, week);
+				zReader.read(DataType.HEALTH, week);
+				//zReader.read(DataType.IPS, week);
+			}			
 		} catch (IOException err) {
-			logger.error("Error while reading network description", err);
-		}
-		
-		for (int week = 1; week <= 2; week++) {
-			zReader.read(DataType.FLOW, week);
-			zReader.read(DataType.HEALTH, week);
-			zReader.read(DataType.IPS, week);
-			// DESCRIPTIONs have been read above with the NetworkDescriptionReader
+			logger.error("Error while loading network data.", err);
 		}
 	}
 
