@@ -78,67 +78,67 @@ public class HealthMessage implements DBWritable {
 	}
 
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	public String getHostname() {
-		return this.hostname;
+		return hostname;
 	}
 
 	public String getServiceName() {
-		return this.serviceName;
+		return serviceName;
 	}
 
 	public int getStatusVal() {
-		return this.statusVal;
+		return statusVal;
 	}
 
 	public String getReceivedFrom() {
-		return this.receivedFrom;
+		return receivedFrom;
 	}
 
 	public int getCurrentTime() {
-		return this.currentTime;
+		return currentTime;
 	}
 
 	public int getDiskUsage() {
-		return this.diskUsage;
+		return diskUsage;
 	}
 
 	public int getPageFileUsage() {
-		return this.pageFileUsage;
+		return pageFileUsage;
 	}
 
 	public int getNumProcs() {
-		return this.numProcs;
+		return numProcs;
 	}
 
 	public int getLoadAverage() {
-		return this.loadAverage;
+		return loadAverage;
 	}
 
 	public int getPhysicalMemoryUsage() {
-		return this.physicalMemoryUsage;
+		return physicalMemoryUsage;
 	}
 
 	public int getConnMade() {
-		return this.connMade;
+		return connMade;
 	}
 
 	public DBObject asDBObject() {
 		BasicDBObject bdbo = new BasicDBObject();
-		bdbo.append("id", this.id);
-		bdbo.append("hostname", this.hostname);
-		bdbo.append("serviceName", this.serviceName);
-		bdbo.append("statusVal", this.statusVal);
-		bdbo.append("receivedFrom", this.receivedFrom);
-		bdbo.append("currentTime", this.currentTime);
-		bdbo.append("diskUsage", this.diskUsage);
-		bdbo.append("pageFileUsage", this.pageFileUsage);
-		bdbo.append("numProcs", this.numProcs);
-		bdbo.append("loadAverage", this.loadAverage);
-		bdbo.append("physicalMemoryUsage", this.physicalMemoryUsage);
-		bdbo.append("connMade", this.connMade);
+		bdbo.append("id", id);
+		bdbo.append("hostname", hostname);
+		bdbo.append("serviceName", serviceName);
+		bdbo.append("statusVal", statusVal);
+		bdbo.append("receivedFrom", receivedFrom);
+		bdbo.append("currentTime", currentTime);
+		bdbo.append("diskUsage", diskUsage);
+		bdbo.append("pageFileUsage", pageFileUsage);
+		bdbo.append("numProcs", numProcs);
+		bdbo.append("loadAverage", loadAverage);
+		bdbo.append("physicalMemoryUsage", physicalMemoryUsage);
+		bdbo.append("connMade", connMade);
 		return bdbo;
 	}
 }
