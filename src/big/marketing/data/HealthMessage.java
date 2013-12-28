@@ -1,7 +1,5 @@
 package big.marketing.data;
 
-import java.util.Arrays;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
