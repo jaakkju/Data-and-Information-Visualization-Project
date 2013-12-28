@@ -1,9 +1,9 @@
 package big.marketing.controller;
 
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 import big.marketing.data.DataType;
 import big.marketing.reader.ZipReader;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -31,14 +32,14 @@ public class MongoController implements Runnable{
 	BlockingQueue<DBObject> healthBuffer;
 	BlockingQueue<DBObject> ipsBuffer;
 	BlockingQueue<DBObject> descBuffer;
-	
+	private volatile boolean writingEnabled=true;
 	/*
 	 * MongoDB should be started on the default port.
 	 * TODO: start MongoDB automatically, if no connection to MongoDB possible.
 	 */
 	private static MongoClient mongo;
 	private static DB database;
-		
+
 	public static final String 	HOST_NAME="localhost",
 								DB_NAME  ="network",
 								FLOW_COLLECTION_NAME = "flow",
@@ -106,11 +107,28 @@ public class MongoController implements Runnable{
 		}
 	}
 	
-	private Set<String> getDomainOf(DataType t, String fieldName){
-		Set<String> values = new HashSet<>();
-		DBCursor dbc = flowCollection.find(new BasicDBObject(fieldName, 1));
+	/**
+	 * Aggregate all occuring values of the given field into the set. Useful for analyzing the data.
+	 * @param t DataType to look in
+	 * @param fieldName the values of this field are aggregated into the returned set.
+	 * @return a set of String naming all occuring values in the given field
+	 */
+	public Set<String> getDomainOf(DataType t, String fieldName){
 		
-		return values;
+		Set<String> result = new HashSet<>();
+		DBObject fields = new BasicDBObject(fieldName, 1);
+		fields.put("_id", 0);
+		DBObject project = new BasicDBObject("$project", fields);
+		
+		DBObject groupFields = new BasicDBObject("_id","$"+fieldName);
+		DBObject group = new BasicDBObject("$group",groupFields);
+		AggregationOutput output = getCollection(t).aggregate(project, group);
+		
+		for (DBObject dbo : output.results()){
+			result.add(dbo.get("_id").toString());
+		}
+		
+		return result;
 	}
 	
 	private DBCollection getCollection(DataType t){
@@ -133,15 +151,43 @@ public class MongoController implements Runnable{
 	}
 	
 	public void storeEntry(DataType t, DBObject object){
+		if (object == null)
+			return;
 		try {
 			getBuffer(t).put(object);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) {
-//		new MongoController().getConstrainedFlowEntries("i", 30, 40);
+//		MongoController m = new MongoController();
+//		String[] bla = {"Time","SourceIP","DestIP","Protocol","sourcePort","destinationPort","Priority","Operation","MessageCode","DestinationService","Direction","Flags"};
+//		String[] bla = {"Protocol","Priority","Operation","MessageCode","Direction","Flags"};
+//		String [] bla = {
+//			"Time",
+//			"SourceIP",
+//			"DestIP",
+//			"Protocol",
+//			"sourcePort",
+//			"destinationPort",
+//			"Duration",
+//			"srcPayload",
+//			"destPayload",
+//			"srcTotal",
+//			"destTotal",
+//			"sourcePackets",
+//			"destinationPackets"
+//		};
+//		for (String field : bla){
+//			Set<String> result = m.getDomainOf(DataType.FLOW, field);
+//			System.out.println(field + ": "+result.size());
+//			if (result.size() < 20)
+//				System.out.println(field + ": "+result.toString());
+//						
+//		}
+//		
+//		m.writingEnabled=false;
 	}
 
 	@Override
@@ -149,13 +195,20 @@ public class MongoController implements Runnable{
 		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection, descriptionCollection};
 		BlockingQueue<?> [] buffers = {flowBuffer, healthBuffer, ipsBuffer,descBuffer};
 		while (true){
-			for (int i=0;i<colls.length;i++){
-				BlockingQueue<DBObject> buffer = (BlockingQueue<DBObject>) buffers[i];
-				ArrayList<DBObject> bufferList = new ArrayList<>(buffer.size());
-				buffer.drainTo(bufferList);
-				colls[i].insert(bufferList);
+			if (writingEnabled){
+				for (int i=0;i<colls.length;i++){
+					BlockingQueue<DBObject> buffer = (BlockingQueue<DBObject>) buffers[i];
+					ArrayList<DBObject> bufferList = new ArrayList<>(buffer.size());
+					buffer.drainTo(bufferList);
+					colls[i].insert(bufferList);
+				}
+			} else{
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-				
 	}
 }
