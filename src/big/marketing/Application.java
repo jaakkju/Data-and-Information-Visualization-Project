@@ -2,6 +2,8 @@ package big.marketing;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import big.marketing.controller.DataController;
 import big.marketing.controller.MongoController;
 import big.marketing.data.Node;
@@ -10,9 +12,9 @@ import big.marketing.view.GraphJPanel;
 import big.marketing.view.ParallelCoordinatesJPanel;
 
 public class Application {
-	public static final String FILE_FOLDER = "./data/";
-	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
-
+	
+	static Logger logger = Logger.getLogger(Application.class);
+	
 	public static void main(String[] args) {
 
 		MongoController mongo = new MongoController();

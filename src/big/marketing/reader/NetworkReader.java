@@ -16,6 +16,9 @@ import big.marketing.data.Node;
  */
 public class NetworkReader {
 	
+	public static final String FILE_FOLDER = "./data/";
+	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
+	
 	private static final String regex = "\\s";
 	private static final int regLimit = 3;
 	private MongoController mongo;
@@ -27,14 +30,13 @@ public class NetworkReader {
 
 	/**
 	 * reads network description file to arraylist<Node>
-	 * @param filePath file location
 	 * @return network as arraylist<Node> or null if no nodes were read from the file
 	 * @throws IOException
 	 */
-	public ArrayList<Node> readNetwork(String filePath) throws IOException {
+	public ArrayList<Node> readNetwork() throws IOException {
 		ArrayList<Node> network = new ArrayList<>();
 
-		File file = new File(filePath);
+		File file = new File(FILE_FOLDER + FILE_DESCRIPTION);
 		FileInputStream fileIn = new FileInputStream(file);
 		BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 
