@@ -5,15 +5,15 @@ import com.mongodb.DBObject;
 
 /**
  * Class stores the information from a single network health message from a node
+ * 
  * @author jaakkju
- *
  */
-public class HealthMessage implements DBWritable{
-	
-	public static final int STATUS_GOOD = 1; 
+public class HealthMessage implements DBWritable {
+
+	public static final int STATUS_GOOD = 1;
 	public static final int STATUS_WARNING = 2;
 	public static final int STATUS_PROBLEM = 3;
-	
+
 	public static final int CONN_OK = 1;
 	public static final int CONN_NOK = 0;
 
@@ -29,25 +29,54 @@ public class HealthMessage implements DBWritable{
 	private final int loadAverage;
 	private final int physicalMemoryUsage;
 	private final int connMade;
-	
+
+	@Override
+	public String toString() {
+		return "HealthMessage [id=" + id + ", hostname=" + hostname + ", serviceName=" + serviceName + ", statusVal=" + statusVal
+		      + ", receivedFrom=" + receivedFrom + ", currentTime=" + currentTime + ", diskUsage=" + diskUsage + ", pageFileUsage="
+		      + pageFileUsage + ", numProcs=" + numProcs + ", loadAverage=" + loadAverage + ", physicalMemoryUsage="
+		      + physicalMemoryUsage + ", connMade=" + connMade + "]";
+	}
+
 	/**
-	 * @param args healthMessage values string array [id, hostname, serviceName, statusVal, receivedFrom, currentTime, diskUsage, pageFileUsage, loadAverage, numProcs, physicalMemomyUsage, connMade]
+	 * 
+	 * @param args
+	 *           [id, hostname, serviceName, currentTime, statusVal,
+	 *           receivedFrom, diskUsage, pageFileusage, numProcs, loadAverage,
+	 *           physicalMemoryUsage, connMade]
 	 */
 	public HealthMessage(String[] args) {
-	   this.id 						= Integer.valueOf(args[0]);
-	   this.hostname 				= args[1];
-	   this.serviceName 			= args[2];
-	   this.statusVal 			= Integer.valueOf(args[3]);
-	   this.receivedFrom 		= args[4];
-	   this.currentTime 			= Integer.valueOf(args[5]);
-	   this.diskUsage 			= Integer.valueOf(args[6]);
-	   this.pageFileUsage 		= Integer.valueOf(args[7]);
-	   this.numProcs 				= Integer.valueOf(args[8]);
-	   this.loadAverage			= Integer.valueOf(args[9]);
-	   this.physicalMemoryUsage = Integer.valueOf(args[10]);
-	   this.connMade 				= Integer.valueOf(args[11]);
-   }
-	
+
+		this.id = argsToInt(args, 0);
+		this.hostname = argsToString(args, 1);
+		this.serviceName = argsToString(args, 2);
+		this.currentTime = argsToInt(args, 3);
+		this.statusVal = argsToInt(args, 4);
+		// args[5] is the unparsed message content
+		this.receivedFrom = argsToString(args, 6);
+		this.diskUsage = argsToInt(args, 7);
+		this.pageFileUsage = argsToInt(args, 8);
+		this.numProcs = argsToInt(args, 9);
+		this.loadAverage = argsToInt(args, 10);
+		this.physicalMemoryUsage = argsToInt(args, 11);
+		this.connMade = argsToInt(args, 12);
+		// args[13] is parsedDate from message content
+	}
+
+	private int argsToInt(String args[], int index) {
+		if (args.length - 1 >= index && !args[index].isEmpty()) {
+			return Integer.valueOf(args[index]);
+		}
+		return 0;
+	}
+
+	private String argsToString(String args[], int index) {
+		if (args.length - 1 >= index && !args[index].isEmpty()) {
+			return args[index];
+		}
+		return "";
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -95,22 +124,21 @@ public class HealthMessage implements DBWritable{
 	public int getConnMade() {
 		return connMade;
 	}
-	public DBObject asDBObject(){
-		BasicDBObject dbObject = new BasicDBObject();
-		dbObject.append("id", id);
-		dbObject.append("hostname", hostname);
-		dbObject.append("serviceName", serviceName);
-		dbObject.append("statusVal", statusVal);
-		dbObject.append("receivedFrom", receivedFrom);
-		dbObject.append("currentTime", currentTime);
-		dbObject.append("diskUsage", diskUsage);
-		dbObject.append("pageFileUsage", pageFileUsage);
-		dbObject.append("numProcs", numProcs);
-		dbObject.append("loadAverage", loadAverage);
-		dbObject.append("physicalMemoryUsage", physicalMemoryUsage);
-		dbObject.append("connMade", connMade);
-		return dbObject;
-		
-		
+
+	public DBObject asDBObject() {
+		BasicDBObject bdbo = new BasicDBObject();
+		bdbo.append("id", id);
+		bdbo.append("hostname", hostname);
+		bdbo.append("serviceName", serviceName);
+		bdbo.append("statusVal", statusVal);
+		bdbo.append("receivedFrom", receivedFrom);
+		bdbo.append("currentTime", currentTime);
+		bdbo.append("diskUsage", diskUsage);
+		bdbo.append("pageFileUsage", pageFileUsage);
+		bdbo.append("numProcs", numProcs);
+		bdbo.append("loadAverage", loadAverage);
+		bdbo.append("physicalMemoryUsage", physicalMemoryUsage);
+		bdbo.append("connMade", connMade);
+		return bdbo;
 	}
 }

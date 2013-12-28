@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import com.csvreader.CsvReader;
+import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
 import big.marketing.controller.MongoController;
@@ -21,7 +21,8 @@ import big.marketing.data.SingleFlow;
 
 public class ZipReader {
 
-	public static final String FILE_FOLDER = "./data/";
+	static Logger logger = Logger.getLogger(ZipReader.class);
+	public static final String FILE_FOLDER = "data/";
 	public static final String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
 	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
 	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
@@ -51,12 +52,13 @@ public class ZipReader {
 	 * @return InputStreams for all matched files in the ZipFile
 	 */
 	private List<InputStream> getZipInputStreams(String zipFile, String streamName) {
-		System.out.println("Loading " + FILE_FOLDER + zipFile);
 		List<InputStream> matchedStreams = new ArrayList<>(5);
 		try {
 			openZIP = new ZipFile(FILE_FOLDER + zipFile);
-		} catch (IOException e) {
-			e.printStackTrace();
+			logger.info("Loading file " + openZIP.getName());
+		} catch (IOException err) {
+			// TODO errors should be thrown to upper level -> controller try-catch-block
+			logger.error("Error while reading stream " + streamName + " from zipfile " + zipFile, err);
 		}
 
 		Enumeration<? extends ZipEntry> entries = openZIP.entries();
@@ -65,7 +67,7 @@ public class ZipReader {
 			if (entry.getName().matches(streamName)) {
 				try {
 					matchedStreams.add(openZIP.getInputStream(entry));
-					System.out.println("Found " + entry.getName());
+					logger.info("Found entry " + entry.getName());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -79,7 +81,6 @@ public class ZipReader {
 	 * @param mongo database where the entries will be stored.
 	 */
 	public ZipReader(MongoController mongo) {
-		super();
 		this.mongo = mongo;
 	}
 	
@@ -103,7 +104,7 @@ public class ZipReader {
 			DBWritable dbw = createDataStructure(nextLine,type);
 			mongo.storeEntry(type, dbw.asDBObject());
 			if (++i % 100000 == 0)
-				System.out.println(i);
+				logger.info("Stored " + i + " objects");
 		}
 		reader.close();
 	}
