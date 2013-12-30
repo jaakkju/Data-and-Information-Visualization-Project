@@ -11,8 +11,8 @@ public class SingleFlow implements DBWritable{
 	private final int destinationIP;
 	private final int sourcePort;
 	private final int destinationPort;
-	private final boolean last;
-	private final boolean first;
+	private final boolean hasMoreFragments;
+	private final boolean hasSubsequentFragments;
 	private final int duration;
 	private final int sourcePayloadBytes;
 	private final int destinationPayloadBytes;
@@ -20,18 +20,23 @@ public class SingleFlow implements DBWritable{
 	private final int destinationTotalBytes;
 	private final int sourcePacketCount;
 	private final int destinationPacketCount;
-	private final boolean recordForceOut;
 
 	public SingleFlow(String[] args) {
 		super();
+		// TODO: remove unused features
 		this.time = (int) Double.parseDouble(args[0]);
 		this.protocol = Integer.parseInt(args[3]);
 		this.sourceIP = encodeIP(args[5]); 
 		this.destinationIP = encodeIP(args[6]); 
 		this.sourcePort = Integer.parseInt(args[7]);
 		this.destinationPort = Integer.parseInt(args[8]);
-		this.last = "1".equals(args[9]); // 0 or 1
-		this.first = "1".equals(args[10]); // 0 or 1
+		
+		// 0 0 -> flow with just one fragment
+		// 0 1 -> last fragment
+		// 1 0 -> first fragment
+		// 1 1 -> intermediate fragment (not first nor last fragment)
+		this.hasMoreFragments = "1".equals(args[9]); // 0 or 1
+		this.hasSubsequentFragments = "1".equals(args[10]); // 0 or 1
 		this.duration = Integer.parseInt(args[11]);
 		this.sourcePayloadBytes = Integer.parseInt(args[12]);
 		this.destinationPayloadBytes = Integer.parseInt(args[13]);
@@ -39,7 +44,6 @@ public class SingleFlow implements DBWritable{
 		this.destinationTotalBytes = Integer.parseInt(args[15]);
 		this.sourcePacketCount = Integer.parseInt(args[16]);
 		this.destinationPacketCount = Integer.parseInt(args[17]);
-		this.recordForceOut = "1".equals(args[18]); // 0 or 1
 	}
 
 	public int getDateTime() {
@@ -66,12 +70,12 @@ public class SingleFlow implements DBWritable{
 		return destinationPort;
 	}
 
-	public boolean isLast() {
-		return last;
+	public boolean hasMoreFragments() {
+		return hasMoreFragments;
 	}
 
-	public boolean isFirst() {
-		return first;
+	public boolean hasSubsequentFragments() {
+		return hasSubsequentFragments;
 	}
 
 	public int getDuration() {
@@ -102,9 +106,6 @@ public class SingleFlow implements DBWritable{
 		return destinationPacketCount;
 	}
 
-	public boolean getRecordForceOut() {
-		return recordForceOut;
-	}
 	private static String decodeIP(int ip){
 		String out ="";
 		for (int i=3;i>=0;i--){
@@ -130,13 +131,14 @@ public class SingleFlow implements DBWritable{
 		dbo.append("sourcePort", sourcePort);
 		dbo.append("destinationPort", destinationPort);
 		dbo.append("Duration", duration);
+		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
+		dbo.append("hasMoreFragments", hasMoreFragments);
 		dbo.append("srcPayload", sourcePayloadBytes);
 		dbo.append("destPayload", destinationPayloadBytes);
 		dbo.append("srcTotal", sourceTotalBytes);
 		dbo.append("destTotal", destinationTotalBytes);
 		dbo.append("sourcePackets", sourcePacketCount);
 		dbo.append("destinationPackets", destinationPacketCount);
-		dbo.append("forceOut", recordForceOut);
 		return dbo;
 	}
 	public static void main(String[] args) {

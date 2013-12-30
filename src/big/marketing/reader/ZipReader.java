@@ -29,7 +29,8 @@ public class ZipReader {
 
 	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
-	public static final int ROWS = 500000;//25000000;
+	public static final int ROWS = 500000;
+//	public static final int ROWS = 25000000;
 	
 	
 	/**
@@ -140,6 +141,8 @@ public class ZipReader {
 	 */
 	public void read(DataType type, int week) {
 		String[] streamLocation = getFileNames(type, week);
+		if (streamLocation[0] == null || streamLocation[1]==null)
+			throw new IllegalArgumentException("invalid type or week");
 		List<InputStream> streams = getZipInputStreams(streamLocation[0], streamLocation[1]);
 		
 		// Do two try-catch blocks independently to ensure that openZIP is really getting closed.
