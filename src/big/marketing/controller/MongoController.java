@@ -19,49 +19,54 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+
 /*
  * Tutorial on Mongo with java:
  * http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-java-driver/#getting-started-with-java-driver
  */
-public class MongoController implements Runnable{
+public class MongoController implements Runnable {
 	/*
-	 * writerThread and buffer for storing write requests.
-	 * handling read requests in a seperate thread doesn't make sense, since reads are always synchronous (as a value has to be returned)
+	 * writerThread and buffer for storing write requests. handling read
+	 * requests in a seperate thread doesn't make sense, since reads are always
+	 * synchronous (as a value has to be returned)
 	 */
 	Thread writer;
-	
+
 	EnumMap<DataType, CollectionHandler> collections;
 
-	private volatile boolean writingEnabled=true;
+	private volatile boolean writingEnabled = true;
+	
 	/*
-	 * MongoDB should be started on the default port.
-	 * TODO: start MongoDB automatically, if no connection to MongoDB possible.
+	 * MongoDB should be started on the default port. TODO: start MongoDB
+	 * automatically, if no connection to MongoDB possible.
 	 */
 	private static MongoClient mongo;
 	private static DB database;
 
-	public static final String 	HOST_NAME="localhost",
-								DB_NAME  ="eyeNet",
-								FLOW_COLLECTION_NAME = "flow",
-								IPS_COLLECTION_NAME = "ips",
-								HEALTH_COLLECTION_NAME = "health",
-								DESCRIPTION_COLLECTION_NAME = "nodes";
-	public static final int BUFFER_SIZE=1000;
-		
+	public static final String HOST_NAME = "localhost", DB_NAME = "eyeNet",
+			FLOW_COLLECTION_NAME = "flow", IPS_COLLECTION_NAME = "ips",
+			HEALTH_COLLECTION_NAME = "health",
+			DESCRIPTION_COLLECTION_NAME = "nodes";
+	public static final int BUFFER_SIZE = 1000;
+
 	public MongoController() {
 		connectToDatabase();
 		collections = new EnumMap<>(DataType.class);
-		collections.put(DataType.FLOW, new CollectionHandler(FLOW_COLLECTION_NAME));
-		collections.put(DataType.IPS, new CollectionHandler(IPS_COLLECTION_NAME));
-		collections.put(DataType.HEALTH, new CollectionHandler(HEALTH_COLLECTION_NAME));
-		collections.put(DataType.DESCRIPTION, new CollectionHandler(DESCRIPTION_COLLECTION_NAME));
-		
+		collections.put(DataType.FLOW, new CollectionHandler(
+				FLOW_COLLECTION_NAME));
+		collections.put(DataType.IPS,
+				new CollectionHandler(IPS_COLLECTION_NAME));
+		collections.put(DataType.HEALTH, new CollectionHandler(
+				HEALTH_COLLECTION_NAME));
+		collections.put(DataType.DESCRIPTION, new CollectionHandler(
+				DESCRIPTION_COLLECTION_NAME));
+
 		writer = new Thread(this);
 		writer.start();
 	}
-	
-	public void connectToDatabase(){
-		
+
+	public void connectToDatabase() {
+
 		try {
 			mongo = new MongoClient(HOST_NAME);
 		} catch (UnknownHostException e) {
@@ -69,58 +74,62 @@ public class MongoController implements Runnable{
 		}
 		database = mongo.getDB(DB_NAME);
 	}
-	
-	public void getConstrainedEntries(DataType t, String key, int min, int max){
-		
-		BasicDBObject query = new BasicDBObject(key,
-				new BasicDBObject("$lt", max).append("$gt", min)
-				);
+
+	public void getConstrainedEntries(DataType t, String key, int min, int max) {
+
+		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
+				max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
-		for (DBObject dbo : cursor){
+		for (DBObject dbo : cursor) {
 			System.out.println(dbo);
 		}
 	}
-	
-	public void printAllEntries(DataType t){
+
+	public void printAllEntries(DataType t) {
 		DBCursor c = getCollection(t).find();
-		for (int i=0;i<ZipReader.ROWS;i++){
+		for (int i = 0; i < ZipReader.ROWS; i++) {
 			System.out.println(c.next());
 		}
-		
+
 	}
-	private BlockingQueue<DBObject> getBuffer(DataType t){
+
+	private BlockingQueue<DBObject> getBuffer(DataType t) {
 		return collections.get(t).buffer;
 	}
-	
+
 	/**
-	 * Aggregate all occuring values of the given field into the set. Useful for analyzing the data.
-	 * @param t DataType to look in
-	 * @param fieldName the values of this field are aggregated into the returned set.
+	 * Aggregate all occuring values of the given field into the set. Useful for
+	 * analyzing the data.
+	 * 
+	 * @param t
+	 *            DataType to look in
+	 * @param fieldName
+	 *            the values of this field are aggregated into the returned set.
 	 * @return a set of String naming all occuring values in the given field
 	 */
-	public Set<String> getDomainOf(DataType t, String fieldName){
-		
+	public Set<String> getDomainOf(DataType t, String fieldName) {
+
 		Set<String> result = new HashSet<>();
 		DBObject fields = new BasicDBObject(fieldName, 1);
 		fields.put("_id", 0);
 		DBObject project = new BasicDBObject("$project", fields);
-		
-		DBObject groupFields = new BasicDBObject("_id","$"+fieldName);
-		DBObject group = new BasicDBObject("$group",groupFields);
+
+		DBObject groupFields = new BasicDBObject("_id", "$" + fieldName);
+		DBObject group = new BasicDBObject("$group", groupFields);
 		AggregationOutput output = getCollection(t).aggregate(project, group);
-		
-		for (DBObject dbo : output.results()){
+
+		for (DBObject dbo : output.results()) {
 			result.add(dbo.get("_id").toString());
 		}
-		
+
 		return result;
 	}
-	
-	private DBCollection getCollection(DataType t){
+
+	private DBCollection getCollection(DataType t) {
 		return collections.get(t).collection;
 	}
-	
-	public void storeEntry(DataType t, DBObject object){
+
+	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
 		try {
@@ -131,44 +140,46 @@ public class MongoController implements Runnable{
 	}
 
 	public static void main(String[] args) {
-//		MongoController m = new MongoController();
-//		String[] bla = {"Time","SourceIP","DestIP","Protocol","sourcePort","destinationPort","Priority","Operation","MessageCode","DestinationService","Direction","Flags"};
-//		String[] bla = {"Protocol","Priority","Operation","MessageCode","Direction","Flags"};
-//		String [] bla = {
-//			"Time",
-//			"SourceIP",
-//			"DestIP",
-//			"Protocol",
-//			"sourcePort",
-//			"destinationPort",
-//			"Duration",
-//			"srcPayload",
-//			"destPayload",
-//			"srcTotal",
-//			"destTotal",
-//			"sourcePackets",
-//			"destinationPackets"
-//		};
-//		for (String field : bla){
-//			Set<String> result = m.getDomainOf(DataType.FLOW, field);
-//			System.out.println(field + ": "+result.size());
-//			if (result.size() < 20)
-//				System.out.println(field + ": "+result.toString());
-//						
-//		}
-//		
-//		m.writingEnabled=false;
+		// MongoController m = new MongoController();
+		// String[] bla =
+		// {"Time","SourceIP","DestIP","Protocol","sourcePort","destinationPort","Priority","Operation","MessageCode","DestinationService","Direction","Flags"};
+		// String[] bla =
+		// {"Protocol","Priority","Operation","MessageCode","Direction","Flags"};
+		// String [] bla = {
+		// "Time",
+		// "SourceIP",
+		// "DestIP",
+		// "Protocol",
+		// "sourcePort",
+		// "destinationPort",
+		// "Duration",
+		// "srcPayload",
+		// "destPayload",
+		// "srcTotal",
+		// "destTotal",
+		// "sourcePackets",
+		// "destinationPackets"
+		// };
+		// for (String field : bla){
+		// Set<String> result = m.getDomainOf(DataType.FLOW, field);
+		// System.out.println(field + ": "+result.size());
+		// if (result.size() < 20)
+		// System.out.println(field + ": "+result.toString());
+		//
+		// }
+		//
+		// m.writingEnabled=false;
 	}
 
 	@Override
 	public void run() {
 
-		while (true){
-			if (writingEnabled){
-				for (CollectionHandler mc : collections.values()){
+		while (true) {
+			if (writingEnabled) {
+				for (CollectionHandler mc : collections.values()) {
 					mc.flushBuffer();
 				}
-			} else{
+			} else {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
@@ -177,16 +188,19 @@ public class MongoController implements Runnable{
 			}
 		}
 	}
-	private class CollectionHandler{
+
+	private class CollectionHandler {
 		String name;
 		DBCollection collection;
 		BlockingQueue<DBObject> buffer;
+
 		public CollectionHandler(String name) {
 			this.name = name;
 			this.collection = MongoController.database.getCollection(this.name);
 			this.buffer = new ArrayBlockingQueue<>(MongoController.BUFFER_SIZE);
 		}
-		public void flushBuffer(){
+
+		public void flushBuffer() {
 			ArrayList<DBObject> tmpBuffer = new ArrayList<>(buffer.size());
 			buffer.drainTo(tmpBuffer);
 			collection.insert(tmpBuffer);
