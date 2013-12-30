@@ -1,7 +1,6 @@
 package big.marketing.controller;
 
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -52,14 +51,9 @@ public class MongoController implements Runnable {
 	public MongoController() {
 		connectToDatabase();
 		collections = new EnumMap<>(DataType.class);
-		collections.put(DataType.FLOW, new CollectionHandler(
-				FLOW_COLLECTION_NAME));
-		collections.put(DataType.IPS,
-				new CollectionHandler(IPS_COLLECTION_NAME));
-		collections.put(DataType.HEALTH, new CollectionHandler(
-				HEALTH_COLLECTION_NAME));
-		collections.put(DataType.DESCRIPTION, new CollectionHandler(
-				DESCRIPTION_COLLECTION_NAME));
+		for (DataType t : DataType.values()){
+			collections.put(t, new CollectionHandler(t));
+		}
 
 		writer = new Thread(this);
 		writer.start();
@@ -139,6 +133,25 @@ public class MongoController implements Runnable {
 		}
 	}
 
+	private String getCollectionName(DataType t){
+		switch (t) {
+		case FLOW:
+			return FLOW_COLLECTION_NAME;
+		case HEALTH:
+			return HEALTH_COLLECTION_NAME;
+		case IPS:
+			return IPS_COLLECTION_NAME;
+		case DESCRIPTION:
+			return DESCRIPTION_COLLECTION_NAME;
+		}
+		return null;
+	}
+	
+	
+	public boolean isDataInDatabase(DataType t){
+		return database.collectionExists(getCollectionName(t));
+	}
+	
 	public static void main(String[] args) {
 		// MongoController m = new MongoController();
 		// String[] bla =
@@ -190,14 +203,12 @@ public class MongoController implements Runnable {
 	}
 
 	private class CollectionHandler {
-		String name;
 		DBCollection collection;
 		BlockingQueue<DBObject> buffer;
 
-		public CollectionHandler(String name) {
-			this.name = name;
-			this.collection = MongoController.database.getCollection(this.name);
-			this.buffer = new ArrayBlockingQueue<>(MongoController.BUFFER_SIZE);
+		public CollectionHandler(DataType t) {
+			this.collection = database.getCollection(getCollectionName(t));
+			this.buffer = new ArrayBlockingQueue<>(BUFFER_SIZE);
 		}
 
 		public void flushBuffer() {
