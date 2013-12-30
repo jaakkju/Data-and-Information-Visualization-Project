@@ -152,38 +152,6 @@ public class MongoController implements Runnable {
 		return database.collectionExists(getCollectionName(t));
 	}
 	
-	public static void main(String[] args) {
-		// MongoController m = new MongoController();
-		// String[] bla =
-		// {"Time","SourceIP","DestIP","Protocol","sourcePort","destinationPort","Priority","Operation","MessageCode","DestinationService","Direction","Flags"};
-		// String[] bla =
-		// {"Protocol","Priority","Operation","MessageCode","Direction","Flags"};
-		// String [] bla = {
-		// "Time",
-		// "SourceIP",
-		// "DestIP",
-		// "Protocol",
-		// "sourcePort",
-		// "destinationPort",
-		// "Duration",
-		// "srcPayload",
-		// "destPayload",
-		// "srcTotal",
-		// "destTotal",
-		// "sourcePackets",
-		// "destinationPackets"
-		// };
-		// for (String field : bla){
-		// Set<String> result = m.getDomainOf(DataType.FLOW, field);
-		// System.out.println(field + ": "+result.size());
-		// if (result.size() < 20)
-		// System.out.println(field + ": "+result.toString());
-		//
-		// }
-		//
-		// m.writingEnabled=false;
-	}
-
 	@Override
 	public void run() {
 
