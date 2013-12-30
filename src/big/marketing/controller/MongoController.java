@@ -139,10 +139,6 @@ public class MongoController implements Runnable{
 		}
 	}
 	
-	public static void main(String[] args) {
-//		new MongoController().getConstrainedFlowEntries("i", 30, 40);
-	}
-
 	@Override
 	public void run() {
 		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection, descriptionCollection};
