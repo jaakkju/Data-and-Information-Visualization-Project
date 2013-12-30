@@ -91,7 +91,7 @@ public class ZipReader {
 	 * @param type Found entries are handled as this type and thus stored in the database with this type.
 	 * @throws IOException is thrown when IOException occurs within the Inputstream
 	 */
-	public void readCSVStream(InputStream in, DataType type) throws IOException {
+	public int readCSVStream(InputStream in, DataType type) throws IOException {
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
 		
 		String[] nextLine;
@@ -107,6 +107,7 @@ public class ZipReader {
 				logger.info("Stored " + i + " objects"); // Informing GUI (progress bar or something like that) would be better
 		}
 		reader.close();
+		return i;
 	}
 	
 	
@@ -140,17 +141,21 @@ public class ZipReader {
 	 * @param week which week to read
 	 */
 	public void read(DataType type, int week) {
+		if (mongo.isDataInDatabase(type)){
+			logger.info("Skipped reading "+type.toString()+" Week "+week + " because data is already present in database");
+			return;
+		}
 		String[] streamLocation = getFileNames(type, week);
 		if (streamLocation[0] == null || streamLocation[1]==null){
 			logger.warn("No data for combination " + type.toString() + " Week "+week);
 			return;
 		}
 		List<InputStream> streams = getZipInputStreams(streamLocation[0], streamLocation[1]);
-		
+		int count=0;
 		// Do two try-catch blocks independently to ensure that openZIP is really getting closed.
 		try {
 			for (InputStream is : streams)
-				readCSVStream(is, type);
+				count += readCSVStream(is, type);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -160,6 +165,7 @@ public class ZipReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		logger.info("Finished reading "+count +" data entries for "+type.toString()+" Week "+week);
 		
 	}
 	/** 
