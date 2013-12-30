@@ -3,6 +3,7 @@ package big.marketing.controller;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -28,10 +29,9 @@ public class MongoController implements Runnable{
 	 * handling read requests in a seperate thread doesn't make sense, since reads are always synchronous (as a value has to be returned)
 	 */
 	Thread writer;
-	BlockingQueue<DBObject> flowBuffer;
-	BlockingQueue<DBObject> healthBuffer;
-	BlockingQueue<DBObject> ipsBuffer;
-	BlockingQueue<DBObject> descBuffer;
+	
+	EnumMap<DataType, CollectionHandler> collections;
+
 	private volatile boolean writingEnabled=true;
 	/*
 	 * MongoDB should be started on the default port.
@@ -46,19 +46,15 @@ public class MongoController implements Runnable{
 								IPS_COLLECTION_NAME = "ips",
 								HEALTH_COLLECTION_NAME = "health",
 								DESCRIPTION_COLLECTION_NAME = "nodes";
-	
-	private final DBCollection flowCollection, healthCollection, ipsCollection, descriptionCollection;
-	
+	public static final int BUFFER_SIZE=1000;
+		
 	public MongoController() {
 		connectToDatabase();
-		flowCollection = database.getCollection(FLOW_COLLECTION_NAME);
-		healthCollection = database.getCollection(HEALTH_COLLECTION_NAME);
-		ipsCollection = database.getCollection(IPS_COLLECTION_NAME);
-		descriptionCollection = database.getCollection(DESCRIPTION_COLLECTION_NAME);
-		flowBuffer = new ArrayBlockingQueue<>(1000);
-		ipsBuffer = new ArrayBlockingQueue<>(1000);
-		healthBuffer = new ArrayBlockingQueue<>(1000);
-		descBuffer = new ArrayBlockingQueue<>(1000);
+		collections = new EnumMap<>(DataType.class);
+		collections.put(DataType.FLOW, new CollectionHandler(FLOW_COLLECTION_NAME));
+		collections.put(DataType.IPS, new CollectionHandler(IPS_COLLECTION_NAME));
+		collections.put(DataType.HEALTH, new CollectionHandler(HEALTH_COLLECTION_NAME));
+		collections.put(DataType.DESCRIPTION, new CollectionHandler(DESCRIPTION_COLLECTION_NAME));
 		
 		writer = new Thread(this);
 		writer.start();
@@ -93,18 +89,7 @@ public class MongoController implements Runnable{
 		
 	}
 	private BlockingQueue<DBObject> getBuffer(DataType t){
-		switch(t){
-		case FLOW:
-			return flowBuffer;
-		case HEALTH:
-			return healthBuffer;
-		case IPS:
-			return ipsBuffer;
-		case DESCRIPTION:
-			return descBuffer;
-		default:
-			return null;
-		}
+		return collections.get(t).buffer;
 	}
 	
 	/**
@@ -132,22 +117,7 @@ public class MongoController implements Runnable{
 	}
 	
 	private DBCollection getCollection(DataType t){
-		switch(t){
-		case FLOW:
-			return flowCollection;
-		case HEALTH:
-			return healthCollection;
-		case IPS:
-			return ipsCollection;
-		case DESCRIPTION:
-			return descriptionCollection;
-		default:
-			return null;
-		}
-	}
-	public void getSingleFlowEntry(){
-		// return the first flow entry
-		System.out.println(flowCollection.findOne());
+		return collections.get(t).collection;
 	}
 	
 	public void storeEntry(DataType t, DBObject object){
@@ -192,15 +162,11 @@ public class MongoController implements Runnable{
 
 	@Override
 	public void run() {
-		DBCollection [] colls = {flowCollection, healthCollection,ipsCollection, descriptionCollection};
-		BlockingQueue<?> [] buffers = {flowBuffer, healthBuffer, ipsBuffer,descBuffer};
+
 		while (true){
 			if (writingEnabled){
-				for (int i=0;i<colls.length;i++){
-					BlockingQueue<DBObject> buffer = (BlockingQueue<DBObject>) buffers[i];
-					ArrayList<DBObject> bufferList = new ArrayList<>(buffer.size());
-					buffer.drainTo(bufferList);
-					colls[i].insert(bufferList);
+				for (CollectionHandler mc : collections.values()){
+					mc.flushBuffer();
 				}
 			} else{
 				try {
@@ -209,6 +175,21 @@ public class MongoController implements Runnable{
 					e.printStackTrace();
 				}
 			}
+		}
+	}
+	private class CollectionHandler{
+		String name;
+		DBCollection collection;
+		BlockingQueue<DBObject> buffer;
+		public CollectionHandler(String name) {
+			this.name = name;
+			this.collection = MongoController.database.getCollection(this.name);
+			this.buffer = new ArrayBlockingQueue<>(MongoController.BUFFER_SIZE);
+		}
+		public void flushBuffer(){
+			ArrayList<DBObject> tmpBuffer = new ArrayList<>(buffer.size());
+			buffer.drainTo(tmpBuffer);
+			collection.insert(tmpBuffer);
 		}
 	}
 }
