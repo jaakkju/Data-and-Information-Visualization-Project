@@ -33,10 +33,9 @@ public class DataController extends Observable {
 			for (int week = 1; week <= 2; week++) {
 				zReader.read(DataType.FLOW, week);
 				zReader.read(DataType.HEALTH, week);
+				zReader.read(DataType.IPS, week);
 			}			
-			// TODO this is a dirty fix from the problem that week one does not exist for IPS data
-			zReader.read(DataType.IPS, 2);
-		
+			
 		} catch (IOException err) {
 			logger.error("Error while loading network data.", err);
 		}
