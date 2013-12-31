@@ -29,8 +29,8 @@ public class ZipReader {
 
 	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
-//	public static final int ROWS = 500000;
-	public static final int ROWS = 50000000;
+	public static final int ROWS = 500000;
+//	public static final int ROWS = 50000000;
 	
 	
 	/**
@@ -141,10 +141,6 @@ public class ZipReader {
 	 * @param week which week to read
 	 */
 	public void read(DataType type, int week) {
-		if (mongo.isDataInDatabase(type)){
-			logger.info("Skipped reading "+type.toString()+" Week "+week + " because data is already present in database");
-			return;
-		}
 		String[] streamLocation = getFileNames(type, week);
 		if (streamLocation[0] == null || streamLocation[1]==null){
 			logger.warn("No data for combination " + type.toString() + " Week "+week);

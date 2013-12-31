@@ -2,6 +2,7 @@ package big.marketing.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
 
@@ -38,20 +39,19 @@ public class DataController extends Observable {
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
 		
+		EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(DataType.class);
+		for (DataType t : DataType.values()){
+			presentInDatabase.put(t, mongoController.isDataInDatabase(t));
+		}
 		
-		boolean flowInDB = mongoController.isDataInDatabase(DataType.FLOW);
-		boolean healthInDB = mongoController.isDataInDatabase(DataType.HEALTH);
-		boolean ipsInDB = mongoController.isDataInDatabase(DataType.IPS);
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 			for (int week = 1; week <= 2; week++) {
-				if (!flowInDB)
-					zReader.read(DataType.FLOW, week);
-				if (!healthInDB)
-					zReader.read(DataType.HEALTH, week);
-				if (!ipsInDB)
-					zReader.read(DataType.IPS, week);
+				for (DataType t : DataType.values()){
+					if (!presentInDatabase.get(t))
+						zReader.read(t, week);
+				}
 			}
 
 		} catch (IOException err) {
