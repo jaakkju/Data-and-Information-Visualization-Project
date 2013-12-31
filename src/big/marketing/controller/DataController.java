@@ -37,14 +37,21 @@ public class DataController extends Observable {
 
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
-
+		
+		
+		boolean flowInDB = mongoController.isDataInDatabase(DataType.FLOW);
+		boolean healthInDB = mongoController.isDataInDatabase(DataType.HEALTH);
+		boolean ipsInDB = mongoController.isDataInDatabase(DataType.IPS);
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 			for (int week = 1; week <= 2; week++) {
-				zReader.read(DataType.FLOW, week);
-				zReader.read(DataType.HEALTH, week);
-				zReader.read(DataType.IPS, week);
+				if (!flowInDB)
+					zReader.read(DataType.FLOW, week);
+				if (!healthInDB)
+					zReader.read(DataType.HEALTH, week);
+				if (!ipsInDB)
+					zReader.read(DataType.IPS, week);
 			}
 
 		} catch (IOException err) {
