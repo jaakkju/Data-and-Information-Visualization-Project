@@ -17,7 +17,7 @@ import big.marketing.data.DBWritable;
 import big.marketing.data.DataType;
 import big.marketing.data.HealthMessage;
 import big.marketing.data.IPSMessage;
-import big.marketing.data.SingleFlow;
+import big.marketing.data.FlowMessage;
 
 public class ZipReader {
 
@@ -122,7 +122,7 @@ public class ZipReader {
 		// modify and fill data structures here
 		switch (type) {
 		case FLOW:
-			out = new SingleFlow(entry);
+			out = new FlowMessage(entry);
 			break;
 		case HEALTH:
 			out = new HealthMessage(entry);

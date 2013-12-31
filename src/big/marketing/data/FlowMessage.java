@@ -3,9 +3,16 @@ package big.marketing.data;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class SingleFlow implements DBWritable{
+public class FlowMessage implements DBWritable{
 
+	
+	/**
+	 * time in Unixtime
+	 * range: [1364802616,1366020000]
+	 */
 	private final int time;
+	
+	
 	private final int protocol;
 	private final int sourceIP;
 	private final int destinationIP;
@@ -21,7 +28,7 @@ public class SingleFlow implements DBWritable{
 	private final int sourcePacketCount;
 	private final int destinationPacketCount;
 
-	public SingleFlow(String[] args) {
+	public FlowMessage(String[] args) {
 		super();
 		// TODO: remove unused features
 		this.time = (int) Double.parseDouble(args[0]);
@@ -128,19 +135,22 @@ public class SingleFlow implements DBWritable{
 		dbo.append("SourceIP", sourceIP);
 		dbo.append("DestIP", destinationIP);
 		dbo.append("Protocol", protocol);
-		dbo.append("sourcePort", sourcePort);
+//		dbo.append("sourcePort", sourcePort);
 		dbo.append("destinationPort", destinationPort);
 		dbo.append("Duration", duration);
 		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
 		dbo.append("hasMoreFragments", hasMoreFragments);
-		dbo.append("srcPayload", sourcePayloadBytes);
-		dbo.append("destPayload", destinationPayloadBytes);
-		dbo.append("srcTotal", sourceTotalBytes);
-		dbo.append("destTotal", destinationTotalBytes);
-		dbo.append("sourcePackets", sourcePacketCount);
-		dbo.append("destinationPackets", destinationPacketCount);
+		
+		dbo.append("payloadBytes", sourcePayloadBytes+destinationPayloadBytes);
+		dbo.append("totalBytes", sourceTotalBytes+destinationTotalBytes);
+		dbo.append("packetCount", sourcePacketCount+destinationPacketCount);
+		
+//		dbo.append("srcPayload", sourcePayloadBytes);
+//		dbo.append("destPayload", destinationPayloadBytes);
+//		dbo.append("srcTotal", sourceTotalBytes);
+//		dbo.append("destTotal", destinationTotalBytes);
+//		dbo.append("sourcePackets", sourcePacketCount);
+//		dbo.append("destinationPackets", destinationPacketCount);
 		return dbo;
-	}
-	public static void main(String[] args) {
 	}
 }

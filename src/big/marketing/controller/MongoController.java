@@ -4,9 +4,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import org.apache.log4j.Logger;
 
 import big.marketing.data.DataType;
 import big.marketing.reader.ZipReader;
@@ -24,6 +27,9 @@ import com.mongodb.MongoClient;
  * http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-java-driver/#getting-started-with-java-driver
  */
 public class MongoController implements Runnable {
+	
+	static Logger logger = Logger.getLogger(MongoController.class);
+
 	/*
 	 * writerThread and buffer for storing write requests. handling read
 	 * requests in a seperate thread doesn't make sense, since reads are always
@@ -33,7 +39,7 @@ public class MongoController implements Runnable {
 
 	EnumMap<DataType, CollectionHandler> collections;
 
-	private volatile boolean writingEnabled = true;
+	private volatile boolean writingEnabled = false;
 	
 	/*
 	 * MongoDB should be started on the default port. TODO: start MongoDB
@@ -51,6 +57,7 @@ public class MongoController implements Runnable {
 	public MongoController() {
 		connectToDatabase();
 		collections = new EnumMap<>(DataType.class);
+		
 		for (DataType t : DataType.values()){
 			collections.put(t, new CollectionHandler(t));
 		}
@@ -69,14 +76,16 @@ public class MongoController implements Runnable {
 		database = mongo.getDB(DB_NAME);
 	}
 
-	public void getConstrainedEntries(DataType t, String key, int min, int max) {
+	public List<DBObject> getConstrainedEntries(DataType t, String key, int min, int max) {
 
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
 				max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
+		ArrayList<DBObject> result = new ArrayList<>();
 		for (DBObject dbo : cursor) {
-			System.out.println(dbo);
+			result.add(dbo);
 		}
+		return result;
 	}
 
 	public void printAllEntries(DataType t) {
@@ -184,5 +193,21 @@ public class MongoController implements Runnable {
 			buffer.drainTo(tmpBuffer);
 			collection.insert(tmpBuffer);
 		}
+	}
+	public static void main(String[] args) {
+//		[1364802616,1366020000]
+		MongoController mc = new MongoController();
+		int minCount = 1, maxCount=100;
+		int min=1364802616,max=1366020000;
+		for (int count=minCount;count<maxCount;count++){
+			int range = max-min-count;
+			int start = (int)Math.ceil(Math.random()*range+min);
+			int end = start+count;
+			long s = System.currentTimeMillis();
+			logger.info("Starting Time-Query: "+start+" to "+end);
+			List<DBObject> test = mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
+			logger.info("Finish querying "+count+" time unit in flow. Objects: "+test.size()+" Duration: "+(System.currentTimeMillis()-s)+" ms"); 
+		}
+		
 	}
 }
