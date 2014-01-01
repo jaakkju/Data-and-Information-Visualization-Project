@@ -39,7 +39,7 @@ public class MongoController implements Runnable {
 
 	EnumMap<DataType, CollectionHandler> collections;
 
-	private volatile boolean writingEnabled = false;
+	private volatile boolean writingEnabled = true;
 	
 	/*
 	 * MongoDB should be started on the default port. TODO: start MongoDB
@@ -158,6 +158,7 @@ public class MongoController implements Runnable {
 
 	public void clearCollection(DataType t) {
 		getCollection(t).drop();
+		logger.info("Dropped data of Type "+t.name());
 	}
 
 	public boolean isDataInDatabase(DataType t){

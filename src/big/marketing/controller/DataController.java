@@ -14,7 +14,7 @@ import big.marketing.data.Node;
 import big.marketing.reader.NetworkReader;
 import big.marketing.reader.ZipReader;
 
-public class DataController extends Observable {
+public class DataController extends Observable implements Runnable{
 	// http://docs.oracle.com/javase/7/docs/api/java/util/Observable.html
 
 	static Logger logger = Logger.getLogger(DataController.class);
@@ -33,9 +33,19 @@ public class DataController extends Observable {
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 
+	private Thread readingThread;
+	
 	public DataController() {
 		this.mongoController = new MongoController();
+	}
 
+	public void readData(){
+		readingThread = new Thread(this);
+		readingThread.start();
+	}
+	
+	public void run(){
+		
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
 		
