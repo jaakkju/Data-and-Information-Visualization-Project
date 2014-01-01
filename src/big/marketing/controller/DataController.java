@@ -39,14 +39,16 @@ public class DataController extends Observable {
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
 		
-		EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(DataType.class);
-		for (DataType t : DataType.values()){
-			presentInDatabase.put(t, mongoController.isDataInDatabase(t));
-		}
 		
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
+
+			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(DataType.class);
+			for (DataType t : DataType.values()){
+				presentInDatabase.put(t, mongoController.isDataInDatabase(t));
+			}
+			
 			for (int week = 1; week <= 2; week++) {
 				for (DataType t : DataType.values()){
 					if (!presentInDatabase.get(t))
