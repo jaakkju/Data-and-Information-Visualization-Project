@@ -2,6 +2,7 @@ package big.marketing.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
 
@@ -37,17 +38,21 @@ public class DataController extends Observable {
 
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
-
+		
+		EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(DataType.class);
+		for (DataType t : DataType.values()){
+			presentInDatabase.put(t, mongoController.isDataInDatabase(t));
+		}
+		
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 			for (int week = 1; week <= 2; week++) {
-				zReader.read(DataType.FLOW, week);
-				zReader.read(DataType.HEALTH, week);
+				for (DataType t : DataType.values()){
+					if (!presentInDatabase.get(t))
+						zReader.read(t, week);
+				}
 			}
-			// TODO this is a dirty fix from the problem that week one does not exist for IPS data
-			zReader.read(DataType.IPS, 2);
-
 		} catch (IOException err) {
 			logger.error("Error while loading network data.", err);
 		}

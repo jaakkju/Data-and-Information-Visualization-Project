@@ -17,7 +17,7 @@ import big.marketing.data.DBWritable;
 import big.marketing.data.DataType;
 import big.marketing.data.HealthMessage;
 import big.marketing.data.IPSMessage;
-import big.marketing.data.SingleFlow;
+import big.marketing.data.FlowMessage;
 
 public class ZipReader {
 
@@ -30,7 +30,7 @@ public class ZipReader {
 	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
 	public static final int ROWS = 500000;
-//	public static final int ROWS = 25000000;
+//	public static final int ROWS = 50000000;
 	
 	
 	/**
@@ -91,7 +91,7 @@ public class ZipReader {
 	 * @param type Found entries are handled as this type and thus stored in the database with this type.
 	 * @throws IOException is thrown when IOException occurs within the Inputstream
 	 */
-	public void readCSVStream(InputStream in, DataType type) throws IOException {
+	public int readCSVStream(InputStream in, DataType type) throws IOException {
 		CSVReader reader = new CSVReader(new InputStreamReader(in));
 		
 		String[] nextLine;
@@ -104,9 +104,10 @@ public class ZipReader {
 			DBWritable dbw = createDataStructure(nextLine,type);
 			mongo.storeEntry(type, dbw.asDBObject());
 			if (++i % 100000 == 0)
-				logger.info("Stored " + i + " objects");
+				logger.info("Stored " + i + " objects"); // Informing GUI (progress bar or something like that) would be better
 		}
 		reader.close();
+		return i;
 	}
 	
 	
@@ -121,7 +122,7 @@ public class ZipReader {
 		// modify and fill data structures here
 		switch (type) {
 		case FLOW:
-			out = new SingleFlow(entry);
+			out = new FlowMessage(entry);
 			break;
 		case HEALTH:
 			out = new HealthMessage(entry);
@@ -141,14 +142,16 @@ public class ZipReader {
 	 */
 	public void read(DataType type, int week) {
 		String[] streamLocation = getFileNames(type, week);
-		if (streamLocation[0] == null || streamLocation[1]==null)
-			throw new IllegalArgumentException("invalid type or week");
+		if (streamLocation[0] == null || streamLocation[1]==null){
+			logger.warn("No data for combination " + type.toString() + " Week "+week);
+			return;
+		}
 		List<InputStream> streams = getZipInputStreams(streamLocation[0], streamLocation[1]);
-		
+		int count=0;
 		// Do two try-catch blocks independently to ensure that openZIP is really getting closed.
 		try {
 			for (InputStream is : streams)
-				readCSVStream(is, type);
+				count += readCSVStream(is, type);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -158,6 +161,7 @@ public class ZipReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		logger.info("Finished reading "+count +" data entries for "+type.toString()+" Week "+week);
 		
 	}
 	/** 

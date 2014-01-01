@@ -15,7 +15,8 @@ public class IPSMessage implements DBWritable {
 		destService,
 		flags;
 		
-	private final int 
+	private final int
+		unixTime,
 		direction,
 		protocol,
 		priority,
@@ -24,8 +25,6 @@ public class IPSMessage implements DBWritable {
 		destIP,
 		sourcePort,
 		destPort;
-	
-	private final long unixTime;
 	
 	public static final int
 		DIRECTION_IN=0,
@@ -51,7 +50,7 @@ public class IPSMessage implements DBWritable {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		unixTime = d.getTime()/1000L;
+		unixTime = (int) (d.getTime()/1000L);
 				
 		if ("UDP".equals(args[4]))
 			this.protocol = PROTOCOL_UDP;
