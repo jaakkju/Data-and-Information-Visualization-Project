@@ -169,8 +169,13 @@ public class MongoController implements Runnable {
 	}
 
 	public void clearCollection(DataType t) {
-		getCollection(t).drop();
-		logger.info("Dropped data of Type "+t.name());
+		String name = getCollectionName(t);
+		if (database.getCollectionNames().contains(name)){
+			getCollection(t).drop();
+			logger.info("Dropped data of Type "+t.name());
+		}else{
+			logger.warn("Dropping Collection failed! No Collection with name "+name+ " (for Type "+t.name()+")");
+		}
 	}
 
 	public boolean isDataInDatabase(DataType t){
