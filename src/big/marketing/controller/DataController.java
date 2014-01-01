@@ -45,8 +45,7 @@ public class DataController extends Observable {
 				zReader.read(DataType.FLOW, week);
 				zReader.read(DataType.HEALTH, week);
 			}
-			// TODO this is a dirty fix from the problem that week one does not
-			// exist for IPS data
+			// TODO this is a dirty fix from the problem that week one does not exist for IPS data
 			zReader.read(DataType.IPS, 2);
 
 		} catch (IOException err) {
@@ -61,7 +60,7 @@ public class DataController extends Observable {
 	 * @param date in milliseconds
 	 * @return true if data queried successfully from mongo, false otherwise
 	 */
-	public boolean moveQueryWindow(int date) {
+	public boolean moveQueryWindow(int msdate) {
 		// TODO implement moveQueryWindow
 
 		// TODO fetch health data
