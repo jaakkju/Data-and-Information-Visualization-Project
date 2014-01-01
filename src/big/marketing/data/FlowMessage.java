@@ -61,12 +61,12 @@ public class FlowMessage implements DBWritable{
 		return protocol;
 	}
 
-	public int getSourceIP() {
-		return sourceIP;
+	public String getSourceIP() {
+		return decodeIP(sourceIP);
 	}
 
-	public int getDestinationIP() {
-		return destinationIP;
+	public String getDestinationIP() {
+		return decodeIP(destinationIP);
 	}
 
 	public int getSourcePort() {

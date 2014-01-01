@@ -8,13 +8,11 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class IPSMessage implements DBWritable {
-	
-	private boolean important;
-	
+		
 	private final String 
 		destService,
 		flags;
-		
+	
 	private final int
 		unixTime,
 		direction,
@@ -26,6 +24,49 @@ public class IPSMessage implements DBWritable {
 		sourcePort,
 		destPort;
 	
+	public String getDestService() {
+		return destService;
+	}
+
+	public String getFlags() {
+		return flags;
+	}
+
+	public int getUnixTime() {
+		return unixTime;
+	}
+
+	public int getDirection() {
+		return direction;
+	}
+
+	public int getProtocol() {
+		return protocol;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public int getOperation() {
+		return operation;
+	}
+
+	public String getSourceIP() {
+		return decodeIP(sourceIP);
+	}
+
+	public String getDestIP() {
+		return decodeIP(destIP);
+	}
+
+	public int getSourcePort() {
+		return sourcePort;
+	}
+
+	public int getDestPort() {
+		return destPort;
+	}
 	public static final int
 		DIRECTION_IN=0,
 		DIRECTION_OUT=1,
@@ -69,14 +110,11 @@ public class IPSMessage implements DBWritable {
 			System.out.println("Invalid Priority: "+args[1]);
 			this.priority = -1;
 		}
-		important = false;
 		
 		// keep only Deny messages, the others are normal network traffic,
 		// according to the manual
-		if ("Deny".equals(args[2])){
+		if ("Deny".equals(args[2]))
 			this.operation = OPERATION_DENY;
-			important = true;
-		}
 		else if ("Teardown".equals(args[2]))
 			this.operation = OPERATION_TEARDOWN;
 		else if ("Built".equals(args[2])){
@@ -116,8 +154,10 @@ public class IPSMessage implements DBWritable {
 
 	@Override
 	public DBObject asDBObject() {
-		if (!important)
+		
+		if (operation != OPERATION_DENY)
 			return null;
+		
 		BasicDBObject dbo = new BasicDBObject();
 		// maybe remove some more features here?
 		dbo.append("Time", unixTime);
