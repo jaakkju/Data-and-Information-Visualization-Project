@@ -1,5 +1,7 @@
 package big.marketing.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -55,9 +57,23 @@ public class MongoController implements Runnable {
 			DESCRIPTION_COLLECTION_NAME = "nodes";
 	public static int BUFFER_SIZE = 1000;
 
+	public static String MONGOD_PATH = "data/mongo/mongod.exe";
+	public static String DB_PATH = "data/db";
+	private static String MONGO_LOG_FILE = "mongo.log";
+
+	
 	public MongoController() {
 		loadSettings();
-		connectToDatabase();
+		
+		if (!connectToDatabase()){
+			
+			startMongoDBProcess();
+			if (!connectToDatabase()){
+				logger.fatal("Could not start MongoDB! Exiting now ...");
+				System.exit(1);
+			}
+		}
+		
 		collections = new EnumMap<>(DataType.class);
 		
 		for (DataType t : DataType.values()){
@@ -76,18 +92,49 @@ public class MongoController implements Runnable {
 		HEALTH_COLLECTION_NAME = Settings.get("mongo.collections.health");
 		DESCRIPTION_COLLECTION_NAME = Settings.get("mongo.collections.network");
 		BUFFER_SIZE= Settings.getInt("mongo.writeBuffer.size");
+		
+		MONGOD_PATH = Settings.get("mongo.exe.path");
+		DB_PATH = Settings.get("mongo.exe.dbpath");
+		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
 	}
 
-	public void connectToDatabase() {
+	public boolean connectToDatabase() {
 
 		try {
 			mongo = new MongoClient(HOST_NAME);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			mongo.getConnector().getDBPortPool(mongo.getAddress()).get().ensureOpen();
+			database = mongo.getDB(DB_NAME);
+			logger.info("Connection to MongoDB established");
+			return true;
+		}catch (UnknownHostException e) {
+			logger.error(e.getMessage());
+		} catch (IOException e) {
+			logger.warn("No local MongoDB server running!");
 		}
-		database = mongo.getDB(DB_NAME);
+		return false;
 	}
 
+	public void startMongoDBProcess(){
+		try {
+			String canPath = new File(MONGOD_PATH).getCanonicalPath();
+			final Process mongoProcess = Runtime.getRuntime().exec(
+					canPath + " --dbpath=" + DB_PATH + " --logpath "+MONGO_LOG_FILE);
+			
+			// ensure that mongoDB is closed on shutdown of the VM
+			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					mongoProcess.destroy();
+					
+				}
+			}));
+			logger.info("MongoDB started");
+		} catch (IOException e) {
+			logger.error("Failed to start MongoDB: "+e.getMessage());
+		}
+	}
+	
 	public List<DBObject> getConstrainedEntries(DataType t, String key, int min, int max) {
 
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
