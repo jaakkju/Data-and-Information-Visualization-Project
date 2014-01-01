@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
+import big.marketing.Settings;
 import big.marketing.controller.MongoController;
 import big.marketing.data.DataType;
 import big.marketing.data.Node;
@@ -19,17 +20,21 @@ import big.marketing.data.Node;
 public class NetworkReader {
 	static Logger logger = Logger.getLogger(NetworkReader.class);
 	
-	public static final String FILE_FOLDER = "data/";
-	public static final String FILE_DESCRIPTION = "BigMktNetwork.txt";
+	public static String FILE_FOLDER = "data/";
+	public static String FILE_DESCRIPTION = "BigMktNetwork.txt";
 	
 	private static final String regex = "\\s";
 	private static final int regLimit = 3;
 	private MongoController mongo;
 
 	public NetworkReader(MongoController mongo) {
+	   loadSettings();
 	   this.mongo = mongo;
    }
-
+	private void loadSettings() {
+		FILE_FOLDER = Settings.get("reader.folder");
+		FILE_DESCRIPTION= Settings.get("reader.files.description");
+	}
 	/**
 	 * reads network description file to arraylist<Node>
 	 * @return network as arraylist<Node> or null if no nodes were read from the file

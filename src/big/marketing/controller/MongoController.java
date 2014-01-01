@@ -11,6 +11,7 @@ import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
 
+import big.marketing.Settings;
 import big.marketing.data.DataType;
 import big.marketing.reader.ZipReader;
 
@@ -48,13 +49,14 @@ public class MongoController implements Runnable {
 	private static MongoClient mongo;
 	private static DB database;
 
-	public static final String HOST_NAME = "localhost", DB_NAME = "eyeNet",
+	public static String HOST_NAME = "localhost", DB_NAME = "eyeNet",
 			FLOW_COLLECTION_NAME = "flow", IPS_COLLECTION_NAME = "ips",
 			HEALTH_COLLECTION_NAME = "health",
 			DESCRIPTION_COLLECTION_NAME = "nodes";
-	public static final int BUFFER_SIZE = 1000;
+	public static int BUFFER_SIZE = 1000;
 
 	public MongoController() {
+		loadSettings();
 		connectToDatabase();
 		collections = new EnumMap<>(DataType.class);
 		
@@ -64,6 +66,16 @@ public class MongoController implements Runnable {
 
 		writer = new Thread(this);
 		writer.start();
+	}
+
+	private void loadSettings() {
+		HOST_NAME = Settings.get("mongo.hostname");
+		DB_NAME = Settings.get("mongo.databasename");
+		FLOW_COLLECTION_NAME = Settings.get("mongo.collections.flow");
+		IPS_COLLECTION_NAME = Settings.get("mongo.collections.ips");
+		HEALTH_COLLECTION_NAME = Settings.get("mongo.collections.health");
+		DESCRIPTION_COLLECTION_NAME = Settings.get("mongo.collections.network");
+		BUFFER_SIZE= Settings.getInt("mongo.writeBuffer.size");
 	}
 
 	public void connectToDatabase() {
@@ -200,6 +212,7 @@ public class MongoController implements Runnable {
 	}
 	public static void main(String[] args) {
 //		[1364802616,1366020000]
+		Settings.loadConfig();
 		MongoController mc = new MongoController();
 		int minCount = 1, maxCount=100;
 		int min=1364802616,max=1366020000;

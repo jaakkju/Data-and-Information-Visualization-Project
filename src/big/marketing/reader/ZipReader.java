@@ -12,6 +12,7 @@ import java.util.zip.ZipFile;
 import org.apache.log4j.Logger;
 
 import au.com.bytecode.opencsv.CSVReader;
+import big.marketing.Settings;
 import big.marketing.controller.MongoController;
 import big.marketing.data.DBWritable;
 import big.marketing.data.DataType;
@@ -22,14 +23,14 @@ import big.marketing.data.FlowMessage;
 public class ZipReader {
 
 	static Logger logger = Logger.getLogger(ZipReader.class);
-	public static final String FILE_FOLDER = "data/";
-	public static final String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
-	public static final String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
-	public static final String FILE_WEEK2DATA = "week2data_fixed.zip";
+	public static String FILE_FOLDER = "data/";
+	public static String FILE_BIGBROTHER = "VAST2013MC3_BigBrother.zip";
+	public static String FILE_NETWORKFLOW = "VAST2013MC3_NetworkFlow.zip";
+	public static String FILE_WEEK2DATA = "week2data_fixed.zip";
 
 	// for production a value of 25 000 000 should be sufficient
 	// for testing change this value to read only ROWS many rows
-	public static final int ROWS = 500000;
+	public static int ROWS = 500000;
 //	public static final int ROWS = 50000000;
 	
 	
@@ -81,7 +82,16 @@ public class ZipReader {
 	 * @param mongo database where the entries will be stored.
 	 */
 	public ZipReader(MongoController mongo) {
+		loadSettings();
 		this.mongo = mongo;
+	}
+	
+	private void loadSettings() {
+		FILE_FOLDER = Settings.get("reader.folder");
+		FILE_BIGBROTHER= Settings.get("reader.files.health");
+		FILE_NETWORKFLOW= Settings.get("reader.files.flow");
+		FILE_WEEK2DATA= Settings.get("reader.files.week2");
+		ROWS= Settings.getInt("reader.maxrows");
 	}
 	
 	/**

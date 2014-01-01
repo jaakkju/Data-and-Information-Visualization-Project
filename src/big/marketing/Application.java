@@ -19,6 +19,8 @@ public class Application {
 		
 		logger.info("Starting eyeNet application: initializing controller and views");
 		
+		Settings.loadConfig();
+		
 		DataController controller = new DataController();
 		
 		// All panels have a reference to controller so changes in selections and data can be passed to other views
