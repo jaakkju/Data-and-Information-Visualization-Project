@@ -31,6 +31,7 @@ import com.mongodb.MongoClient;
  */
 public class MongoController implements Runnable {
 	
+
 	static Logger logger = Logger.getLogger(MongoController.class);
 
 	/*
@@ -56,6 +57,7 @@ public class MongoController implements Runnable {
 			HEALTH_COLLECTION_NAME = "health",
 			DESCRIPTION_COLLECTION_NAME = "nodes";
 	public static int BUFFER_SIZE = 1000;
+	private static int MAX_TRIES = 3;
 
 	public static String MONGOD_PATH = "data/mongo/mongod.exe";
 	public static String DB_PATH = "data/db";
@@ -65,15 +67,18 @@ public class MongoController implements Runnable {
 	public MongoController() {
 		loadSettings();
 		
-		if (!connectToDatabase()){
-			
+		boolean isConnected = connectToDatabase();
+		for (int i = 1; i <= MAX_TRIES && !isConnected; i++) {
+			logger.warn("Could not connect to MongoDB in try "+i+" of "+MAX_TRIES);
 			startMongoDBProcess();
-			if (!connectToDatabase()){
-				logger.fatal("Could not start MongoDB! Exiting now ...");
-				System.exit(1);
-			}
+			isConnected = connectToDatabase();
 		}
 		
+		if (!isConnected){
+			logger.fatal("Failed to start MongoDB! Exiting now ...");
+			System.exit(1);
+		}
+
 		collections = new EnumMap<>(DataType.class);
 		
 		for (DataType t : DataType.values()){
@@ -96,6 +101,8 @@ public class MongoController implements Runnable {
 		MONGOD_PATH = Settings.get("mongo.exe.path");
 		DB_PATH = Settings.get("mongo.exe.dbpath");
 		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
+		MAX_TRIES = Settings.getInt("mongo.exe.maxtries");
+		
 	}
 
 	public boolean connectToDatabase() {
@@ -109,7 +116,7 @@ public class MongoController implements Runnable {
 		}catch (UnknownHostException e) {
 			logger.error(e.getMessage());
 		} catch (IOException e) {
-			logger.warn("No local MongoDB server running!");
+			logger.warn("No MongoDB server running!");
 		}
 		return false;
 	}
@@ -129,7 +136,7 @@ public class MongoController implements Runnable {
 					
 				}
 			}));
-			logger.info("MongoDB started");
+			logger.info("Sucessfully started MongoDB");
 		} catch (IOException e) {
 			logger.error("Failed to start MongoDB: "+e.getMessage());
 		}
