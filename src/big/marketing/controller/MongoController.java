@@ -155,8 +155,11 @@ public class MongoController implements Runnable {
 		}
 		return null;
 	}
-	
-	
+
+	public void clearCollection(DataType t) {
+		getCollection(t).drop();
+	}
+
 	public boolean isDataInDatabase(DataType t){
 		return database.collectionExists(getCollectionName(t));
 	}

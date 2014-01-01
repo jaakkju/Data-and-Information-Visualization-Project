@@ -42,6 +42,8 @@ public class NetworkReader {
 		
 		logger.info("Loading network description file from " + file.getAbsolutePath());
 		
+		mongo.clearCollection(DataType.DESCRIPTION);
+		
 		FileInputStream fileIn = new FileInputStream(file);
 		BufferedReader br = new BufferedReader(new InputStreamReader(fileIn));
 
