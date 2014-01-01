@@ -53,7 +53,6 @@ public class DataController extends Observable {
 						zReader.read(t, week);
 				}
 			}
-
 		} catch (IOException err) {
 			logger.error("Error while loading network data.", err);
 		}
@@ -66,7 +65,7 @@ public class DataController extends Observable {
 	 * @param date in milliseconds
 	 * @return true if data queried successfully from mongo, false otherwise
 	 */
-	public boolean moveQueryWindow(int date) {
+	public boolean moveQueryWindow(int msdate) {
 		// TODO implement moveQueryWindow
 
 		// TODO fetch health data
