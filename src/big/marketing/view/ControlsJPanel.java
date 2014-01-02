@@ -2,6 +2,7 @@ package big.marketing.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.SampleModel;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -10,11 +11,12 @@ import javax.swing.JPanel;
 
 import big.marketing.controller.DataController;
 import big.marketing.data.DataType;
+import big.marketing.test.DatabasePerformance;
 
 public class ControlsJPanel extends JPanel implements Observer {
    private static final long serialVersionUID = 7478563340170330453L;
 	private final DataController controller;
-	private JButton startReadingButton, resetDatabaseButton;
+	private JButton startReadingButton, resetDatabaseButton, perfTestButton;
 	public ControlsJPanel(final DataController controller) {
 	   this.controller = controller;
 	   startReadingButton = new JButton("Read Data");
@@ -43,6 +45,24 @@ public class ControlsJPanel extends JPanel implements Observer {
 		
 	});
 	   add(resetDatabaseButton);
+	   
+	   perfTestButton = new JButton("performance test");
+	   perfTestButton.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					DatabasePerformance.main(null);
+					
+				}
+			}).start();
+		}});
+	   
+	   
+	   add(perfTestButton);
    }
 
 	@Override
