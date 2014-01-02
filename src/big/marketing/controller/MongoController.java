@@ -15,9 +15,9 @@ import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
 import big.marketing.data.DataType;
-import big.marketing.reader.ZipReader;
 
 import com.mongodb.AggregationOutput;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -44,6 +44,7 @@ public class MongoController implements Runnable {
 
 	private volatile boolean writingEnabled = true;
 
+	private static Process mongoProcess;
 	private static MongoClient mongo;
 	private static DB database;
 
@@ -120,7 +121,7 @@ public class MongoController implements Runnable {
 	public void startMongoDBProcess() {
 		try {
 			String canPath = new File(MONGOD_PATH).getCanonicalPath();
-			final Process mongoProcess = Runtime.getRuntime().exec(
+			mongoProcess = Runtime.getRuntime().exec(
 					canPath + " --dbpath=" + DB_PATH + " --logpath "
 							+ MONGO_LOG_FILE);
 
@@ -129,8 +130,7 @@ public class MongoController implements Runnable {
 
 				@Override
 				public void run() {
-					mongoProcess.destroy();
-
+					shutDown();
 				}
 			}));
 			logger.info("Sucessfully started MongoDB");
@@ -138,7 +138,29 @@ public class MongoController implements Runnable {
 			logger.error("Failed to start MongoDB: " + e.getMessage());
 		}
 	}
+	
+	public void shutDown(){
+		logger.info("Shutting down database...");
+		// Check for open queries and cancel them
+		DBObject dbObject = database.getCollection("$cmd.sys.inprog").findOne();
+		if (mongoProcess != null && dbObject != null){
+			
+			BasicDBList currentOps = (BasicDBList) dbObject.get("inprog");
+			for (Object o : currentOps) {
+				DBObject operation = (BasicDBObject ) o;
+				String opType =(String) operation.get("op");
+				String opNamespace = (String) operation.get("ns");
+				if (opType.equals("query") && opNamespace.contains(DB_NAME)){
+					int opid = (Integer) operation.get("opid");
+					database.eval("db.killOp(" + opid + ")");
+					logger.info("Killed active query on "+DB_NAME+" with opcode "+opid);
+				}
+			}
 
+			mongoProcess.destroy();
+		}
+	}
+	
 	private BlockingQueue<DBObject> getBuffer(DataType t) {
 		return collections.get(t).buffer;
 	}
@@ -172,8 +194,12 @@ public class MongoController implements Runnable {
 				max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
 		ArrayList<DBObject> result = new ArrayList<DBObject>();
-		for (DBObject dbo : cursor) {
-			result.add(dbo);
+		try{
+			for (DBObject dbo : cursor) {
+				result.add(dbo);
+			}
+		} catch (Exception e){
+			logger.error("Error when reading from database: "+e.getLocalizedMessage());
 		}
 		return result;
 	}
@@ -259,26 +285,5 @@ public class MongoController implements Runnable {
 			buffer.drainTo(tmpBuffer);
 			collection.insert(tmpBuffer);
 		}
-	}
-
-	public static void main(String[] args) {
-		// Testing performance of Queries
-		Settings.loadConfig();
-		MongoController mc = new MongoController();
-		int minCount = 1, maxCount = 100;
-		int min = 1364802616, max = 1366020000;
-		for (int count = minCount; count < maxCount; count++) {
-			int range = max - min - count;
-			int start = (int) Math.ceil(Math.random() * range + min);
-			int end = start + count;
-			long s = System.currentTimeMillis();
-			logger.info("Starting Time-Query: " + start + " to " + end);
-			List<DBObject> test = mc.getConstrainedEntries(DataType.FLOW,
-					"Time", start, end);
-			logger.info("Finish querying " + count
-					+ " time unit in flow. Objects: " + test.size()
-					+ " Duration: " + (System.currentTimeMillis() - s) + " ms");
-		}
-
 	}
 }
