@@ -17,12 +17,21 @@ public class DatabasePerformance {
 		// Testing performance of Queries
 		Settings.loadConfig();
 		MongoController mc = new MongoController();
-		int maxTries = 10;
-		int minTime = 1364802616, maxTime = 1366020000;
-		for (int i = 0; i < maxTries; i++) {
+		for (DataType t : DataType.values()){
+			testPerformance(t, mc,10,10,1000);
+		}
+		
+	}
+	
+	public static void testPerformance(DataType t, MongoController mc, int times, int intervalMin, int intervalMax){
+		
+		int minTime = 1364830798, maxTime = 1366012800;
+		long totalTime=0;
+		long turnTime=0;
+		for (int i = 0; i < times; i++) {
 			
 			// How many time units should be queried
-			int intervalLength = (int) Math.ceil(Math.random() * 1000 + 10);
+			int intervalLength = (int) Math.ceil(Math.random() * (intervalMax-intervalMin) + intervalMin);
 			
 			// choose random start for time interval
 			int start = (int) Math.ceil(Math.random() * (maxTime - minTime - intervalLength) + minTime);
@@ -31,16 +40,15 @@ public class DatabasePerformance {
 			long s = System.currentTimeMillis();
 			logger.info("Starting Time-Query: " + start + " to " + end);
 			List<DBObject> test;
-			try {
-				test = mc.getConstrainedEntries(DataType.FLOW,
-						"Time", start, end);
-				logger.info("Finish querying " + intervalLength
-						+ " time units in flow. Objects: " + test.size()
-						+ " Duration: " + (System.currentTimeMillis() - s) + " ms");
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			test = mc.getConstrainedEntries(t, "Time", start, end);
+
+			turnTime = System.currentTimeMillis() - s;
+			totalTime += turnTime;
+//			logger.info("Finish querying " + intervalLength + " time units in "
+//					+ t.name() + ". Objects: " + test.size() + " Duration: "
+//					+ turnTime + " ms");
+
 		}
+		logger.info(t.name()+" total time: "+totalTime+"ms  Avg Time: "+(totalTime/times)+" ms");
 	}
 }
