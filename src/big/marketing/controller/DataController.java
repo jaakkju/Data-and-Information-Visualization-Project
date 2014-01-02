@@ -14,7 +14,7 @@ import big.marketing.data.Node;
 import big.marketing.reader.NetworkReader;
 import big.marketing.reader.ZipReader;
 
-public class DataController extends Observable implements Runnable{
+public class DataController extends Observable implements Runnable {
 	// http://docs.oracle.com/javase/7/docs/api/java/util/Observable.html
 
 	static Logger logger = Logger.getLogger(DataController.class);
@@ -34,33 +34,33 @@ public class DataController extends Observable implements Runnable{
 	private Node selectedNode = null;
 
 	private Thread readingThread;
-	
+
 	public DataController() {
 		this.mongoController = new MongoController();
 	}
 
-	public void readData(){
+	public void readData() {
 		readingThread = new Thread(this);
 		readingThread.start();
 	}
-	
-	public void run(){
-		
+
+	public void run() {
+
 		NetworkReader nReader = new NetworkReader(this.mongoController);
 		ZipReader zReader = new ZipReader(this.mongoController);
-		
-		
+
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 
-			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(DataType.class);
-			for (DataType t : DataType.values()){
+			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(
+					DataType.class);
+			for (DataType t : DataType.values()) {
 				presentInDatabase.put(t, mongoController.isDataInDatabase(t));
 			}
-			
+
 			for (int week = 1; week <= 2; week++) {
-				for (DataType t : DataType.values()){
+				for (DataType t : DataType.values()) {
 					if (!presentInDatabase.get(t))
 						zReader.read(t, week);
 				}
@@ -74,7 +74,8 @@ public class DataController extends Observable implements Runnable{
 	 * Moves QueryWindow to certain position in time and queries data to qWindow
 	 * variables from mongo Hides mongo implementation details from views
 	 * 
-	 * @param date in milliseconds
+	 * @param date
+	 *            in milliseconds
 	 * @return true if data queried successfully from mongo, false otherwise
 	 */
 	public boolean moveQueryWindow(int msdate) {

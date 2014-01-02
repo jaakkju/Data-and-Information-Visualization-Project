@@ -30,7 +30,6 @@ import com.mongodb.MongoClient;
  * http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-java-driver/#getting-started-with-java-driver
  */
 public class MongoController implements Runnable {
-	
 
 	static Logger logger = Logger.getLogger(MongoController.class);
 
@@ -44,11 +43,7 @@ public class MongoController implements Runnable {
 	EnumMap<DataType, CollectionHandler> collections;
 
 	private volatile boolean writingEnabled = true;
-	
-	/*
-	 * MongoDB should be started on the default port. TODO: start MongoDB
-	 * automatically, if no connection to MongoDB possible.
-	 */
+
 	private static MongoClient mongo;
 	private static DB database;
 
@@ -57,31 +52,31 @@ public class MongoController implements Runnable {
 			HEALTH_COLLECTION_NAME = "health",
 			DESCRIPTION_COLLECTION_NAME = "nodes";
 	public static int BUFFER_SIZE = 1000;
-	private static int MAX_TRIES = 3;
+	public static int MAX_TRIES = 3;
 
 	public static String MONGOD_PATH = "data/mongo/mongod.exe";
 	public static String DB_PATH = "data/db";
-	private static String MONGO_LOG_FILE = "mongo.log";
+	public static String MONGO_LOG_FILE = "mongo.log";
 
-	
 	public MongoController() {
 		loadSettings();
-		
+
 		boolean isConnected = connectToDatabase();
 		for (int i = 1; i <= MAX_TRIES && !isConnected; i++) {
-			logger.warn("Could not connect to MongoDB in try "+i+" of "+MAX_TRIES);
+			logger.warn("Could not connect to MongoDB in try " + i + " of "
+					+ MAX_TRIES);
 			startMongoDBProcess();
 			isConnected = connectToDatabase();
 		}
-		
-		if (!isConnected){
+
+		if (!isConnected) {
 			logger.fatal("Failed to start MongoDB! Exiting now ...");
 			System.exit(1);
 		}
 
 		collections = new EnumMap<>(DataType.class);
-		
-		for (DataType t : DataType.values()){
+
+		for (DataType t : DataType.values()) {
 			collections.put(t, new CollectionHandler(t));
 		}
 
@@ -96,24 +91,25 @@ public class MongoController implements Runnable {
 		IPS_COLLECTION_NAME = Settings.get("mongo.collections.ips");
 		HEALTH_COLLECTION_NAME = Settings.get("mongo.collections.health");
 		DESCRIPTION_COLLECTION_NAME = Settings.get("mongo.collections.network");
-		BUFFER_SIZE= Settings.getInt("mongo.writeBuffer.size");
-		
+		BUFFER_SIZE = Settings.getInt("mongo.writeBuffer.size");
+
 		MONGOD_PATH = Settings.get("mongo.exe.path");
 		DB_PATH = Settings.get("mongo.exe.dbpath");
 		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
 		MAX_TRIES = Settings.getInt("mongo.exe.maxtries");
-		
+
 	}
 
 	public boolean connectToDatabase() {
 
 		try {
 			mongo = new MongoClient(HOST_NAME);
-			mongo.getConnector().getDBPortPool(mongo.getAddress()).get().ensureOpen();
+			mongo.getConnector().getDBPortPool(mongo.getAddress()).get()
+					.ensureOpen();
 			database = mongo.getDB(DB_NAME);
 			logger.info("Connection to MongoDB established");
 			return true;
-		}catch (UnknownHostException e) {
+		} catch (UnknownHostException e) {
 			logger.error(e.getMessage());
 		} catch (IOException e) {
 			logger.warn("No MongoDB server running!");
@@ -121,28 +117,56 @@ public class MongoController implements Runnable {
 		return false;
 	}
 
-	public void startMongoDBProcess(){
+	public void startMongoDBProcess() {
 		try {
 			String canPath = new File(MONGOD_PATH).getCanonicalPath();
 			final Process mongoProcess = Runtime.getRuntime().exec(
-					canPath + " --dbpath=" + DB_PATH + " --logpath "+MONGO_LOG_FILE);
-			
+					canPath + " --dbpath=" + DB_PATH + " --logpath "
+							+ MONGO_LOG_FILE);
+
 			// ensure that mongoDB is closed on shutdown of the VM
 			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					mongoProcess.destroy();
-					
+
 				}
 			}));
 			logger.info("Sucessfully started MongoDB");
 		} catch (IOException e) {
-			logger.error("Failed to start MongoDB: "+e.getMessage());
+			logger.error("Failed to start MongoDB: " + e.getMessage());
 		}
 	}
-	
-	public List<DBObject> getConstrainedEntries(DataType t, String key, int min, int max) {
+
+	private BlockingQueue<DBObject> getBuffer(DataType t) {
+		return collections.get(t).buffer;
+	}
+
+	private DBCollection getCollection(DataType t) {
+		return collections.get(t).collection;
+	}
+
+	private String getCollectionName(DataType t) {
+		switch (t) {
+		case FLOW:
+			return FLOW_COLLECTION_NAME;
+		case HEALTH:
+			return HEALTH_COLLECTION_NAME;
+		case IPS:
+			return IPS_COLLECTION_NAME;
+		case DESCRIPTION:
+			return DESCRIPTION_COLLECTION_NAME;
+		}
+		return null;
+	}
+
+	public boolean isDataInDatabase(DataType t) {
+		return database.collectionExists(getCollectionName(t));
+	}
+
+	public List<DBObject> getConstrainedEntries(DataType t, String key,
+			int min, int max) {
 
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
 				max).append("$gt", min));
@@ -152,18 +176,6 @@ public class MongoController implements Runnable {
 			result.add(dbo);
 		}
 		return result;
-	}
-
-	public void printAllEntries(DataType t) {
-		DBCursor c = getCollection(t).find();
-		for (int i = 0; i < ZipReader.ROWS; i++) {
-			System.out.println(c.next());
-		}
-
-	}
-
-	private BlockingQueue<DBObject> getBuffer(DataType t) {
-		return collections.get(t).buffer;
 	}
 
 	/**
@@ -194,8 +206,15 @@ public class MongoController implements Runnable {
 		return result;
 	}
 
-	private DBCollection getCollection(DataType t) {
-		return collections.get(t).collection;
+	public void clearCollection(DataType t) {
+		String name = getCollectionName(t);
+		if (database.getCollectionNames().contains(name)) {
+			getCollection(t).drop();
+			logger.info("Dropped data of Type " + t.name());
+		} else {
+			logger.warn("Dropping Collection failed! No Collection with name "
+					+ name + " (for Type " + t.name() + ")");
+		}
 	}
 
 	public void storeEntry(DataType t, DBObject object) {
@@ -208,34 +227,6 @@ public class MongoController implements Runnable {
 		}
 	}
 
-	private String getCollectionName(DataType t){
-		switch (t) {
-		case FLOW:
-			return FLOW_COLLECTION_NAME;
-		case HEALTH:
-			return HEALTH_COLLECTION_NAME;
-		case IPS:
-			return IPS_COLLECTION_NAME;
-		case DESCRIPTION:
-			return DESCRIPTION_COLLECTION_NAME;
-		}
-		return null;
-	}
-
-	public void clearCollection(DataType t) {
-		String name = getCollectionName(t);
-		if (database.getCollectionNames().contains(name)){
-			getCollection(t).drop();
-			logger.info("Dropped data of Type "+t.name());
-		}else{
-			logger.warn("Dropping Collection failed! No Collection with name "+name+ " (for Type "+t.name()+")");
-		}
-	}
-
-	public boolean isDataInDatabase(DataType t){
-		return database.collectionExists(getCollectionName(t));
-	}
-	
 	@Override
 	public void run() {
 
@@ -269,21 +260,25 @@ public class MongoController implements Runnable {
 			collection.insert(tmpBuffer);
 		}
 	}
+
 	public static void main(String[] args) {
-//		[1364802616,1366020000]
+		// Testing performance of Queries
 		Settings.loadConfig();
 		MongoController mc = new MongoController();
-		int minCount = 1, maxCount=100;
-		int min=1364802616,max=1366020000;
-		for (int count=minCount;count<maxCount;count++){
-			int range = max-min-count;
-			int start = (int)Math.ceil(Math.random()*range+min);
-			int end = start+count;
+		int minCount = 1, maxCount = 100;
+		int min = 1364802616, max = 1366020000;
+		for (int count = minCount; count < maxCount; count++) {
+			int range = max - min - count;
+			int start = (int) Math.ceil(Math.random() * range + min);
+			int end = start + count;
 			long s = System.currentTimeMillis();
-			logger.info("Starting Time-Query: "+start+" to "+end);
-			List<DBObject> test = mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
-			logger.info("Finish querying "+count+" time unit in flow. Objects: "+test.size()+" Duration: "+(System.currentTimeMillis()-s)+" ms"); 
+			logger.info("Starting Time-Query: " + start + " to " + end);
+			List<DBObject> test = mc.getConstrainedEntries(DataType.FLOW,
+					"Time", start, end);
+			logger.info("Finish querying " + count
+					+ " time unit in flow. Objects: " + test.size()
+					+ " Duration: " + (System.currentTimeMillis() - s) + " ms");
 		}
-		
+
 	}
 }
