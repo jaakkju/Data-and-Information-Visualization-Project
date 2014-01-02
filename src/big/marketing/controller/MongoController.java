@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -16,7 +15,6 @@ import org.apache.log4j.Logger;
 import big.marketing.Settings;
 import big.marketing.data.DataType;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -214,22 +212,8 @@ public class MongoController implements Runnable {
 	 *            the values of this field are aggregated into the returned set.
 	 * @return a set of String naming all occuring values in the given field
 	 */
-	public Set<String> getDomainOf(DataType t, String fieldName) {
-
-		Set<String> result = new HashSet<String>();
-		DBObject fields = new BasicDBObject(fieldName, 1);
-		fields.put("_id", 0);
-		DBObject project = new BasicDBObject("$project", fields);
-
-		DBObject groupFields = new BasicDBObject("_id", "$" + fieldName);
-		DBObject group = new BasicDBObject("$group", groupFields);
-		AggregationOutput output = getCollection(t).aggregate(project, group);
-
-		for (DBObject dbo : output.results()) {
-			result.add(dbo.get("_id").toString());
-		}
-
-		return result;
+	public Collection<Object> getDomainOf(DataType t, String fieldName) {
+		return getCollection(t).distinct(fieldName);
 	}
 
 	public void clearCollection(DataType t) {
