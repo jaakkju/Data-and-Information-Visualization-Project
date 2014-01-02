@@ -53,7 +53,7 @@ public class ZipReader {
 	 * @return InputStreams for all matched files in the ZipFile
 	 */
 	private List<InputStream> getZipInputStreams(String zipFile, String streamName) {
-		List<InputStream> matchedStreams = new ArrayList<>(5);
+		List<InputStream> matchedStreams = new ArrayList<InputStream>(5);
 		try {
 			openZIP = new ZipFile(FILE_FOLDER + zipFile);
 			logger.info("Loading file " + openZIP.getName());

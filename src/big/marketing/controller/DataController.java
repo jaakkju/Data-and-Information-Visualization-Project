@@ -53,7 +53,7 @@ public class DataController extends Observable implements Runnable {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 
-			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<>(
+			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(
 					DataType.class);
 			for (DataType t : DataType.values()) {
 				presentInDatabase.put(t, mongoController.isDataInDatabase(t));

@@ -41,7 +41,7 @@ public class NetworkReader {
 	 * @throws IOException
 	 */
 	public ArrayList<Node> readNetwork() throws IOException {
-		ArrayList<Node> network = new ArrayList<>();
+		ArrayList<Node> network = new ArrayList<Node>();
 
 		File file = new File(FILE_FOLDER + FILE_DESCRIPTION);
 		

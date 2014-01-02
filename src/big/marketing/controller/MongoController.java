@@ -74,7 +74,7 @@ public class MongoController implements Runnable {
 			System.exit(1);
 		}
 
-		collections = new EnumMap<>(DataType.class);
+		collections = new EnumMap<DataType,CollectionHandler>(DataType.class);
 
 		for (DataType t : DataType.values()) {
 			collections.put(t, new CollectionHandler(t));
@@ -171,7 +171,7 @@ public class MongoController implements Runnable {
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
 				max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
-		ArrayList<DBObject> result = new ArrayList<>();
+		ArrayList<DBObject> result = new ArrayList<DBObject>();
 		for (DBObject dbo : cursor) {
 			result.add(dbo);
 		}
@@ -190,7 +190,7 @@ public class MongoController implements Runnable {
 	 */
 	public Set<String> getDomainOf(DataType t, String fieldName) {
 
-		Set<String> result = new HashSet<>();
+		Set<String> result = new HashSet<String>();
 		DBObject fields = new BasicDBObject(fieldName, 1);
 		fields.put("_id", 0);
 		DBObject project = new BasicDBObject("$project", fields);
@@ -251,11 +251,11 @@ public class MongoController implements Runnable {
 
 		public CollectionHandler(DataType t) {
 			this.collection = database.getCollection(getCollectionName(t));
-			this.buffer = new ArrayBlockingQueue<>(BUFFER_SIZE);
+			this.buffer = new ArrayBlockingQueue<DBObject>(BUFFER_SIZE);
 		}
 
 		public void flushBuffer() {
-			ArrayList<DBObject> tmpBuffer = new ArrayList<>(buffer.size());
+			ArrayList<DBObject> tmpBuffer = new ArrayList<DBObject>(buffer.size());
 			buffer.drainTo(tmpBuffer);
 			collection.insert(tmpBuffer);
 		}
