@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 
@@ -39,8 +40,6 @@ public class MongoController implements Runnable {
 	Thread writer;
 
 	EnumMap<DataType, CollectionHandler> collections;
-
-	private volatile boolean writingEnabled = true;
 
 	private static Process mongoProcess;
 	private static MongoClient mongo;
@@ -230,27 +229,31 @@ public class MongoController implements Runnable {
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
+		if (getBuffer(t).size() >= BUFFER_SIZE && sem.availablePermits() <= 0){
+			sem.release();
+		}
 		try {
 			getBuffer(t).put(object);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Interrupted: "
+					+ e.getLocalizedMessage());
 		}
 	}
+	private Semaphore sem;
 
 	@Override
 	public void run() {
-
+		sem = new Semaphore(1);
 		while (true) {
-			if (writingEnabled) {
-				for (CollectionHandler mc : collections.values()) {
+			try {
+				sem.acquire();
+			} catch (InterruptedException e) {
+				logger.error("Interrupted: "
+						+ e.getLocalizedMessage());
+			}
+			for (CollectionHandler mc : collections.values()) {
+				if (!mc.buffer.isEmpty())
 					mc.flushBuffer();
-				}
-			} else {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 			}
 		}
 	}
