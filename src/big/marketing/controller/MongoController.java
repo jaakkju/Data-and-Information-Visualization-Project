@@ -54,7 +54,7 @@ public class MongoController implements Runnable {
 
 	public static String MONGOD_PATH = "data/mongo/mongod.exe";
 	public static String DB_PATH = "data/db";
-	public static String MONGO_LOG_FILE = "mongo.log";
+	public static String MONGO_LOG_FILE = "data/mongo/mongo.log";
 
 	public MongoController() {
 		loadSettings();
@@ -117,7 +117,12 @@ public class MongoController implements Runnable {
 
 	public void startMongoDBProcess() {
 		try {
-			String canPath = new File(MONGOD_PATH).getCanonicalPath();
+			String executable = MONGOD_PATH+"/mongod";
+			if (System.getProperty("os.name").toLowerCase().contains("win"))
+				executable += ".exe";
+			String canPath = new File(executable).getCanonicalPath();
+			logger.info("Starting mongoDB from "+canPath);
+			
 			mongoProcess = Runtime.getRuntime().exec(
 					canPath + " --dbpath=" + DB_PATH + " --logpath "
 							+ MONGO_LOG_FILE);
