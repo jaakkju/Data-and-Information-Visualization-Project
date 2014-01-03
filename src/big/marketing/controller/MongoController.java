@@ -78,7 +78,7 @@ public class MongoController implements Runnable {
 			collections.put(t, new CollectionHandler(t));
 		}
 
-		writer = new Thread(this);
+		writer = new Thread(this,"DB-Writer");
 		writer.start();
 	}
 

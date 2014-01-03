@@ -58,7 +58,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 					DatabasePerformance.main(null);
 					
 				}
-			}).start();
+			}, "PerformanceTester").start();
 		}});
 	   
 	   

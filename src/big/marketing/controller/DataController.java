@@ -40,7 +40,7 @@ public class DataController extends Observable implements Runnable {
 	}
 
 	public void readData() {
-		readingThread = new Thread(this);
+		readingThread = new Thread(this, "DataReader");
 		readingThread.start();
 	}
 
