@@ -131,7 +131,7 @@ public class FlowMessage implements DBWritable{
 	public DBObject asDBObject(){
 		BasicDBObject dbo = new BasicDBObject();
 		// TODO: remove unused features
-		dbo.append("Time", time);
+		dbo.append("Time", (time/60)*60); // reduce time resolution to minute
 		dbo.append("SourceIP", sourceIP);
 		dbo.append("DestIP", destinationIP);
 		dbo.append("Protocol", protocol);
