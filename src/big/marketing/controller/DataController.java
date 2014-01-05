@@ -19,6 +19,7 @@ public class DataController extends Observable implements Runnable {
 
 	static Logger logger = Logger.getLogger(DataController.class);
 	private MongoController mongoController;
+	private GephiController gephiController;
 
 	// qWindow size in milliseconds
 	static final int QUERYWINDOW_SIZE = 1000 * 60 * 60;
@@ -37,6 +38,7 @@ public class DataController extends Observable implements Runnable {
 
 	public DataController() {
 		this.mongoController = new MongoController();
+		this.gephiController = new GephiController();
 	}
 
 	public void readData() {
@@ -104,6 +106,10 @@ public class DataController extends Observable implements Runnable {
 
 	public ArrayList<HealthMessage> getqWindowFlow() {
 		return qWindowFlow;
+	}
+
+	public GephiController getGephiController() {
+		return gephiController;
 	}
 
 	public void setMongoController(MongoController mongoController) {

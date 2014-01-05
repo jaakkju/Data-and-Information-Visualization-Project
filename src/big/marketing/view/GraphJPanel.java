@@ -1,21 +1,62 @@
 package big.marketing.view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import org.gephi.preview.api.PreviewModel;
+import org.gephi.preview.api.PreviewProperty;
+import org.gephi.preview.api.ProcessingTarget;
+import org.gephi.preview.types.DependantOriginalColor;
+
+import processing.core.PApplet;
 import big.marketing.controller.DataController;
 
 public class GraphJPanel extends JPanel implements Observer {
    private static final long serialVersionUID = -7417639995072699909L;
 	private final DataController controller;
+	private ProcessingTarget target;
+	private PApplet applet;
 	
+	public ProcessingTarget getTarget() {
+		return target;
+	}
+
+	public void setTarget(ProcessingTarget target) {
+		this.target = target;
+		
+		applet = target.getApplet();
+		applet.init();
+		controller.getGephiController().render(target);
+		target.refresh();
+		target.resetZoom();
+		this.removeAll();
+		add(applet);
+	}
+
 	public GraphJPanel(DataController controller) {
 	   this.controller = controller;
+	   setLayout(new BorderLayout());
+	   controller.getGephiController().setGraphPanel(this);
    }
 	
-
+	public void prepareModel(PreviewModel previewModel) {
+		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS,
+				Boolean.TRUE);
+		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR,
+				new DependantOriginalColor(Color.WHITE));
+		previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED,
+				Boolean.FALSE);
+		previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
+		previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
+		previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR,
+				Color.BLACK);
+	}
+	
+	// TODO: use update(...), not prepareModel and setTarget
 	@Override
    public void update(Observable o, Object arg) {
 		System.out.println(this.getClass() + " Selected nodes: ");

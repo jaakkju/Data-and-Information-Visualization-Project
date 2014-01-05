@@ -31,6 +31,8 @@ public class Application {
 		PCoordinatesJPanel pCoordinatesPanel = new PCoordinatesJPanel(controller);
 		ControlsJPanel controlsPanel = new ControlsJPanel(controller);
 
+		controller.getGephiController().loadSampleFile();
+
 		// DataController implements observer pattern and pushes changes in data
 		// and selections to JPanels
 		controller.addObserver(graphPanel);
