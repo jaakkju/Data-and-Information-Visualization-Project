@@ -5,8 +5,10 @@ import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
@@ -16,34 +18,29 @@ import processing.core.PApplet;
 import big.marketing.controller.DataController;
 
 public class GraphJPanel extends JPanel implements Observer {
+	static Logger logger = Logger.getLogger(GraphJPanel.class);
+
    private static final long serialVersionUID = -7417639995072699909L;
 	private final DataController controller;
-	private ProcessingTarget target;
 	private PApplet applet;
+	private ProcessingTarget target;
 	
-	public ProcessingTarget getTarget() {
-		return target;
-	}
-
-	public void setTarget(ProcessingTarget target) {
+	public void setContent(ProcessingTarget target){
 		this.target = target;
-		
 		applet = target.getApplet();
 		applet.init();
+		removeAll();
+		add(applet, BorderLayout.CENTER);
 		controller.getGephiController().render(target);
-		target.refresh();
-		target.resetZoom();
-		this.removeAll();
-		add(applet);
 	}
 
 	public GraphJPanel(DataController controller) {
 	   this.controller = controller;
 	   setLayout(new BorderLayout());
-	   controller.getGephiController().setGraphPanel(this);
+	   this.controller.getGephiController().setGraphPanel(this);
    }
 	
-	public void prepareModel(PreviewModel previewModel) {
+	public void setupModel(PreviewModel previewModel) {
 		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS,
 				Boolean.TRUE);
 		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR,
@@ -59,8 +56,15 @@ public class GraphJPanel extends JPanel implements Observer {
 	// TODO: use update(...), not prepareModel and setTarget
 	@Override
    public void update(Observable o, Object arg) {
-		System.out.println(this.getClass() + " Selected nodes: ");
 		
+		if (target != null){
+			target.refresh();
+			target.resetZoom();
+		}
+		
+		System.out.println(this.getClass() + " Selected nodes: ");
+		if (controller.getHighlightedNodes() == null)
+			return;
 		// THIS IS REALLY NOT NICE WAY TO CODE THIS, BUT FOR AN EXAMPLE IT WORKS
 		for (int i = 0; i < controller.getHighlightedNodes().length; i++) {
 	      System.out.println(controller.getHighlightedNodes()[i].toString());

@@ -31,8 +31,6 @@ public class Application {
 		PCoordinatesJPanel pCoordinatesPanel = new PCoordinatesJPanel(controller);
 		ControlsJPanel controlsPanel = new ControlsJPanel(controller);
 
-		controller.getGephiController().loadSampleFile();
-
 		// DataController implements observer pattern and pushes changes in data
 		// and selections to JPanels
 		controller.addObserver(graphPanel);
@@ -44,6 +42,18 @@ public class Application {
 		frame.add(graphPanel);
 		frame.add(pCoordinatesPanel);
 		frame.add(controlsPanel);
+		
+		// loop for testing switched graphs
+		while (true){
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			controller.getGephiController().loadSampleFile();
+		}
+		
 	}
 
 }
