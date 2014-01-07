@@ -132,7 +132,7 @@ public class HealthMessage implements DBWritable {
 		bdbo.append("serviceName", serviceName);
 		bdbo.append("statusVal", statusVal);
 		bdbo.append("receivedFrom", receivedFrom);
-		bdbo.append("Time", currentTime);
+		bdbo.append("Time", (currentTime/60)*60);
 		bdbo.append("diskUsage", diskUsage);
 		bdbo.append("pageFileUsage", pageFileUsage);
 		bdbo.append("numProcs", numProcs);
