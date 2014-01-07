@@ -12,6 +12,8 @@ import java.awt.event.WindowEvent;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import org.apache.log4j.Logger;
+
 import big.marketing.Application;
 import big.marketing.Settings;
 
@@ -20,6 +22,7 @@ public class WindowFrame extends JFrame {
 	private static int FRAME_WIDTH = 1200;
 	private static int FRAME_HEIGHT = 600;
 	private static final String FRAME_TITLE = "eyeNet - Network Monitor";
+	static Logger logger = Logger.getLogger(WindowFrame.class);
 
 	public WindowFrame(JComponent graphPanel, JComponent pCoordinatesPanel, JComponent controlsPanel) {
 		loadSettings();
@@ -28,7 +31,7 @@ public class WindowFrame extends JFrame {
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				System.out.println("Received Quit");
+				logger.info("Received quit, closing the application");
 				Application.quit();
 				super.windowClosing(e);
 			}
