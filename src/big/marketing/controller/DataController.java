@@ -38,7 +38,15 @@ public class DataController extends Observable implements Runnable {
 
 	private Thread readingThread;
 
-	public DataController() {
+	private static DataController instance;
+	
+	public static DataController getInstance() {
+		if (instance == null)
+			instance = new DataController();
+	   return instance;
+   }
+	
+	private DataController() {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController();
