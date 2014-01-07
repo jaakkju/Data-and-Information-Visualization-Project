@@ -54,7 +54,7 @@ public class DataProcessor {
 
 	public static void main(String[] args) {
 		Settings.loadConfig();
-		DataProcessor dp = new DataProcessor(new MongoController(), DataType.FLOW, "Time");
+		DataProcessor dp = new DataProcessor(MongoController.getInstance(), DataType.FLOW, "Time");
 		// This sample is doing the following:
 		// query all flow messages that have the same value in Time, SourceIP,
 		// DestIP and destinationPort (these fields are specified by

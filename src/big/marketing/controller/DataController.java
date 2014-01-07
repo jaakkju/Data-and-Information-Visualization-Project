@@ -40,7 +40,7 @@ public class DataController extends Observable implements Runnable {
 
 	public DataController() {
 		loadSettings();
-		this.mc = new MongoController();
+		this.mc = MongoController.getInstance();
 		this.gc = new GephiController();
 	}
 
