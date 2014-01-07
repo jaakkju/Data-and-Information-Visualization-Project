@@ -67,11 +67,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		System.out.println(this.getClass() + " Selected nodes: ");
 
-		// THIS IS REALLY NOT NICE WAY TO CODE THIS, BUT FOR AN EXAMPLE IT WORKS
-		for (int i = 0; i < controller.getHighlightedNodes().length; i++) {
-			System.out.println(controller.getHighlightedNodes()[i].toString());
-		}
+		
 	}
 }
