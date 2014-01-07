@@ -18,8 +18,8 @@ public class DataController extends Observable implements Runnable {
 	// http://docs.oracle.com/javase/7/docs/api/java/util/Observable.html
 
 	static Logger logger = Logger.getLogger(DataController.class);
-	private MongoController mongoController;
-	private GephiController gephiController;
+	private GephiController gc;
+	private MongoController mc;
 
 	// qWindow size in milliseconds
 	static final int QUERYWINDOW_SIZE = 1000 * 60 * 60;
@@ -37,8 +37,8 @@ public class DataController extends Observable implements Runnable {
 	private Thread readingThread;
 
 	public DataController() {
-		this.mongoController = new MongoController();
-		this.gephiController = new GephiController();
+		this.mc = new MongoController();
+		this.gc = new GephiController();
 	}
 
 	public void readData() {
@@ -48,17 +48,19 @@ public class DataController extends Observable implements Runnable {
 
 	public void run() {
 
-		NetworkReader nReader = new NetworkReader(this.mongoController);
-		ZipReader zReader = new ZipReader(this.mongoController);
+		// TODO These things would be better to do directly in readers
+		// The readers should independently handle reading and storing to the
+		// database when started from the interface
+		NetworkReader nReader = new NetworkReader(this.mc);
+		ZipReader zReader = new ZipReader(this.mc);
 
 		try {
 			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 
-			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(
-					DataType.class);
+			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(DataType.class);
 			for (DataType t : DataType.values()) {
-				presentInDatabase.put(t, mongoController.isDataInDatabase(t));
+				presentInDatabase.put(t, mc.isDataInDatabase(t));
 			}
 
 			for (int week = 1; week <= 2; week++) {
@@ -76,8 +78,7 @@ public class DataController extends Observable implements Runnable {
 	 * Moves QueryWindow to certain position in time and queries data to qWindow
 	 * variables from mongo Hides mongo implementation details from views
 	 * 
-	 * @param date
-	 *            in milliseconds
+	 * @param date in milliseconds
 	 * @return true if data queried successfully from mongo, false otherwise
 	 */
 	public boolean moveQueryWindow(int msdate) {
@@ -108,18 +109,6 @@ public class DataController extends Observable implements Runnable {
 		return qWindowFlow;
 	}
 
-	public GephiController getGephiController() {
-		return gephiController;
-	}
-
-	public void setMongoController(MongoController mongoController) {
-		this.mongoController = mongoController;
-	}
-
-	public MongoController getMongoController() {
-		return mongoController;
-	}
-
 	public void setHighlightedNodes(Node[] highlightedNodes) {
 		this.highlightedNodes = highlightedNodes;
 		setChanged();
@@ -136,5 +125,13 @@ public class DataController extends Observable implements Runnable {
 
 	public Node getSelectedNode() {
 		return selectedNode;
+	}
+
+	public MongoController getMongoController() {
+		return mc;
+	}
+
+	public GephiController getGephiController() {
+		return gc;
 	}
 }
