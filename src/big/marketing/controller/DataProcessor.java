@@ -197,7 +197,11 @@ public class DataProcessor {
 			logger.warn("reduced dataset contains different amount of " + mainFeature + " steps! Original dataset: "
 			      + fullDataSteps.size() + " reduced dataset: " + smallDataSteps);
 		}
-
+		
+		logger.info("Creating index on "+mainFeature);
+		smallData.ensureIndex(mainFeature);
+		logger.info("Successfully created index");
+		
 		mc.setCollection(type, smallData.getName(), false);
 
 		logger.info("Finished data reduction for " + type.name());
