@@ -40,16 +40,5 @@ public class Application {
 		@SuppressWarnings("unused")
       WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
 
-		
-		// loop for testing switched graphs
-		while (true){
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			controller.getGephiController().loadSampleFile();
-		}
 	}
 }
