@@ -4,4 +4,4 @@
 /bin
 
 # Settings
-eyeNet.properties
+*.properties
