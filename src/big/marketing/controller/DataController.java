@@ -36,7 +36,7 @@ public class DataController extends Observable implements Runnable {
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 
-	private Thread readingThread;
+	private Thread readingThread, processingThread;
 
 	private static DataController instance;
 	
@@ -57,13 +57,19 @@ public class DataController extends Observable implements Runnable {
 		readingThread.start();
 	}
 
+	public void processData() {
+		DataProcessor dp = new DataProcessor(this.mc, DataType.FLOW, DataType.IPS, DataType.HEALTH);
+		processingThread = new Thread(dp, "ProcessingThread");
+		processingThread.start();
+	}
+	
 	public void run() {
 
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
 		
 		network = nReader.readNetwork();
-		zReader.read(DataType.FLOW,DataType.IPS, DataType.HEALTH);
+		zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
 	}
 
 	/**

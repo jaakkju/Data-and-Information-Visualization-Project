@@ -107,6 +107,16 @@ public class WindowFrame extends JFrame {
 		});
 		dbMenu.add(readItem);
 
+		JMenuItem processItem = new JMenuItem("Process data");
+		processItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DataController.getInstance().processData();
+			}
+		});
+		dbMenu.add(processItem );
+
 		JMenuItem perfItem = new JMenuItem("Performance test");
 		perfItem.addActionListener(new ActionListener() {
 
