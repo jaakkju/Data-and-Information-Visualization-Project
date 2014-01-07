@@ -3,6 +3,7 @@ package big.marketing;
 import org.apache.log4j.Logger;
 
 import big.marketing.controller.DataController;
+import big.marketing.controller.MongoExecutor;
 import big.marketing.view.ControlsJPanel;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.PCoordinatesJPanel;
@@ -40,5 +41,10 @@ public class Application {
 		@SuppressWarnings("unused")
       WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
 
+	}
+	
+	public static void quit(){
+		MongoExecutor.killMongoProcess();
+		System.exit(0);
 	}
 }
