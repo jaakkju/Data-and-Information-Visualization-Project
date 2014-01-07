@@ -39,6 +39,7 @@ public class MongoController implements Runnable {
 
 	EnumMap<DataType, CollectionHandler> collections;
 
+	private static MongoController instance;
 	private static MongoClient mongo;
 	private static DB database;
 
@@ -47,7 +48,13 @@ public class MongoController implements Runnable {
 	public static int BUFFER_SIZE = 1000;
 	public static int MAX_TRIES = 3;
 
-	public MongoController() {
+	public static MongoController getInstance() {
+		if (instance == null)
+			instance = new MongoController();
+	   return instance;
+   }
+	
+	private MongoController() {
 		loadSettings();
 
 		boolean isConnected = connectToDatabase();

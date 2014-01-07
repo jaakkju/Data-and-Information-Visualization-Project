@@ -17,7 +17,7 @@ public class DatabasePerformance {
 	public static void main(String[] args) {
 		// Testing performance of Queries
 		Settings.loadConfig();
-		MongoController mc = new MongoController();
+		MongoController mc = MongoController.getInstance();
 		// for (DataType t : DataType.values()){
 		// if (t != DataType.FLOW)
 		// testPerformance(t, mc, 10,10,1000);
