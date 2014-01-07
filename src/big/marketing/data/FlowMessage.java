@@ -138,8 +138,8 @@ public class FlowMessage implements DBWritable{
 //		dbo.append("sourcePort", sourcePort);
 		dbo.append("destinationPort", destinationPort);
 		dbo.append("Duration", duration);
-		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
-		dbo.append("hasMoreFragments", hasMoreFragments);
+//		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
+//		dbo.append("hasMoreFragments", hasMoreFragments);
 		
 		dbo.append("payloadBytes", sourcePayloadBytes+destinationPayloadBytes);
 		dbo.append("totalBytes", sourceTotalBytes+destinationTotalBytes);

@@ -41,7 +41,6 @@ public class MongoController implements Runnable {
 
 	EnumMap<DataType, CollectionHandler> collections;
 
-	private static Process mongoProcess;
 	private static MongoClient mongo;
 	private static DB database;
 
@@ -52,10 +51,6 @@ public class MongoController implements Runnable {
 	public static int BUFFER_SIZE = 1000;
 	public static int MAX_TRIES = 3;
 
-	public static String MONGOD_PATH = "data/mongo/mongod.exe";
-	public static String DB_PATH = "data/db";
-	public static String MONGO_LOG_FILE = "data/mongo/mongo.log";
-
 	public MongoController() {
 		loadSettings();
 
@@ -63,7 +58,7 @@ public class MongoController implements Runnable {
 		for (int i = 1; i <= MAX_TRIES && !isConnected; i++) {
 			logger.warn("Could not connect to MongoDB in try " + i + " of "
 					+ MAX_TRIES);
-			startMongoDBProcess();
+			MongoExecutor.startMongoProcess();
 			isConnected = connectToDatabase();
 		}
 
@@ -90,10 +85,6 @@ public class MongoController implements Runnable {
 		HEALTH_COLLECTION_NAME = Settings.get("mongo.collections.health");
 		DESCRIPTION_COLLECTION_NAME = Settings.get("mongo.collections.network");
 		BUFFER_SIZE = Settings.getInt("mongo.writeBuffer.size");
-
-		MONGOD_PATH = Settings.get("mongo.exe.path");
-		DB_PATH = Settings.get("mongo.exe.dbpath");
-		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
 		MAX_TRIES = Settings.getInt("mongo.exe.maxtries");
 
 	}
@@ -115,53 +106,6 @@ public class MongoController implements Runnable {
 		return false;
 	}
 
-	public void startMongoDBProcess() {
-		try {
-			String executable = MONGOD_PATH+"/mongod";
-			if (System.getProperty("os.name").toLowerCase().contains("win"))
-				executable += ".exe";
-			String canPath = new File(executable).getCanonicalPath();
-			logger.info("Starting mongoDB from "+canPath);
-			
-			mongoProcess = Runtime.getRuntime().exec(
-					canPath + " --dbpath=" + DB_PATH + " --logpath "
-							+ MONGO_LOG_FILE);
-
-			// ensure that mongoDB is closed on shutdown of the VM
-			Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					shutDown();
-				}
-			}));
-			logger.info("Sucessfully started MongoDB");
-		} catch (IOException e) {
-			logger.error("Failed to start MongoDB: " + e.getMessage());
-		}
-	}
-	
-	public void shutDown(){
-		logger.info("Shutting down database...");
-		// Check for open queries and cancel them
-		DBObject dbObject = database.getCollection("$cmd.sys.inprog").findOne();
-		if (mongoProcess != null && dbObject != null){
-			
-			BasicDBList currentOps = (BasicDBList) dbObject.get("inprog");
-			for (Object o : currentOps) {
-				DBObject operation = (BasicDBObject ) o;
-				String opType =(String) operation.get("op");
-				String opNamespace = (String) operation.get("ns");
-				if (opType.equals("query") && opNamespace.contains(DB_NAME)){
-					int opid = (Integer) operation.get("opid");
-					database.eval("db.killOp(" + opid + ")");
-					logger.info("Killed active query on "+DB_NAME+" with opcode "+opid);
-				}
-			}
-
-			mongoProcess.destroy();
-		}
-	}
 	
 	private BlockingQueue<DBObject> getBuffer(DataType t) {
 		return collections.get(t).buffer;
@@ -169,6 +113,33 @@ public class MongoController implements Runnable {
 
 	private DBCollection getCollection(DataType t) {
 		return collections.get(t).collection;
+	}
+	
+	public void setCollection(DataType t, String newCollectionName, boolean dropOld){
+		
+		// stop the writer thread and wait for it to finish
+		int permits = sem.drainPermits();
+		while(!sem.hasQueuedThreads()){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				logger.error(e.getLocalizedMessage());
+			}
+		}
+		
+		collections.get(t).flushBuffer();
+		DBCollection old = getCollection(t);
+		DBCollection newColl = database.getCollection(newCollectionName);
+		
+		if (dropOld){
+			newColl.rename(getCollectionName(t), true);
+		}else{
+			old.rename("tmp"+newCollectionName);
+			newColl.rename(getCollectionName(t));
+			database.getCollection("tmp"+newCollectionName).rename(newCollectionName);
+		}
+		collections.put(t, new CollectionHandler(t));
+		sem.release(permits);
 	}
 
 	private String getCollectionName(DataType t) {
@@ -231,6 +202,10 @@ public class MongoController implements Runnable {
 		}
 	}
 
+	static DB getDatabase() {
+		return database;
+	}
+	
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;

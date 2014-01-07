@@ -6,11 +6,15 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import big.marketing.Application;
 import big.marketing.Settings;
+import big.marketing.controller.MongoExecutor;
 
 public class WindowFrame extends JFrame {
    private static final long serialVersionUID = -8346810238547214403L;
@@ -23,7 +27,14 @@ public class WindowFrame extends JFrame {
 		loadSettings();
 		this.setTitle(FRAME_TITLE);
 		this.setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println("Received Quit");
+				Application.quit();
+				super.windowClosing(e);
+			}
+		});
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
 		addComponent(getContentPane(), gbl, graphPanel, 0, 0, 1, 1, 0.5, 0.5);

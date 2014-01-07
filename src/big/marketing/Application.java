@@ -3,6 +3,7 @@ package big.marketing;
 import org.apache.log4j.Logger;
 
 import big.marketing.controller.DataController;
+import big.marketing.controller.MongoExecutor;
 import big.marketing.view.ControlsJPanel;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.PCoordinatesJPanel;
@@ -40,16 +41,10 @@ public class Application {
 		@SuppressWarnings("unused")
       WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
 
-		
-		// loop for testing switched graphs
-		while (true){
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			controller.getGephiController().loadSampleFile();
-		}
+	}
+	
+	public static void quit(){
+		MongoExecutor.killMongoProcess();
+		System.exit(0);
 	}
 }
