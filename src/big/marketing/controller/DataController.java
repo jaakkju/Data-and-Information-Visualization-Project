@@ -36,9 +36,17 @@ public class DataController extends Observable implements Runnable {
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 
-	private Thread readingThread;
+	private Thread readingThread, processingThread;
 
-	public DataController() {
+	private static DataController instance;
+	
+	public static DataController getInstance() {
+		if (instance == null)
+			instance = new DataController();
+	   return instance;
+   }
+	
+	private DataController() {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController();
@@ -49,33 +57,19 @@ public class DataController extends Observable implements Runnable {
 		readingThread.start();
 	}
 
+	public void processData() {
+		DataProcessor dp = new DataProcessor(this.mc, DataType.FLOW, DataType.IPS, DataType.HEALTH);
+		processingThread = new Thread(dp, "ProcessingThread");
+		processingThread.start();
+	}
+	
 	public void run() {
-
-		// TODO These things would be better to do directly in readers
-		// The readers should independently handle reading and storing to the
-		// database when started from the interface. Every reader should handle
-		// it's own errors
 
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
-
-		try {
-			network = nReader.readNetwork();
-
-			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(DataType.class);
-			for (DataType t : DataType.values()) {
-				presentInDatabase.put(t, mc.isDataInDatabase(t));
-			}
-
-			for (int week = 1; week <= 2; week++) {
-				for (DataType t : DataType.values()) {
-					if (!presentInDatabase.get(t))
-						zReader.read(t, week);
-				}
-			}
-		} catch (IOException err) {
-			logger.error("Error while loading network data.", err);
-		}
+		
+		network = nReader.readNetwork();
+		zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
 	}
 
 	/**

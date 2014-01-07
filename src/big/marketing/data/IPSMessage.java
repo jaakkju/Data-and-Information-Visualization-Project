@@ -160,7 +160,7 @@ public class IPSMessage implements DBWritable {
 		
 		BasicDBObject dbo = new BasicDBObject();
 		// maybe remove some more features here?
-		dbo.append("Time", unixTime);
+		dbo.append("Time", (unixTime/60)*60);
 		dbo.append("SourceIP", sourceIP);
 		dbo.append("DestIP", destIP);
 //		dbo.append("MessageCode", messageCode);

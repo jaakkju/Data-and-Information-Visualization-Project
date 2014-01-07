@@ -144,7 +144,20 @@ public class ZipReader {
 		return out;
 		
 	}
-
+	
+	public void read(DataType ... types){
+		for (DataType type : types){
+			if (mongo.isDataInDatabase(type)){
+				logger.info("Skipped reading "+type.name()+" because there is alreay some data in the database");
+			}else{
+				for (int week=1;week<=2;week++){
+					read(type,week);
+				}
+			}
+		}
+	}
+	
+	
 	/**
 	 * Read data of type <b>type</b> of week <b>week</b> into the database.
 	 * @param type which type of data to read

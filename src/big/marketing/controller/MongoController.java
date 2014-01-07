@@ -111,7 +111,7 @@ public class MongoController implements Runnable {
 		return collections.get(t).buffer;
 	}
 
-	private DBCollection getCollection(DataType t) {
+	DBCollection getCollection(DataType t) {
 		return collections.get(t).collection;
 	}
 

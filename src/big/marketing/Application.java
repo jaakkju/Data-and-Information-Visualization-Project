@@ -24,7 +24,7 @@ public class Application {
 
 		Settings.loadConfig();
 
-		DataController controller = new DataController();
+		DataController controller = DataController.getInstance();
 
 		// All panels have a reference to controller so changes in selections
 		// and data can be passed to other views
@@ -44,6 +44,8 @@ public class Application {
 	}
 
 	public static void quit() {
+		logger.info("Received quit, closing the application");
+
 		MongoExecutor.killMongoProcess();
 		System.exit(0);
 	}
