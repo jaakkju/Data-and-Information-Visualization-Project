@@ -22,7 +22,7 @@ public class HealthMessage implements DBWritable {
 	private final String serviceName;
 	private final int statusVal;
 	private final String receivedFrom;
-	private final int currentTime;
+	private final int time;
 	private final int diskUsage;
 	private final int pageFileUsage;
 	private final int numProcs;
@@ -33,9 +33,24 @@ public class HealthMessage implements DBWritable {
 	@Override
 	public String toString() {
 		return "HealthMessage [id=" + id + ", hostname=" + hostname + ", serviceName=" + serviceName + ", statusVal=" + statusVal
-		      + ", receivedFrom=" + receivedFrom + ", currentTime=" + currentTime + ", diskUsage=" + diskUsage + ", pageFileUsage="
+		      + ", receivedFrom=" + receivedFrom + ", time=" + time + ", diskUsage=" + diskUsage + ", pageFileUsage="
 		      + pageFileUsage + ", numProcs=" + numProcs + ", loadAverage=" + loadAverage + ", physicalMemoryUsage="
 		      + physicalMemoryUsage + ", connMade=" + connMade + "]";
+	}
+
+	public HealthMessage(DBObject dbo){
+		this.id = (Integer) dbo.get("id");
+		this.hostname = (String) dbo.get("hostname");
+		this.serviceName = (String) dbo.get("serviceName");
+		this.statusVal = (Integer) dbo.get("statusVal");
+		this.receivedFrom = (String) dbo.get("receivedFrom");
+		this.time = (Integer) dbo.get("time");
+		this.diskUsage = (Integer) dbo.get("diskUsage");
+		this.pageFileUsage = (Integer) dbo.get("pageFileUsage");
+		this.numProcs = (Integer) dbo.get("numProcs");
+		this.loadAverage = (Integer) dbo.get("loadAverage");
+		this.physicalMemoryUsage = (Integer) dbo.get("physicalMemoryUsage");
+		this.connMade = (Integer) dbo.get("connMade");
 	}
 
 	/**
@@ -50,7 +65,7 @@ public class HealthMessage implements DBWritable {
 		this.id = argsToInt(args, 0);
 		this.hostname = argsToString(args, 1);
 		this.serviceName = argsToString(args, 2);
-		this.currentTime = argsToInt(args, 3);
+		this.time = argsToInt(args, 3);
 		this.statusVal = argsToInt(args, 4);
 		// args[5] is the unparsed message content
 		this.receivedFrom = argsToString(args, 6);
@@ -97,8 +112,8 @@ public class HealthMessage implements DBWritable {
 		return receivedFrom;
 	}
 
-	public int getCurrentTime() {
-		return currentTime;
+	public int getTime() {
+		return time;
 	}
 
 	public int getDiskUsage() {
@@ -132,7 +147,7 @@ public class HealthMessage implements DBWritable {
 		bdbo.append("serviceName", serviceName);
 		bdbo.append("statusVal", statusVal);
 		bdbo.append("receivedFrom", receivedFrom);
-		bdbo.append("Time", (currentTime/60)*60);
+		bdbo.append("time", (time/60)*60);
 		bdbo.append("diskUsage", diskUsage);
 		bdbo.append("pageFileUsage", pageFileUsage);
 		bdbo.append("numProcs", numProcs);

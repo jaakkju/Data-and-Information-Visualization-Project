@@ -13,105 +13,125 @@ public class FlowMessage implements DBWritable{
 	private final int time;
 	
 	
-	private final int protocol;
-	private final int sourceIP;
-	private final int destinationIP;
-	private final int sourcePort;
-	private final int destinationPort;
-	private final boolean hasMoreFragments;
-	private final boolean hasSubsequentFragments;
+//	private final int protocol;
+	private final int srcIP;
+	private final int dstIP;
+	private final int srcPort;
+	private final int dstPort;
+	private final int payloadBytes;
+	private final int totalBytes;
+	private final int packetCount;
+	
+//	private final boolean hasMoreFragments;
+//	private final boolean hasSubsequentFragments;
 	private final int duration;
-	private final int sourcePayloadBytes;
-	private final int destinationPayloadBytes;
-	private final int sourceTotalBytes;
-	private final int destinationTotalBytes;
-	private final int sourcePacketCount;
-	private final int destinationPacketCount;
+//	private final int sourcePayloadBytes;
+//	private final int destinationPayloadBytes;
+//	private final int sourceTotalBytes;
+//	private final int destinationTotalBytes;
+//	private final int sourcePacketCount;
+//	private final int destinationPacketCount;
 
 	public FlowMessage(String[] args) {
 		super();
 		// TODO: remove unused features
 		this.time = (int) Double.parseDouble(args[0]);
-		this.protocol = Integer.parseInt(args[3]);
-		this.sourceIP = encodeIP(args[5]); 
-		this.destinationIP = encodeIP(args[6]); 
-		this.sourcePort = Integer.parseInt(args[7]);
-		this.destinationPort = Integer.parseInt(args[8]);
+//		this.protocol = Integer.parseInt(args[3]);
+		this.srcIP = encodeIP(args[5]); 
+		this.dstIP = encodeIP(args[6]); 
+		this.srcPort = Integer.parseInt(args[7]);
+		this.dstPort = Integer.parseInt(args[8]);
 		
 		// 0 0 -> flow with just one fragment
 		// 0 1 -> last fragment
 		// 1 0 -> first fragment
 		// 1 1 -> intermediate fragment (not first nor last fragment)
-		this.hasMoreFragments = "1".equals(args[9]); // 0 or 1
-		this.hasSubsequentFragments = "1".equals(args[10]); // 0 or 1
+//		this.hasMoreFragments = "1".equals(args[9]); // 0 or 1
+//		this.hasSubsequentFragments = "1".equals(args[10]); // 0 or 1
 		this.duration = Integer.parseInt(args[11]);
-		this.sourcePayloadBytes = Integer.parseInt(args[12]);
-		this.destinationPayloadBytes = Integer.parseInt(args[13]);
-		this.sourceTotalBytes = Integer.parseInt(args[14]);
-		this.destinationTotalBytes = Integer.parseInt(args[15]);
-		this.sourcePacketCount = Integer.parseInt(args[16]);
-		this.destinationPacketCount = Integer.parseInt(args[17]);
+//		this.sourcePayloadBytes = Integer.parseInt(args[12]);
+//		this.destinationPayloadBytes = Integer.parseInt(args[13]);
+//		this.sourceTotalBytes = Integer.parseInt(args[14]);
+//		this.destinationTotalBytes = Integer.parseInt(args[15]);
+//		this.sourcePacketCount = Integer.parseInt(args[16]);
+//		this.destinationPacketCount = Integer.parseInt(args[17]);
+		this.payloadBytes = Integer.parseInt(args[12]) +Integer.parseInt(args[13]);
+		this.totalBytes = Integer.parseInt(args[14]) +Integer.parseInt(args[15]);
+		this.packetCount = Integer.parseInt(args[16]) +Integer.parseInt(args[17]);
+		
 	}
-
-	public int getDateTime() {
+	
+	public FlowMessage(DBObject dbo){
+		this.time = (Integer) dbo.get("time");
+		this.srcIP = (Integer) dbo.get("srcIP");
+		this.dstIP = (Integer) dbo.get("dstIP");
+		this.srcPort = (Integer) dbo.get("srcPort");
+		this.dstPort = (Integer) dbo.get("dstPort");
+		this.duration = (Integer) dbo.get("duration");
+		this.payloadBytes = (Integer) dbo.get("payloadBytes");
+		this.totalBytes = (Integer) dbo.get("totalBytes");
+		this.packetCount = (Integer) dbo.get("packetCount");
+	}
+	
+	public int getTime() {
 		return time;
 	}
 
-	public int getProtocol() {
-		return protocol;
-	}
+//	public int getProtocol() {
+//		return protocol;
+//	}
 
 	public String getSourceIP() {
-		return decodeIP(sourceIP);
+		return decodeIP(srcIP);
 	}
 
 	public String getDestinationIP() {
-		return decodeIP(destinationIP);
+		return decodeIP(dstIP);
 	}
 
 	public int getSourcePort() {
-		return sourcePort;
+		return srcPort;
 	}
 
 	public int getDestinationPort() {
-		return destinationPort;
+		return dstPort;
 	}
 
-	public boolean hasMoreFragments() {
-		return hasMoreFragments;
-	}
-
-	public boolean hasSubsequentFragments() {
-		return hasSubsequentFragments;
-	}
+//	public boolean hasMoreFragments() {
+//		return hasMoreFragments;
+//	}
+//
+//	public boolean hasSubsequentFragments() {
+//		return hasSubsequentFragments;
+//	}
 
 	public int getDuration() {
 		return duration;
 	}
 
-	public int getSourcePayloadBytes() {
-		return sourcePayloadBytes;
-	}
-
-	public int getDestinationPayloadBytes() {
-		return destinationPayloadBytes;
-	}
-
-	public int getSourceTotalBytes() {
-		return sourceTotalBytes;
-	}
-
-	public int getDestinationTotalBytes() {
-		return destinationTotalBytes;
-	}
-
-	public int getSourcePacketCount() {
-		return sourcePacketCount;
-	}
-
-	public int getDestinationPacketCount() {
-		return destinationPacketCount;
-	}
+//	public int getSourcePayloadBytes() {
+//		return sourcePayloadBytes;
+//	}
+//
+//	public int getDestinationPayloadBytes() {
+//		return destinationPayloadBytes;
+//	}
+//
+//	public int getSourceTotalBytes() {
+//		return sourceTotalBytes;
+//	}
+//
+//	public int getDestinationTotalBytes() {
+//		return destinationTotalBytes;
+//	}
+//
+//	public int getSourcePacketCount() {
+//		return sourcePacketCount;
+//	}
+//
+//	public int getDestinationPacketCount() {
+//		return destinationPacketCount;
+//	}
 
 	private static String decodeIP(int ip){
 		String out ="";
@@ -131,19 +151,23 @@ public class FlowMessage implements DBWritable{
 	public DBObject asDBObject(){
 		BasicDBObject dbo = new BasicDBObject();
 		// TODO: remove unused features
-		dbo.append("Time", (time/60)*60); // reduce time resolution to minute
-		dbo.append("SourceIP", sourceIP);
-		dbo.append("DestIP", destinationIP);
-		dbo.append("Protocol", protocol);
+		dbo.append("time", (time/60)*60); // reduce time resolution to minute
+		dbo.append("srcIP", srcIP);
+		dbo.append("dstIP", dstIP);
+//		dbo.append("Protocol", protocol);
 //		dbo.append("sourcePort", sourcePort);
-		dbo.append("destinationPort", destinationPort);
-		dbo.append("Duration", duration);
+		dbo.append("dstPort", dstPort);
+		dbo.append("duration", duration);
 //		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
 //		dbo.append("hasMoreFragments", hasMoreFragments);
 		
-		dbo.append("payloadBytes", sourcePayloadBytes+destinationPayloadBytes);
-		dbo.append("totalBytes", sourceTotalBytes+destinationTotalBytes);
-		dbo.append("packetCount", sourcePacketCount+destinationPacketCount);
+		dbo.append("payloadBytes", payloadBytes);
+		dbo.append("totalBytes", totalBytes);
+		dbo.append("packetCount", packetCount);
+		
+//		dbo.append("payloadBytes", sourcePayloadBytes+destinationPayloadBytes);
+//		dbo.append("totalBytes", sourceTotalBytes+destinationTotalBytes);
+//		dbo.append("packetCount", sourcePacketCount+destinationPacketCount);
 		
 //		dbo.append("srcPayload", sourcePayloadBytes);
 //		dbo.append("destPayload", destinationPayloadBytes);
