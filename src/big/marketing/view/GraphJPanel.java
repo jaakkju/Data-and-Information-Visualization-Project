@@ -56,14 +56,6 @@ public class GraphJPanel extends JPanel implements Observer {
 			target.refresh();
 			target.resetZoom();
 		}
-
-		System.out.println(this.getClass() + " Selected nodes: ");
-		if (controller.getHighlightedNodes() == null)
-			return;
-		// THIS IS REALLY NOT NICE WAY TO CODE THIS, BUT FOR AN EXAMPLE IT WORKS
-		for (int i = 0; i < controller.getHighlightedNodes().length; i++) {
-			System.out.println(controller.getHighlightedNodes()[i].toString());
-		}
 	}
 
 }
