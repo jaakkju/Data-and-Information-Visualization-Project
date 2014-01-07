@@ -44,6 +44,8 @@ public class Application {
 	}
 
 	public static void quit() {
+		logger.info("Received quit, closing the application");
+
 		MongoExecutor.killMongoProcess();
 		System.exit(0);
 	}
