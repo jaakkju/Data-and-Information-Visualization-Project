@@ -170,6 +170,33 @@ public class MongoController implements Runnable {
 	private DBCollection getCollection(DataType t) {
 		return collections.get(t).collection;
 	}
+	
+	public void setCollection(DataType t, String newCollectionName, boolean dropOld){
+		
+		// stop the writer thread and wait for it to finish
+		int permits = sem.drainPermits();
+		while(!sem.hasQueuedThreads()){
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				logger.error(e.getLocalizedMessage());
+			}
+		}
+		
+		collections.get(t).flushBuffer();
+		DBCollection old = getCollection(t);
+		DBCollection newColl = database.getCollection(newCollectionName);
+		
+		if (dropOld){
+			newColl.rename(getCollectionName(t), true);
+		}else{
+			old.rename("tmp"+newCollectionName);
+			newColl.rename(getCollectionName(t));
+			database.getCollection("tmp"+newCollectionName).rename(newCollectionName);
+		}
+		collections.put(t, new CollectionHandler(t));
+		sem.release(permits);
+	}
 
 	private String getCollectionName(DataType t) {
 		switch (t) {
@@ -231,6 +258,10 @@ public class MongoController implements Runnable {
 		}
 	}
 
+	static DB getDatabase() {
+		return database;
+	}
+	
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
