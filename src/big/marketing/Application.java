@@ -37,7 +37,8 @@ public class Application {
 		controller.addObserver(pCoordinatesPanel);
 		controller.addObserver(controlsPanel);
 
-		WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
+		@SuppressWarnings("unused")
+      WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
 
 		
 		// loop for testing switched graphs
@@ -50,7 +51,5 @@ public class Application {
 			}
 			controller.getGephiController().loadSampleFile();
 		}
-		
 	}
-
 }
