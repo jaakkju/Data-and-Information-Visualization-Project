@@ -13,8 +13,8 @@ public class Application {
 	static Logger logger = Logger.getLogger(Application.class);
 
 	/**
-	 * Application class implements main method and initializes the main parts
-	 * of the application
+	 * Application class implements main method and initializes the main parts of
+	 * the application
 	 * 
 	 * @param args
 	 */
@@ -39,11 +39,11 @@ public class Application {
 		controller.addObserver(controlsPanel);
 
 		@SuppressWarnings("unused")
-      WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
+		WindowFrame frame = new WindowFrame(graphPanel, pCoordinatesPanel, controlsPanel);
 
 	}
-	
-	public static void quit(){
+
+	public static void quit() {
 		MongoExecutor.killMongoProcess();
 		System.exit(0);
 	}
