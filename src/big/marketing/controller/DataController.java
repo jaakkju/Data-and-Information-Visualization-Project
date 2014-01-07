@@ -1,15 +1,17 @@
 package big.marketing.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
 
 import org.apache.log4j.Logger;
 
+import big.marketing.Settings;
 import big.marketing.data.DataType;
+import big.marketing.data.FlowMessage;
 import big.marketing.data.HealthMessage;
+import big.marketing.data.IPSMessage;
 import big.marketing.data.Node;
 import big.marketing.reader.NetworkReader;
 import big.marketing.reader.ZipReader;
@@ -21,13 +23,13 @@ public class DataController extends Observable implements Runnable {
 	private GephiController gc;
 	private MongoController mc;
 
-	// qWindow size in milliseconds
-	static final int QUERYWINDOW_SIZE = 1000 * 60 * 60;
+	// qWindow size in milliseconds, default value 1 hour
+	static int QUERYWINDOW_SIZE = 1000 * 60 * 60;
 
 	// qWindow variables store the data returned from mongo
-	private ArrayList<HealthMessage> qWindowHealth = null;
-	private ArrayList<HealthMessage> qWindowIPS = null;
-	private ArrayList<HealthMessage> qWindowFlow = null;
+	private List<HealthMessage> qWindowHealth = null;
+	private List<IPSMessage> qWindowIPS = null;
+	private List<FlowMessage> qWindowFlow = null;
 
 	private List<Node> network = null;
 
@@ -37,6 +39,7 @@ public class DataController extends Observable implements Runnable {
 	private Thread readingThread;
 
 	public DataController() {
+		loadSettings();
 		this.mc = new MongoController();
 		this.gc = new GephiController();
 	}
@@ -50,12 +53,12 @@ public class DataController extends Observable implements Runnable {
 
 		// TODO These things would be better to do directly in readers
 		// The readers should independently handle reading and storing to the
-		// database when started from the interface
+		// database when started from the interface. Every reader should handle it's own errors
+		
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
 
 		try {
-			// TODO Catch all reading error in DataController
 			network = nReader.readNetwork();
 
 			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(DataType.class);
@@ -78,34 +81,41 @@ public class DataController extends Observable implements Runnable {
 	 * Moves QueryWindow to certain position in time and queries data to qWindow
 	 * variables from mongo Hides mongo implementation details from views
 	 * 
-	 * @param date in milliseconds
+	 * @param date in milliseconds marking the center point of the query
 	 * @return true if data queried successfully from mongo, false otherwise
 	 */
-	public boolean moveQueryWindow(int msdate) {
-		// TODO implement moveQueryWindow
+	@SuppressWarnings("unchecked")
+	public void moveQueryWindow(int msdate) {
+		int start = msdate - QUERYWINDOW_SIZE / 2, end = msdate + QUERYWINDOW_SIZE / 2;
 
-		// TODO fetch health data
-
-		// TODO fetch flow data
-
-		// TODO fetch IPS data
-
-		return false;
+		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "Time", start, end);
+		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "Time", start, end);
+		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
+		
+		// TODO moveQueryWindow should return some info about the success of the database query
+	}
+	
+	private void loadSettings() {
+		try {
+	      QUERYWINDOW_SIZE = Integer.valueOf(Settings.get("controller.querywindow.size"));
+      } catch (NumberFormatException err) {
+	      logger.error("Loading settings failed, number conversion error", err);
+      }
 	}
 
 	public List<Node> getNetwork() {
 		return network;
 	}
 
-	public ArrayList<HealthMessage> getqWindowHealth() {
+	public List<HealthMessage> getqWindowHealth() {
 		return qWindowHealth;
 	}
 
-	public ArrayList<HealthMessage> getqWindowIPS() {
+	public List<IPSMessage> getqWindowIPS() {
 		return qWindowIPS;
 	}
 
-	public ArrayList<HealthMessage> getqWindowFlow() {
+	public List<FlowMessage> getqWindowFlow() {
 		return qWindowFlow;
 	}
 
