@@ -28,6 +28,10 @@ public class MongoExecutor {
 
 	public static void startMongoProcess() {
 		loadSettings();
+		if (mongoProcess != null){
+			logger.info("Database already started!");
+			return;
+		}
 		try {
 			String executable = MONGOD_PATH + "/mongod";
 			if (System.getProperty("os.name").toLowerCase().contains("win"))
@@ -46,7 +50,13 @@ public class MongoExecutor {
 	public static void killMongoProcess() {
 		// Check for open queries and cancel them
 		DB database = MongoController.getDatabase();
-		DBObject dbObject = database.getCollection("$cmd.sys.inprog").findOne();
+		DBObject dbObject=null;
+		try{
+			dbObject = database.getCollection("$cmd.sys.inprog").findOne();
+		}catch(Exception e){
+			logger.warn("Failed to get query status, no database connected!");
+			return;
+		}
 		if (dbObject != null) {
 			logger.info("Killing running queries");
 			BasicDBList currentOps = (BasicDBList) dbObject.get("inprog");
