@@ -14,6 +14,10 @@ import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
 import big.marketing.data.DataType;
+import big.marketing.data.FlowMessage;
+import big.marketing.data.HealthMessage;
+import big.marketing.data.IPSMessage;
+import big.marketing.data.Node;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -160,14 +164,14 @@ public class MongoController implements Runnable {
 		return database.collectionExists(getCollectionName(t));
 	}
 
-	public List<DBObject> getConstrainedEntries(DataType t, String key, int min, int max) {
+	public List<Object> getConstrainedEntries(DataType t, String key, int min, int max) {
 
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt", max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
-		ArrayList<DBObject> result = new ArrayList<DBObject>();
+		ArrayList<Object> result = new ArrayList<Object>();
 		try {
 			for (DBObject dbo : cursor) {
-				result.add(dbo);
+				result.add(convert(t, dbo));
 			}
 		} catch (Exception e) {
 			logger.error("Error when reading from database: " + e.getLocalizedMessage());
@@ -175,6 +179,20 @@ public class MongoController implements Runnable {
 		return result;
 	}
 
+	private Object convert(DataType t, DBObject dbo){
+		switch(t){
+		case IPS:
+			return new IPSMessage(dbo);
+		case FLOW:
+			return new FlowMessage(dbo);
+		case HEALTH:
+			return new HealthMessage(dbo);
+		case DESCRIPTION:
+			return new Node(dbo);
+		default:
+			return null;
+		}
+	}
 	/**
 	 * Aggregate all occuring values of the given field into the set. Useful for
 	 * analyzing the data.
