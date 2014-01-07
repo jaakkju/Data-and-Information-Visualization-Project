@@ -14,15 +14,13 @@ import javax.swing.JFrame;
 
 import big.marketing.Application;
 import big.marketing.Settings;
-import big.marketing.controller.MongoExecutor;
 
 public class WindowFrame extends JFrame {
-   private static final long serialVersionUID = -8346810238547214403L;
+	private static final long serialVersionUID = -8346810238547214403L;
 	private static int FRAME_WIDTH = 1200;
 	private static int FRAME_HEIGHT = 600;
 	private static final String FRAME_TITLE = "eyeNet - Network Monitor";
-	
-	
+
 	public WindowFrame(JComponent graphPanel, JComponent pCoordinatesPanel, JComponent controlsPanel) {
 		loadSettings();
 		this.setTitle(FRAME_TITLE);
@@ -40,18 +38,18 @@ public class WindowFrame extends JFrame {
 		addComponent(getContentPane(), gbl, graphPanel, 0, 0, 1, 1, 0.5, 0.5);
 		addComponent(getContentPane(), gbl, pCoordinatesPanel, 0, 1, 1, 1, 0.5, 0.5);
 		addComponent(getContentPane(), gbl, controlsPanel, 0, 2, 1, 1, 0, 0);
-		
+
 		this.pack();
 		this.setVisible(true);
-   }
-	
-	private void loadSettings() {
-		FRAME_HEIGHT= Settings.getInt("view.frame.height");
-		FRAME_WIDTH= Settings.getInt("view.frame.width");
 	}
-	
-	static void addComponent(Container cont, GridBagLayout gbl, Component c,
-			int x, int y, int width, int height, double weightx, double weighty) {
+
+	private void loadSettings() {
+		FRAME_HEIGHT = Settings.getInt("view.frame.height");
+		FRAME_WIDTH = Settings.getInt("view.frame.width");
+	}
+
+	static void addComponent(Container cont, GridBagLayout gbl, Component c, int x, int y, int width, int height, double weightx,
+	      double weighty) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.BOTH;
 		gbc.gridx = x;

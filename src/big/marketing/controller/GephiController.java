@@ -25,9 +25,9 @@ public class GephiController {
 	private ProjectController projectController;
 	private Workspace workspace;
 
-	private static final String file1="data/Java.gexf", file2="data/LesMiserables.gexf";
-	static String current=file1;
-	
+	private static final String file1 = "data/Java.gexf", file2 = "data/LesMiserables.gexf";
+	static String current = file1;
+
 	private GraphJPanel graphPanel;
 
 	public GephiController() {
@@ -37,33 +37,33 @@ public class GephiController {
 	}
 
 	public void loadSampleFile() {
-       	GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
-       	if (graphModel != null){
-       		graphModel.clear();
-       		projectController.closeCurrentWorkspace();
-       	}
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+		if (graphModel != null) {
+			graphModel.clear();
+			projectController.closeCurrentWorkspace();
+		}
 
-       	prepareLoad();
+		prepareLoad();
 		Container dataContainer = loadContainer();
 		processNewContainer(dataContainer);
 		graphPanel.update(null, null);
-		
+
 	}
 
-	public void prepareLoad(){
+	public void prepareLoad() {
 		projectController.newProject();
 		importController = Lookup.getDefault().lookup(ImportController.class);
 		previewController = Lookup.getDefault().lookup(PreviewController.class);
 		workspace = projectController.getCurrentWorkspace();
 	}
-	
-	public Container loadContainer(){
+
+	public Container loadContainer() {
 		Container container = null;
 		if (current.equals(file1))
 			current = file2;
 		else
 			current = file1;
-		
+
 		try {
 			File file = new File(current);
 			container = importController.importFile(file);
@@ -72,7 +72,7 @@ public class GephiController {
 		}
 		return container;
 	}
-	
+
 	public void processNewContainer(Container container) {
 		if (container == null) {
 			logger.info("Got no container to display!");
@@ -90,7 +90,7 @@ public class GephiController {
 	public void setGraphPanel(GraphJPanel graphPanel) {
 		this.graphPanel = graphPanel;
 		loadSampleFile();
-		
+
 		RenderTarget rt = previewController.getRenderTarget(RenderTarget.PROCESSING_TARGET);
 		graphPanel.setContent((ProcessingTarget) rt);
 

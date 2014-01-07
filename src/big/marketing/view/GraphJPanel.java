@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
@@ -20,12 +19,12 @@ import big.marketing.controller.DataController;
 public class GraphJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(GraphJPanel.class);
 
-   private static final long serialVersionUID = -7417639995072699909L;
+	private static final long serialVersionUID = -7417639995072699909L;
 	private final DataController controller;
 	private PApplet applet;
 	private ProcessingTarget target;
-	
-	public void setContent(ProcessingTarget target){
+
+	public void setContent(ProcessingTarget target) {
 		this.target = target;
 		applet = target.getApplet();
 		applet.init();
@@ -35,40 +34,36 @@ public class GraphJPanel extends JPanel implements Observer {
 	}
 
 	public GraphJPanel(DataController controller) {
-	   this.controller = controller;
-	   setLayout(new BorderLayout());
-	   this.controller.getGephiController().setGraphPanel(this);
-   }
-	
+		this.controller = controller;
+		setLayout(new BorderLayout());
+		this.controller.getGephiController().setGraphPanel(this);
+	}
+
 	public void setupModel(PreviewModel previewModel) {
-		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS,
-				Boolean.TRUE);
-		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR,
-				new DependantOriginalColor(Color.WHITE));
-		previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED,
-				Boolean.FALSE);
+		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+		previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
 		previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
 		previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
-		previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR,
-				Color.BLACK);
+		previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
 	}
-	
+
 	// TODO: use update(...), not prepareModel and setTarget
 	@Override
-   public void update(Observable o, Object arg) {
-		
-		if (target != null){
+	public void update(Observable o, Object arg) {
+
+		if (target != null) {
 			target.refresh();
 			target.resetZoom();
 		}
-		
+
 		System.out.println(this.getClass() + " Selected nodes: ");
 		if (controller.getHighlightedNodes() == null)
 			return;
 		// THIS IS REALLY NOT NICE WAY TO CODE THIS, BUT FOR AN EXAMPLE IT WORKS
 		for (int i = 0; i < controller.getHighlightedNodes().length; i++) {
-	      System.out.println(controller.getHighlightedNodes()[i].toString());
-      }
-   }
+			System.out.println(controller.getHighlightedNodes()[i].toString());
+		}
+	}
 
 }

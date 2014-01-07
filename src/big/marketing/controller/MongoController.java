@@ -1,6 +1,5 @@
 package big.marketing.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import org.apache.log4j.Logger;
 import big.marketing.Settings;
 import big.marketing.data.DataType;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -33,8 +31,8 @@ public class MongoController implements Runnable {
 	static Logger logger = Logger.getLogger(MongoController.class);
 
 	/*
-	 * writerThread and buffer for storing write requests. handling read
-	 * requests in a seperate thread doesn't make sense, since reads are always
+	 * writerThread and buffer for storing write requests. handling read requests
+	 * in a seperate thread doesn't make sense, since reads are always
 	 * synchronous (as a value has to be returned)
 	 */
 	Thread writer;
@@ -44,10 +42,8 @@ public class MongoController implements Runnable {
 	private static MongoClient mongo;
 	private static DB database;
 
-	public static String HOST_NAME = "localhost", DB_NAME = "eyeNet",
-			FLOW_COLLECTION_NAME = "flow", IPS_COLLECTION_NAME = "ips",
-			HEALTH_COLLECTION_NAME = "health",
-			DESCRIPTION_COLLECTION_NAME = "nodes";
+	public static String HOST_NAME = "localhost", DB_NAME = "eyeNet", FLOW_COLLECTION_NAME = "flow", IPS_COLLECTION_NAME = "ips",
+	      HEALTH_COLLECTION_NAME = "health", DESCRIPTION_COLLECTION_NAME = "nodes";
 	public static int BUFFER_SIZE = 1000;
 	public static int MAX_TRIES = 3;
 
@@ -56,8 +52,7 @@ public class MongoController implements Runnable {
 
 		boolean isConnected = connectToDatabase();
 		for (int i = 1; i <= MAX_TRIES && !isConnected; i++) {
-			logger.warn("Could not connect to MongoDB in try " + i + " of "
-					+ MAX_TRIES);
+			logger.warn("Could not connect to MongoDB in try " + i + " of " + MAX_TRIES);
 			MongoExecutor.startMongoProcess();
 			isConnected = connectToDatabase();
 		}
@@ -67,13 +62,13 @@ public class MongoController implements Runnable {
 			System.exit(1);
 		}
 
-		collections = new EnumMap<DataType,CollectionHandler>(DataType.class);
+		collections = new EnumMap<DataType, CollectionHandler>(DataType.class);
 
 		for (DataType t : DataType.values()) {
 			collections.put(t, new CollectionHandler(t));
 		}
 
-		writer = new Thread(this,"DB-Writer");
+		writer = new Thread(this, "DB-Writer");
 		writer.start();
 	}
 
@@ -93,8 +88,7 @@ public class MongoController implements Runnable {
 
 		try {
 			mongo = new MongoClient(HOST_NAME);
-			mongo.getConnector().getDBPortPool(mongo.getAddress()).get()
-					.ensureOpen();
+			mongo.getConnector().getDBPortPool(mongo.getAddress()).get().ensureOpen();
 			database = mongo.getDB(DB_NAME);
 			logger.info("Connection to MongoDB established");
 			return true;
@@ -106,7 +100,6 @@ public class MongoController implements Runnable {
 		return false;
 	}
 
-	
 	private BlockingQueue<DBObject> getBuffer(DataType t) {
 		return collections.get(t).buffer;
 	}
@@ -114,29 +107,29 @@ public class MongoController implements Runnable {
 	private DBCollection getCollection(DataType t) {
 		return collections.get(t).collection;
 	}
-	
-	public void setCollection(DataType t, String newCollectionName, boolean dropOld){
-		
+
+	public void setCollection(DataType t, String newCollectionName, boolean dropOld) {
+
 		// stop the writer thread and wait for it to finish
 		int permits = sem.drainPermits();
-		while(!sem.hasQueuedThreads()){
+		while (!sem.hasQueuedThreads()) {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				logger.error(e.getLocalizedMessage());
 			}
 		}
-		
+
 		collections.get(t).flushBuffer();
 		DBCollection old = getCollection(t);
 		DBCollection newColl = database.getCollection(newCollectionName);
-		
-		if (dropOld){
+
+		if (dropOld) {
 			newColl.rename(getCollectionName(t), true);
-		}else{
-			old.rename("tmp"+newCollectionName);
+		} else {
+			old.rename("tmp" + newCollectionName);
 			newColl.rename(getCollectionName(t));
-			database.getCollection("tmp"+newCollectionName).rename(newCollectionName);
+			database.getCollection("tmp" + newCollectionName).rename(newCollectionName);
 		}
 		collections.put(t, new CollectionHandler(t));
 		sem.release(permits);
@@ -160,19 +153,17 @@ public class MongoController implements Runnable {
 		return database.collectionExists(getCollectionName(t));
 	}
 
-	public List<DBObject> getConstrainedEntries(DataType t, String key,
-			int min, int max) {
+	public List<DBObject> getConstrainedEntries(DataType t, String key, int min, int max) {
 
-		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt",
-				max).append("$gt", min));
+		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt", max).append("$gt", min));
 		DBCursor cursor = getCollection(t).find(query);
 		ArrayList<DBObject> result = new ArrayList<DBObject>();
-		try{
+		try {
 			for (DBObject dbo : cursor) {
 				result.add(dbo);
 			}
-		} catch (Exception e){
-			logger.error("Error when reading from database: "+e.getLocalizedMessage());
+		} catch (Exception e) {
+			logger.error("Error when reading from database: " + e.getLocalizedMessage());
 		}
 		return result;
 	}
@@ -181,12 +172,12 @@ public class MongoController implements Runnable {
 	 * Aggregate all occuring values of the given field into the set. Useful for
 	 * analyzing the data.
 	 * 
-	 * @param t
-	 *            DataType to look in
-	 * @param fieldName
-	 *            the values of this field are aggregated into the returned set.
+	 * @param t DataType to look in
+	 * @param fieldName the values of this field are aggregated into the returned
+	 *           set.
 	 * @return a set of String naming all occuring values in the given field
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection<Object> getDomainOf(DataType t, String fieldName) {
 		return getCollection(t).distinct(fieldName);
 	}
@@ -197,28 +188,27 @@ public class MongoController implements Runnable {
 			getCollection(t).drop();
 			logger.info("Dropped data of Type " + t.name());
 		} else {
-			logger.warn("Dropping Collection failed! No Collection with name "
-					+ name + " (for Type " + t.name() + ")");
+			logger.warn("Dropping Collection failed! No Collection with name " + name + " (for Type " + t.name() + ")");
 		}
 	}
 
 	static DB getDatabase() {
 		return database;
 	}
-	
+
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
-		if (getBuffer(t).size() >= BUFFER_SIZE && sem.availablePermits() <= 0){
+		if (getBuffer(t).size() >= BUFFER_SIZE && sem.availablePermits() <= 0) {
 			sem.release();
 		}
 		try {
 			getBuffer(t).put(object);
 		} catch (InterruptedException e) {
-			logger.error("Interrupted: "
-					+ e.getLocalizedMessage());
+			logger.error("Interrupted: " + e.getLocalizedMessage());
 		}
 	}
+
 	private Semaphore sem;
 
 	@Override
@@ -228,8 +218,7 @@ public class MongoController implements Runnable {
 			try {
 				sem.acquire();
 			} catch (InterruptedException e) {
-				logger.error("Interrupted: "
-						+ e.getLocalizedMessage());
+				logger.error("Interrupted: " + e.getLocalizedMessage());
 			}
 			for (CollectionHandler mc : collections.values()) {
 				if (!mc.buffer.isEmpty())

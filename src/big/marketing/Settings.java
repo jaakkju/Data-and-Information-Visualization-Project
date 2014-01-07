@@ -25,8 +25,7 @@ public class Settings {
 			properties.load(new FileReader(configFile));
 			logger.info("Successfully read config from file " + configFile);
 		} catch (IOException e) {
-			logger.error("Could not load Settings from " + configFile
-					+ "! Exiting...");
+			logger.error("Could not load Settings from " + configFile + "! Exiting...");
 			System.exit(1);
 		}
 	}
