@@ -15,7 +15,7 @@ import big.marketing.test.DatabasePerformance;
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
 	private final DataController controller;
-	private JButton startReadingButton, resetDatabaseButton, perfTestButton;
+	private JButton startReadingButton, resetDatabaseButton, perfTestButton, qWindowButton;
 
 	public ControlsJPanel(final DataController controller) {
 		this.controller = controller;
@@ -24,9 +24,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
 				controller.readData();
-
 			}
 		});
 		add(startReadingButton);
@@ -40,7 +38,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 				for (DataType t : DataType.values()) {
 					controller.getMongoController().clearCollection(t);
 				}
-
 			}
 
 		});
@@ -63,11 +60,21 @@ public class ControlsJPanel extends JPanel implements Observer {
 		});
 
 		add(perfTestButton);
+
+		qWindowButton = new JButton("Test qWindow");
+		qWindowButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.moveQueryWindow(1364830798);
+			}
+
+		});
+		add(qWindowButton);
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
 
-		
 	}
 }

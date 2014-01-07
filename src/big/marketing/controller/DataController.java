@@ -24,7 +24,7 @@ public class DataController extends Observable implements Runnable {
 	private MongoController mc;
 
 	// qWindow size in milliseconds, default value 1 hour
-	static int QUERYWINDOW_SIZE = 1000 * 60 * 60;
+	static int QUERYWINDOW_SIZE = 6000;
 
 	// qWindow variables store the data returned from mongo
 	private List<HealthMessage> qWindowHealth = null;
@@ -53,8 +53,9 @@ public class DataController extends Observable implements Runnable {
 
 		// TODO These things would be better to do directly in readers
 		// The readers should independently handle reading and storing to the
-		// database when started from the interface. Every reader should handle it's own errors
-		
+		// database when started from the interface. Every reader should handle
+		// it's own errors
+
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
 
@@ -82,25 +83,30 @@ public class DataController extends Observable implements Runnable {
 	 * variables from mongo Hides mongo implementation details from views
 	 * 
 	 * @param date in milliseconds marking the center point of the query
-	 * @return true if data queried successfully from mongo, false otherwise
+	 * @return TODO return some info
 	 */
 	@SuppressWarnings("unchecked")
 	public void moveQueryWindow(int msdate) {
 		int start = msdate - QUERYWINDOW_SIZE / 2, end = msdate + QUERYWINDOW_SIZE / 2;
+		long startTime = System.currentTimeMillis();
 
 		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "Time", start, end);
 		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "Time", start, end);
 		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
-		
-		// TODO moveQueryWindow should return some info about the success of the database query
+
+		logger.info("Moved qWindow to " + msdate + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
+		      + QUERYWINDOW_SIZE + " ms, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
+		      + qWindowIPS.size() + " objects");
+		// TODO moveQueryWindow should return some info about the success of the
+		// database query
 	}
-	
+
 	private void loadSettings() {
 		try {
-	      QUERYWINDOW_SIZE = Integer.valueOf(Settings.get("controller.querywindow.size"));
-      } catch (NumberFormatException err) {
-	      logger.error("Loading settings failed, number conversion error", err);
-      }
+			QUERYWINDOW_SIZE = Integer.valueOf(Settings.get("controller.querywindow.size"));
+		} catch (NumberFormatException err) {
+			logger.error("Loading settings failed, number conversion error", err);
+		}
 	}
 
 	public List<Node> getNetwork() {
