@@ -91,14 +91,13 @@ public class DataController extends Observable implements Runnable {
 		long startTime = System.currentTimeMillis();
 
 		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "Time", start, end);
-		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "Time", start, end);
-		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
+		// qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "Time", start, end);
+		// qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "Time", start, end);
 
 		logger.info("Moved qWindow to " + msdate + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " ms, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
 		      + qWindowIPS.size() + " objects");
-		// TODO moveQueryWindow should return some info about the success of the
-		// database query
+		// TODO moveQueryWindow should return some info about the success of the database query
 	}
 
 	private void loadSettings() {
