@@ -59,31 +59,11 @@ public class DataController extends Observable implements Runnable {
 
 	public void run() {
 
-		// TODO These things would be better to do directly in readers
-		// The readers should independently handle reading and storing to the
-		// database when started from the interface. Every reader should handle
-		// it's own errors
-
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
-
-		try {
-			network = nReader.readNetwork();
-
-			EnumMap<DataType, Boolean> presentInDatabase = new EnumMap<DataType, Boolean>(DataType.class);
-			for (DataType t : DataType.values()) {
-				presentInDatabase.put(t, mc.isDataInDatabase(t));
-			}
-
-			for (int week = 1; week <= 2; week++) {
-				for (DataType t : DataType.values()) {
-					if (!presentInDatabase.get(t))
-						zReader.read(t, week);
-				}
-			}
-		} catch (IOException err) {
-			logger.error("Error while loading network data.", err);
-		}
+		
+		network = nReader.readNetwork();
+		zReader.read(DataType.FLOW,DataType.IPS, DataType.HEALTH);
 	}
 
 	/**
