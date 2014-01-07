@@ -9,63 +9,63 @@ import com.mongodb.DBObject;
 
 public class IPSMessage implements DBWritable {
 		
-	private final String 
-		destService,
-		flags;
+//	private final String 
+//		destService,
+//		flags;
 	
 	private final int
-		unixTime,
-		direction,
-		protocol,
-		priority,
+		time,
+//		direction,
+//		protocol,
+//		priority,
 		operation,
-		sourceIP,
-		destIP,
-		sourcePort,
-		destPort;
+		srcIP,
+		dstIP,
+		srcPort,
+		dstPort;
 	
-	public String getDestService() {
-		return destService;
+//	public String getDestService() {
+//		return destService;
+//	}
+//
+//	public String getFlags() {
+//		return flags;
+//	}
+
+	public int getTime() {
+		return time;
 	}
 
-	public String getFlags() {
-		return flags;
-	}
-
-	public int getUnixTime() {
-		return unixTime;
-	}
-
-	public int getDirection() {
-		return direction;
-	}
-
-	public int getProtocol() {
-		return protocol;
-	}
-
-	public int getPriority() {
-		return priority;
-	}
-
-	public int getOperation() {
-		return operation;
-	}
+//	public int getDirection() {
+//		return direction;
+//	}
+//
+//	public int getProtocol() {
+//		return protocol;
+//	}
+//
+//	public int getPriority() {
+//		return priority;
+//	}
+//
+//	public int getOperation() {
+//		return operation;
+//	}
 
 	public String getSourceIP() {
-		return decodeIP(sourceIP);
+		return decodeIP(srcIP);
 	}
 
-	public String getDestIP() {
-		return decodeIP(destIP);
+	public String getDestinationIP() {
+		return decodeIP(dstIP);
 	}
 
 	public int getSourcePort() {
-		return sourcePort;
+		return srcPort;
 	}
 
-	public int getDestPort() {
-		return destPort;
+	public int getDestinationPort() {
+		return dstPort;
 	}
 	public static final int
 		DIRECTION_IN=0,
@@ -82,6 +82,15 @@ public class IPSMessage implements DBWritable {
 		OPERATION_TEARDOWN=1,
 		OPERATION_BUILT=2;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy kk:mm:ss"); 
+	
+	public IPSMessage(DBObject dbo){
+		operation = OPERATION_DENY;
+		time = (Integer) dbo.get("time");
+		srcIP = (Integer) dbo.get("srcIP");
+		dstIP= (Integer) dbo.get("dstIP");
+		dstPort = (Integer) dbo.get("dstPort");
+		srcPort = (Integer) dbo.get("srcPort");
+	}
 	public IPSMessage(String ... args) {
 		super();
 
@@ -91,25 +100,25 @@ public class IPSMessage implements DBWritable {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		unixTime = (int) (d.getTime()/1000L);
+		time = (int) (d.getTime()/1000L);
 				
-		if ("UDP".equals(args[4]))
-			this.protocol = PROTOCOL_UDP;
-		else if ("TCP".equals(args[4]))
-			this.protocol = PROTOCOL_TCP;
-		else{
-			System.out.println("Invalid Protocol: "+args[4]);
-			this.protocol = -1;
-		}
-		
-		if ("Warning".equals(args[1]))
-			this.priority = PRIORITY_WARNING;
-		else if ("Info".equals(args[1]))
-			this.priority = PRIORITY_INFO;
-		else{
-			System.out.println("Invalid Priority: "+args[1]);
-			this.priority = -1;
-		}
+//		if ("UDP".equals(args[4]))
+//			this.protocol = PROTOCOL_UDP;
+//		else if ("TCP".equals(args[4]))
+//			this.protocol = PROTOCOL_TCP;
+//		else{
+//			System.out.println("Invalid Protocol: "+args[4]);
+//			this.protocol = -1;
+//		}
+//		
+//		if ("Warning".equals(args[1]))
+//			this.priority = PRIORITY_WARNING;
+//		else if ("Info".equals(args[1]))
+//			this.priority = PRIORITY_INFO;
+//		else{
+//			System.out.println("Invalid Priority: "+args[1]);
+//			this.priority = -1;
+//		}
 		
 		// keep only Deny messages, the others are normal network traffic,
 		// according to the manual
@@ -131,25 +140,25 @@ public class IPSMessage implements DBWritable {
 		// "ASA-6-106015" -> deny tcp packet without connection
 		// "ASA-4-106023" -> deny footprinting or port scanning
 		
-		this.sourceIP = encodeIP(args[5]);					
-		this.destIP = encodeIP(args[6]);				
-		this.sourcePort = Integer.parseInt(args[7]);		
-		this.destPort = Integer.parseInt(args[8]);	
+		this.srcIP = encodeIP(args[5]);					
+		this.dstIP = encodeIP(args[6]);				
+		this.srcPort = Integer.parseInt(args[7]);		
+		this.dstPort = Integer.parseInt(args[8]);	
 		
-		this.destService = args[9];					
-		
-		if (args[10].startsWith("in")){			
-			this.direction = DIRECTION_IN;
-		}else if (args[10].startsWith("out"))
-			this.direction = DIRECTION_OUT;
-		else if (args[10].contains("empty"))
-			this.direction = DIRECTION_EMPTY;
-		else{
-			System.out.println("Invalid Direction: "+args[10]);
-			this.direction = -1;
-		}
-		
-		this.flags = args[11];								
+//		this.destService = args[9];					
+//		
+//		if (args[10].startsWith("in")){			
+//			this.direction = DIRECTION_IN;
+//		}else if (args[10].startsWith("out"))
+//			this.direction = DIRECTION_OUT;
+//		else if (args[10].contains("empty"))
+//			this.direction = DIRECTION_EMPTY;
+//		else{
+//			System.out.println("Invalid Direction: "+args[10]);
+//			this.direction = -1;
+//		}
+//		
+//		this.flags = args[11];								
 	}
 
 	@Override
@@ -160,13 +169,13 @@ public class IPSMessage implements DBWritable {
 		
 		BasicDBObject dbo = new BasicDBObject();
 		// maybe remove some more features here?
-		dbo.append("Time", (unixTime/60)*60);
-		dbo.append("SourceIP", sourceIP);
-		dbo.append("DestIP", destIP);
+		dbo.append("time", (time/60)*60);
+		dbo.append("srcIP", srcIP);
+		dbo.append("dstIP", dstIP);
 //		dbo.append("MessageCode", messageCode);
 //		dbo.append("Protocol", protocol);
-		dbo.append("sourcePort", sourcePort);
-		dbo.append("destinationPort", destPort);
+		dbo.append("srcPort", srcPort);
+		dbo.append("dstPort", dstPort);
 //		dbo.append("Priority", priority); // 9000000 vs 7500000
 //		dbo.append("Operation", operation);  // this is always 2 , operation deny
 //		dbo.append("DestinationService", destService);
