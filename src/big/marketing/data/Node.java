@@ -82,10 +82,17 @@ public class Node implements DBWritable{
 	@Override
 	public DBObject asDBObject() {
 		BasicDBObject dbObject = new BasicDBObject();
-		dbObject.append("adress", address);
+		dbObject.append("address", address);
 		dbObject.append("hostName", hostName);
 		dbObject.append("type", type);
 		dbObject.append("comment", comment);
 		return dbObject;
 	}
+	public Node(DBObject dbo){
+		this.address = (String) dbo.get("address");
+		this.hostName = (String) dbo.get("hostName");
+		this.type = (Integer) dbo.get("type");
+		this.comment = (String) dbo.get("comment");
+	}
+	
 }
