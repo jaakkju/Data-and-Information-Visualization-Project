@@ -1,7 +1,5 @@
 package big.marketing.controller;
 
-import java.io.IOException;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
 
@@ -39,13 +37,13 @@ public class DataController extends Observable implements Runnable {
 	private Thread readingThread, processingThread;
 
 	private static DataController instance;
-	
+
 	public static DataController getInstance() {
 		if (instance == null)
 			instance = new DataController();
-	   return instance;
-   }
-	
+		return instance;
+	}
+
 	private DataController() {
 		loadSettings();
 		this.mc = MongoController.getInstance();
@@ -62,12 +60,12 @@ public class DataController extends Observable implements Runnable {
 		processingThread = new Thread(dp, "ProcessingThread");
 		processingThread.start();
 	}
-	
+
 	public void run() {
 
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
-		
+
 		network = nReader.readNetwork();
 		zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
 	}
