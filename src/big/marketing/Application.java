@@ -37,11 +37,8 @@ public class Application {
 		controller.addObserver(pCoordinatesPanel);
 		controller.addObserver(controlsPanel);
 
-		WindowFrame frame = new WindowFrame();
+		WindowFrame frame = new WindowFrame(graphPanel,pCoordinatesPanel,controlsPanel);
 
-		frame.add(graphPanel);
-		frame.add(pCoordinatesPanel);
-		frame.add(controlsPanel);
 		
 		// loop for testing switched graphs
 		while (true){
