@@ -21,7 +21,7 @@ public class ProcessingWorker {
 	private final DataType type;
 	private final MongoController mc;
 	/**
-	 * should be "Time", aggregation on database level is done for every distinct
+	 * should be "time", aggregation on database level is done for every distinct
 	 * value of this field
 	 */
 	private final String mainFeature, prefix;
@@ -39,7 +39,7 @@ public class ProcessingWorker {
 	 * @param t type of data that will be processed
 	 */
 	public ProcessingWorker(MongoController mongo, DataType t) {
-		this(mongo, t, "Time", "small");
+		this(mongo, t, "time", "small");
 	}
 
 	private ProcessingWorker(MongoController mongo, DataType t, String mainFeature, String prefix) {

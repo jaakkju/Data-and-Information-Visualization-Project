@@ -42,8 +42,8 @@ public class DatabasePerformance {
 
 			long s = System.currentTimeMillis();
 			// logger.info("Starting Time-Query: " + start + " to " + end);
-			List<DBObject> test;
-			test = mc.getConstrainedEntries(t, "Time", start, end);
+			List<Object> test;
+			test = mc.getConstrainedEntries(t, "time", start, end);
 
 			turnTime = System.currentTimeMillis() - s;
 			vals.add(turnTime);
