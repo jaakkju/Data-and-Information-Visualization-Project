@@ -36,7 +36,6 @@ public class Application {
 
 		@SuppressWarnings("unused")
 		WindowFrame frame = new WindowFrame(graphPanel, pCoordinatesPanel, controlsPanel);
-
 	}
 
 	public static void quit() {

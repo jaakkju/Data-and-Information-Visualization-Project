@@ -1,11 +1,14 @@
 package big.marketing.controller;
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.io.importer.api.Container;
+import org.gephi.io.importer.api.ContainerFactory;
+import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.preview.api.PreviewController;
@@ -15,6 +18,7 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
+import big.marketing.data.FlowMessage;
 import big.marketing.view.GraphJPanel;
 
 public class GephiController {
@@ -36,6 +40,23 @@ public class GephiController {
 		// Therefore Init is finished in setGraphPanel(...)
 	}
 
+	public void load(List<FlowMessage> flows){
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+		if (graphModel != null) {
+			graphModel.clear();
+			projectController.closeCurrentWorkspace();
+		}
+		prepareLoad();
+		
+		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
+		GephiImporter gImporter = new GephiImporter(flows);
+		ContainerLoader loader=container.getLoader();
+		gImporter.execute(loader);
+		
+		processNewContainer(container);
+		
+	}
+	
 	public void loadSampleFile() {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
