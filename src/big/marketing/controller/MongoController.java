@@ -12,6 +12,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 
+import big.marketing.Application;
 import big.marketing.Settings;
 import big.marketing.data.DataType;
 import big.marketing.data.FlowMessage;
@@ -75,7 +76,7 @@ public class MongoController implements Runnable {
 
 		if (!isConnected) {
 			logger.fatal("Failed to start MongoDB! Exiting now ...");
-			System.exit(1);
+			Application.quit();
 		}
 
 		collections = new EnumMap<DataType, CollectionHandler>(DataType.class);

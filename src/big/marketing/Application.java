@@ -43,6 +43,7 @@ public class Application {
 		logger.info("Received quit, closing the application");
 
 		MongoExecutor.killMongoProcess();
+		logger.info("Goodbye!");
 		System.exit(0);
 	}
 }

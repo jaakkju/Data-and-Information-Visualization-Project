@@ -68,6 +68,7 @@ public class DataController extends Observable implements Runnable {
 
 		network = nReader.readNetwork();
 		zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
+		logger.info("Finished Reading Data");
 	}
 
 	/**

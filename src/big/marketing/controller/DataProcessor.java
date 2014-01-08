@@ -20,6 +20,8 @@ public class DataProcessor implements Runnable {
 			ProcessingWorker pw = new ProcessingWorker(mc, type);
 			pw.process();
 		}
+		
+		logger.info("Finished data processing");
 
 	}
 }
