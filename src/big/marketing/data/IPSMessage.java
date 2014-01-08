@@ -66,13 +66,9 @@ public class IPSMessage implements DBWritable {
 		return dstPort;
 	}
 
-	public static final int DIRECTION_IN = 0, DIRECTION_OUT = 1, DIRECTION_EMPTY = 2,
+	public static final int DIRECTION_IN = 0, DIRECTION_OUT = 1, DIRECTION_EMPTY = 2, PROTOCOL_UDP = 0, PROTOCOL_TCP = 1,
+	      PRIORITY_WARNING = 0, PRIORITY_INFO = 1, OPERATION_DENY = 0, OPERATION_TEARDOWN = 1, OPERATION_BUILT = 2;
 
-	PROTOCOL_UDP = 0, PROTOCOL_TCP = 1,
-
-	PRIORITY_WARNING = 0, PRIORITY_INFO = 1,
-
-	OPERATION_DENY = 0, OPERATION_TEARDOWN = 1, OPERATION_BUILT = 2;
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss");
 
 	public IPSMessage(DBObject dbo) {
