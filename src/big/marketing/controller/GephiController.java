@@ -10,6 +10,7 @@ import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerFactory;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
+import org.gephi.io.importer.api.ImportUtils;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.ProcessingTarget;
