@@ -68,10 +68,10 @@ public class ProcessingWorker {
 
 		switch (type) {
 		case FLOW:
-			addGroupingField("SourceIP");
-			addGroupingField("DestIP");
-			addGroupingField("destinationPort");
-			addAdditionalField("Duration", "$avg");
+			addGroupingField("srcIP");
+			addGroupingField("dstIP");
+			addGroupingField("dstPort");
+			addAdditionalField("duration", "$avg");
 			addAdditionalField("payloadBytes", "$sum");
 			addAdditionalField("totalBytes", "$sum");
 			addAdditionalField("packetCount", "$sum");
