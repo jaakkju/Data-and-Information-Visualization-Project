@@ -100,8 +100,10 @@ public class IPSMessage implements DBWritable {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		time = (int) (d.getTime()/1000L);
-				
+		
+		int timeSeconds = (int) (d.getTime()/1000L);
+		this.time = (timeSeconds / 60) * 60;
+		
 //		if ("UDP".equals(args[4]))
 //			this.protocol = PROTOCOL_UDP;
 //		else if ("TCP".equals(args[4]))

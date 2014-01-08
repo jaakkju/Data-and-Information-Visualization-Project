@@ -65,7 +65,10 @@ public class HealthMessage implements DBWritable {
 		this.id = argsToInt(args, 0);
 		this.hostname = argsToString(args, 1);
 		this.serviceName = argsToString(args, 2);
-		this.time = argsToInt(args, 3);
+		
+		int timeSeconds = (int) Double.parseDouble(args[0]);
+		this.time = (timeSeconds / 60) * 60;
+		
 		this.statusVal = argsToInt(args, 4);
 		// args[5] is the unparsed message content
 		this.receivedFrom = argsToString(args, 6);
@@ -147,7 +150,7 @@ public class HealthMessage implements DBWritable {
 		bdbo.append("serviceName", serviceName);
 		bdbo.append("statusVal", statusVal);
 		bdbo.append("receivedFrom", receivedFrom);
-		bdbo.append("time", (time/60)*60);
+		bdbo.append("time", time);
 		bdbo.append("diskUsage", diskUsage);
 		bdbo.append("pageFileUsage", pageFileUsage);
 		bdbo.append("numProcs", numProcs);

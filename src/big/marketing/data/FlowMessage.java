@@ -35,8 +35,9 @@ public class FlowMessage implements DBWritable{
 	public FlowMessage(String[] args) {
 		super();
 		// TODO: remove unused features
-		this.time = (int) Double.parseDouble(args[0]);
-//		this.protocol = Integer.parseInt(args[3]);
+		int timeSeconds = (int) Double.parseDouble(args[0]);
+		this.time = (timeSeconds / 60) * 60;
+		// this.protocol = Integer.parseInt(args[3]);
 		this.srcIP = encodeIP(args[5]); 
 		this.dstIP = encodeIP(args[6]); 
 		this.srcPort = Integer.parseInt(args[7]);
@@ -151,7 +152,7 @@ public class FlowMessage implements DBWritable{
 	public DBObject asDBObject(){
 		BasicDBObject dbo = new BasicDBObject();
 		// TODO: remove unused features
-		dbo.append("time", (time/60)*60); // reduce time resolution to minute
+		dbo.append("time", time); // reduce time resolution to minute
 		dbo.append("srcIP", srcIP);
 		dbo.append("dstIP", dstIP);
 //		dbo.append("Protocol", protocol);
