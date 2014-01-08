@@ -65,6 +65,11 @@ public class MongoController implements Runnable {
 		for (int i = 1; i <= MAX_TRIES && !isConnected; i++) {
 			logger.warn("Could not connect to MongoDB in try " + i + " of " + MAX_TRIES);
 			MongoExecutor.startMongoProcess();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.warn("Interrupted: "+e.getLocalizedMessage());
+			}
 			isConnected = connectToDatabase();
 		}
 
