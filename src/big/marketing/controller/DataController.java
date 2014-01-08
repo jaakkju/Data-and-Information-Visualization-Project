@@ -66,9 +66,14 @@ public class DataController extends Observable implements Runnable {
 		NetworkReader nReader = new NetworkReader(this.mc);
 		ZipReader zReader = new ZipReader(this.mc);
 
-		network = nReader.readNetwork();
-		zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
-		logger.info("Finished Reading Data");
+		// Handling all reader errors here
+		try {
+			network = nReader.readNetwork();
+			zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
+			logger.info("Finished Reading Data");
+		} catch (Exception err) {
+			logger.error("Cannot read data", err);
+		}
 	}
 
 	/**
