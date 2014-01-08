@@ -220,7 +220,7 @@ public class ProcessingWorker {
 
 	private void createIndex(DBCollection collection) {
 
-		logger.info("Creating index for " + type.name() + "on " + mainFeature);
+		logger.info("Creating index for " + type.name() + " on " + mainFeature);
 		collection.ensureIndex(mainFeature);
 		logger.info("Successfully created index");
 
