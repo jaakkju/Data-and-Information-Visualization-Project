@@ -20,13 +20,12 @@ public class ProcessingWorker {
 
 	private final DataType type;
 	private final MongoController mc;
+
 	/**
-	 * should be "time", aggregation on database level is done for every distinct
-	 * value of this field
+	 * Should be "time", aggregation on database level is done for every distinct value of this field
 	 */
 	private final String mainFeature, prefix;
 	private ArrayList<DBObject> writeBuffer;
-
 	private List<String> groupingFields;
 	private List<String> additionalFields;
 	private List<String> operatorsOnAdditionalFields;
@@ -55,17 +54,14 @@ public class ProcessingWorker {
 	}
 
 	private void setupFields() {
-		// This sample is doing the following:
-		// query all flow messages that have the same value in Time, SourceIP,
-		// DestIP and destinationPort (these fields are specified by
-		// _groupingFields_)
-		// this set of flow messages is combined to one single flow message and
-		// only the fields that are specified in _additionalFields_ survive
-		// for combining the different values MongoDB database commands are used
-		// (e.g $avg, $sum, ...)
-		// the resulting flow message for one set contains only the fields in
-		// _groupingFields_ and _additionalFields_
-
+		/*
+		 * This sample is doing the following:
+		 * Query all flow messages that have the same value in Time, SourceIP,
+		 * DestIP and destinationPort (these fields are specified by _groupingFields_)
+		 * This set of flow messages is combined to one single flow message and only the fields that are specified in
+		 * _additionalFields_ survive for combining the different values MongoDB database commands are used (e.g $avg, $sum, ...)
+		 * The resulting flow message for one set contains only the fields in _groupingFields_ and _additionalFields_
+		 */
 		switch (type) {
 		case FLOW:
 			addGroupingField("srcIP");
@@ -76,9 +72,16 @@ public class ProcessingWorker {
 			addAdditionalField("totalBytes", "$sum");
 			addAdditionalField("packetCount", "$sum");
 			break;
+
 		// TODO: decide on preprocessing for other datatypes
 		case IPS:
 		case HEALTH:
+			addGroupingField("hostname");
+			addAdditionalField("diskUsage", "$avg");
+			addAdditionalField("pageFileUsage", "$avg");
+			addAdditionalField("numProcs", "$avg");
+			addAdditionalField("loadAverage", "$avg");
+			addAdditionalField("physicalMemoryUsage", "$avg");
 		case DESCRIPTION:
 			break;
 		}
@@ -115,7 +118,6 @@ public class ProcessingWorker {
 
 		DBObject groupOp = new BasicDBObject("$group", groupFields);
 		return groupOp;
-
 	}
 
 	/**
@@ -141,26 +143,28 @@ public class ProcessingWorker {
 
 		DB db = MongoController.getDatabase();
 		DBCollection smallData = db.getCollection(prefix + fullData.getName());
-		// clear target collection
+
+		// Clear target collection
 		smallData.drop();
 
-		// Build index on complete flow data to speed up the compressing
-		// this takes some time
-		// compound index on mainFeature and groupingFields supports fast queries
-		// for mainFeature too
+		/*
+		 * Build index on complete flow data to speed up the compressing
+		 * this takes some time compound index on mainFeature and groupingFields
+		 * supports fast queries for mainFeature too
+		 */
 		BasicDBObject indexObject = new BasicDBObject(mainFeature, 1);
 		for (String field : groupingFields) {
 			indexObject.append(field, 1);
 		}
+
 		logger.info("Building index on full " + type.name() + " dataset ...");
 		fullData.ensureIndex(indexObject);
-		logger.info("Index building finished");
 
 		logger.info("Querying distinct values in field " + mainFeature);
 		Collection fullDataSteps = fullData.distinct(mainFeature);
 		logger.info(fullDataSteps.size() + " distinct values in field " + mainFeature);
 
-		// some data for progress output
+		// Some data for progress output
 		int processed = 0;
 		int amount = fullDataSteps.size();
 		int lastPercent = 0;
@@ -182,16 +186,18 @@ public class ProcessingWorker {
 
 				writeBuffer.add(dbo);
 				if (writeBuffer.size() >= MongoController.BUFFER_SIZE) {
-					// flush buffer to database
+
+					// Flush buffer to database
 					smallData.insert(writeBuffer);
 					writeBuffer.clear();
 				}
-
 			}
+
 			// Some progress output
 			processed++;
-			int percent = processed * 100 / amount; // Integer operations so
-			                                        // automatically rounded down
+			int percent = processed * 100 / amount;
+			// Integer operations so automatically rounded down
+
 			if (percent > lastPercent) {
 				long end = System.currentTimeMillis();
 				long time = end - startTime;
@@ -199,30 +205,25 @@ public class ProcessingWorker {
 				lastPercent = percent;
 			}
 		}
-		// flush the rest of the buffer
+
+		// Flush the rest of the buffer
 		smallData.insert(writeBuffer);
 
-		// consistency check
+		// Consistency check
 		int smallDataSteps = smallData.distinct(mainFeature).size();
 		if (smallDataSteps != fullDataSteps.size()) {
 			logger.warn("Possible data inconsistency in " + type.name() + ":");
-			logger.warn("reduced dataset contains different amount of " + mainFeature + " steps! Original dataset: "
-			      + fullDataSteps.size() + " reduced dataset: " + smallDataSteps);
+			logger.warn("reduced dataset contains different amount of " + mainFeature + " steps! Original dataset: " + fullDataSteps.size()
+			      + " reduced dataset: " + smallDataSteps);
 		}
 
 		createIndex(smallData);
-
 		mc.setCollection(type, smallData.getName(), false);
-
 		logger.info("Finished data reduction for " + type.name());
-
 	}
 
 	private void createIndex(DBCollection collection) {
-
 		logger.info("Creating index for " + type.name() + " on " + mainFeature);
 		collection.ensureIndex(mainFeature);
-		logger.info("Successfully created index");
-
 	}
 }
