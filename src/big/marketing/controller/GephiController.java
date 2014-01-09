@@ -2,6 +2,7 @@ package big.marketing.controller;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
@@ -30,15 +31,21 @@ public class GephiController {
 	private ImportController importController;
 	private PreviewController previewController;
 	private ProjectController projectController;
+
+	private DataController dc;
 	private Workspace workspace;
+	private Map<String, String> ipHostMap;
+	
 
 	private static final String file1 = "data/Java.gexf", file2 = "data/LesMiserables.gexf";
 	static String current = file1;
 
 	private GraphJPanel graphPanel;
 
-	public GephiController() {
+	public GephiController(DataController dc) {
 		projectController = Lookup.getDefault().lookup(ProjectController.class);
+		this.dc = dc;
+		ipHostMap = dc.getMongoController().getHostIPMap();
 		// Init cannot be finished here, because graphPanel is not ready yet
 		// Therefore Init is finished in setGraphPanel(...)
 	}
@@ -52,7 +59,7 @@ public class GephiController {
 		prepareLoad();
 		
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
-		GephiImporter gImporter = new GephiImporter(flows);
+		GephiImporter gImporter = new GephiImporter(flows,ipHostMap);
 		ContainerLoader loader=container.getLoader();
 		gImporter.execute(loader);
 		

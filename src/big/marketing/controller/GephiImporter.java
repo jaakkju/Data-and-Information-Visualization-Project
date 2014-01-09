@@ -16,11 +16,13 @@ public class GephiImporter implements SpigotImporter {
 	private ContainerLoader container;
 	private Report report;
 	private List<FlowMessage> currentFlow;
+	private Map<String,String> ipHostMap;
 	Map<String,NodeDraft> nodes;
 	
-	public GephiImporter(List<FlowMessage> flows) {
+	public GephiImporter(List<FlowMessage> flows, Map<String,String> ipHostMap) {
 		this.currentFlow=flows;
 		nodes = new HashMap<>();
+		this.ipHostMap = ipHostMap;
 	}
 
 	/**
@@ -41,7 +43,8 @@ public class GephiImporter implements SpigotImporter {
 			NodeDraft src = nodes.get(message.getSourceIP());
 			if (src == null){
 				src = fact.newNodeDraft();
-				src.setLabel(message.getSourceIP());
+				String hostName = ipHostMap.get(message.getSourceIP()); 
+				src.setLabel(hostName == null ? "extern":hostName);
 				nodes.put(message.getSourceIP(), src);
 				loader.addNode(src);
 			}
@@ -49,7 +52,8 @@ public class GephiImporter implements SpigotImporter {
 			NodeDraft dst = nodes.get(message.getDestinationIP());
 			if (dst == null) {
 				dst = fact.newNodeDraft();
-				dst.setLabel(message.getDestinationIP());
+				String hostName = ipHostMap.get(message.getDestinationIP()); 
+				dst.setLabel(hostName == null ? "extern":hostName);
 				nodes.put(message.getDestinationIP(),dst);
 				loader.addNode(dst);
 			}

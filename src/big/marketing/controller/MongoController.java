@@ -5,7 +5,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -231,7 +233,16 @@ public class MongoController implements Runnable {
 	static DB getDatabase() {
 		return database;
 	}
-
+	
+	public Map<String,String> getHostIPMap(){
+		Map<String, String> mapping = new HashMap<>();
+		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
+		for (DBObject obj : names.find()){
+			mapping.put((String) obj.get("address"), (String) obj.get("hostName"));
+		}
+		return mapping;
+	}
+	
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
