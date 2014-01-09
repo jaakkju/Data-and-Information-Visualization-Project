@@ -66,7 +66,7 @@ public class ProcessingWorker {
 			addGroupingField("srcIP");
 			addGroupingField("dstIP");
 			addGroupingField("dstPort");
-			addGroupingField("srcPort");
+			addAdditionalField("srcPort","$first"); // just for testing
 			addAdditionalField("duration", "$avg");
 			addAdditionalField("payloadBytes", "$sum");
 			addAdditionalField("totalBytes", "$sum");
@@ -75,6 +75,7 @@ public class ProcessingWorker {
 
 		// TODO: decide on preprocessing for other datatypes
 		case IPS:
+			break;
 		case HEALTH:
 			addGroupingField("hostname");
 			addAdditionalField("statusVal", "$max");
