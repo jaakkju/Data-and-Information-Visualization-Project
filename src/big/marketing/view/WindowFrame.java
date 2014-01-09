@@ -56,6 +56,7 @@ public class WindowFrame extends JFrame {
 		setJMenuBar(createMenuBar());
 		this.pack();
 		splitter.setDividerLocation(0.5);
+		this.pack();
 		this.setVisible(true);
 	}
 
