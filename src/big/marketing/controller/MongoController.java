@@ -144,9 +144,8 @@ public class MongoController implements Runnable {
 		if (dropOld) {
 			newColl.rename(getCollectionName(t), true);
 		} else {
-			old.rename("tmp" + newCollectionName);
+			old.rename("old" + getCollectionName(t));
 			newColl.rename(getCollectionName(t));
-			database.getCollection("tmp" + newCollectionName).rename(newCollectionName);
 		}
 		collections.put(t, new CollectionHandler(t));
 		sem.release(permits);

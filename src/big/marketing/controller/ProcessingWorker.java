@@ -65,8 +65,8 @@ public class ProcessingWorker {
 		case FLOW:
 			addGroupingField("srcIP");
 			addGroupingField("dstIP");
-			addGroupingField("dstPort");
-			addAdditionalField("srcPort", "$first"); // just for testing
+			addAdditionalField("dstPort", "$addToSet");
+			addAdditionalField("srcPort", "$addToSet");
 			addAdditionalField("duration", "$avg");
 			addAdditionalField("payloadBytes", "$sum");
 			addAdditionalField("totalBytes", "$sum");
