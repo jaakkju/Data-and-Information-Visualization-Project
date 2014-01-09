@@ -66,7 +66,7 @@ public class ProcessingWorker {
 			addGroupingField("srcIP");
 			addGroupingField("dstIP");
 			addGroupingField("dstPort");
-			addAdditionalField("srcPort","$first"); // just for testing
+			addAdditionalField("srcPort", "$first"); // just for testing
 			addAdditionalField("duration", "$avg");
 			addAdditionalField("payloadBytes", "$sum");
 			addAdditionalField("totalBytes", "$sum");
@@ -85,6 +85,8 @@ public class ProcessingWorker {
 			addAdditionalField("loadAverage", "$avg");
 			addAdditionalField("physicalMemoryUsage", "$avg");
 			addAdditionalField("connMade", "$max");
+
+			break;
 		case DESCRIPTION:
 			break;
 		}
