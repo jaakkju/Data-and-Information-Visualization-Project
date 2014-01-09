@@ -61,19 +61,31 @@ public class FlowMessage implements DBWritable{
 		this.packetCount = Integer.parseInt(args[16]) +Integer.parseInt(args[17]);
 		
 	}
-	
-	public FlowMessage(DBObject dbo){
-		this.time = (Integer) dbo.get("time");
-		this.srcIP = (Integer) dbo.get("srcIP");
-		this.dstIP = (Integer) dbo.get("dstIP");
-		this.srcPort = (Integer) dbo.get("srcPort");
-		this.dstPort = (Integer) dbo.get("dstPort");
-		this.duration = (Integer) dbo.get("duration");
-		this.payloadBytes = (Integer) dbo.get("payloadBytes");
-		this.totalBytes = (Integer) dbo.get("totalBytes");
-		this.packetCount = (Integer) dbo.get("packetCount");
+
+	public FlowMessage(DBObject dbo) {
+		this.time = convertToInt(dbo.get("time"));
+		this.srcIP = convertToInt(dbo.get("srcIP"));
+		this.dstIP = convertToInt(dbo.get("dstIP"));
+		this.srcPort = convertToInt(dbo.get("srcPort"));
+		this.dstPort = convertToInt(dbo.get("dstPort"));
+		this.duration = convertToInt(dbo.get("duration"));
+		this.payloadBytes = convertToInt(dbo.get("payloadBytes"));
+		this.totalBytes = convertToInt(dbo.get("totalBytes"));
+		this.packetCount = convertToInt(dbo.get("packetCount"));
 	}
-	
+
+	private int convertToInt(Object o) {
+		if (o instanceof Double) {
+			return ((Double) o).intValue();
+		} else if (o instanceof Integer) {
+			return ((Integer) o).intValue();
+		} else
+			try {
+				return Integer.parseInt((String) o);
+			} catch (Exception e) {
+				return 0;
+			}
+	}
 	public int getTime() {
 		return time;
 	}

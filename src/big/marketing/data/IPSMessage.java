@@ -74,11 +74,24 @@ public class IPSMessage implements DBWritable {
 
 	public IPSMessage(DBObject dbo) {
 		operation = OPERATION_DENY;
-		time = (Integer) dbo.get("time");
-		srcIP = (Integer) dbo.get("srcIP");
-		dstIP = (Integer) dbo.get("dstIP");
-		dstPort = (Integer) dbo.get("dstPort");
-		srcPort = (Integer) dbo.get("srcPort");
+		time = convertToInt(dbo.get("time"));
+		srcIP = convertToInt(dbo.get("srcIP"));
+		dstIP = convertToInt(dbo.get("dstIP"));
+		dstPort = convertToInt(dbo.get("dstPort"));
+		srcPort = convertToInt(dbo.get("srcPort"));
+	}
+
+	private int convertToInt(Object o) {
+		if (o instanceof Double) {
+			return ((Double) o).intValue();
+		} else if (o instanceof Integer) {
+			return ((Integer) o).intValue();
+		} else
+			try {
+				return Integer.parseInt((String) o);
+			} catch (Exception e) {
+				return 0;
+			}
 	}
 
 	public IPSMessage(String... args) throws ParseException {
