@@ -137,7 +137,7 @@ public class WindowFrame extends JFrame {
 		});
 		dbMenu.add(perfItem);
 
-		JMenuItem qWindowItem = new JMenuItem("Performance test");
+		JMenuItem qWindowItem = new JMenuItem("Test QueryWindow");
 		perfItem.addActionListener(new ActionListener() {
 
 			@Override
