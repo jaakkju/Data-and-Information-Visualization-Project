@@ -79,7 +79,8 @@ public class FlowMessage implements DBWritable {
 			try {
 				return Integer.parseInt((String) o);
 			} catch (Exception e) {
-				return 0;
+				logger.warn("Could not parse Object as Integer",e);
+				return -1;
 			}
 	}
 
