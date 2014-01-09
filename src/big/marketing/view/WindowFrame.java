@@ -23,19 +23,20 @@ import big.marketing.Application;
 import big.marketing.Settings;
 import big.marketing.controller.DataController;
 import big.marketing.controller.MongoController;
-import big.marketing.controller.MongoExecutor;
 import big.marketing.data.DataType;
 import big.marketing.test.DatabasePerformance;
 
 public class WindowFrame extends JFrame {
 	private static final long serialVersionUID = -8346810238547214403L;
+	private final DataController controller;
 	private static int FRAME_WIDTH = 1200;
 	private static int FRAME_HEIGHT = 600;
 	private static final String FRAME_TITLE = "eyeNet - Network Monitor";
 	static Logger logger = Logger.getLogger(WindowFrame.class);
 
-	public WindowFrame(JComponent graphPanel, JComponent pCoordinatesPanel, JComponent controlsPanel) {
+	public WindowFrame(DataController controller, JComponent graphPanel, JComponent pCoordinatesPanel, JComponent controlsPanel) {
 		loadSettings();
+		this.controller = controller;
 		this.setTitle(FRAME_TITLE);
 		this.setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
 		this.addWindowListener(new WindowAdapter() {
@@ -115,7 +116,7 @@ public class WindowFrame extends JFrame {
 				DataController.getInstance().processData();
 			}
 		});
-		dbMenu.add(processItem );
+		dbMenu.add(processItem);
 
 		JMenuItem perfItem = new JMenuItem("Performance test");
 		perfItem.addActionListener(new ActionListener() {
@@ -133,6 +134,17 @@ public class WindowFrame extends JFrame {
 			}
 		});
 		dbMenu.add(perfItem);
+
+		JMenuItem qWindowItem = new JMenuItem("Performance test");
+		perfItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.moveQueryWindow(1364830798);
+			}
+		});
+		dbMenu.add(qWindowItem);
+
 		return dbMenu;
 	}
 
