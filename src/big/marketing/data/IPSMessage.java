@@ -3,6 +3,7 @@ package big.marketing.data;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
@@ -69,7 +70,7 @@ public class IPSMessage implements DBWritable {
 	public static final int DIRECTION_IN = 0, DIRECTION_OUT = 1, DIRECTION_EMPTY = 2, PROTOCOL_UDP = 0, PROTOCOL_TCP = 1,
 	      PRIORITY_WARNING = 0, PRIORITY_INFO = 1, OPERATION_DENY = 0, OPERATION_TEARDOWN = 1, OPERATION_BUILT = 2;
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss");
+	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy HH:mm:ss", Locale.ENGLISH);
 
 	public IPSMessage(DBObject dbo) {
 		operation = OPERATION_DENY;
@@ -83,7 +84,6 @@ public class IPSMessage implements DBWritable {
 	public IPSMessage(String... args) throws ParseException {
 		super();
 
-		// TODO Fix java.text.ParseException: Unparseable date: "10/Apr/2013 07:02:35"
 		Date d = null;
 		d = sdf.parse(args[0]);
 
