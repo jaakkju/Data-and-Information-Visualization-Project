@@ -66,7 +66,7 @@ public class HealthMessage implements DBWritable {
 		this.hostname = argsToString(args, 1);
 		this.serviceName = argsToString(args, 2);
 		
-		int timeSeconds = (int) Double.parseDouble(args[0]);
+		int timeSeconds = (int) Double.parseDouble(args[3]);
 		this.time = (timeSeconds / 60) * 60;
 		
 		this.statusVal = argsToInt(args, 4);
