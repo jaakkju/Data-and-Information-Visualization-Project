@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSplitPane;
 
 import org.apache.log4j.Logger;
 
@@ -48,12 +49,13 @@ public class WindowFrame extends JFrame {
 		});
 		GridBagLayout gbl = new GridBagLayout();
 		this.setLayout(gbl);
-		addComponent(getContentPane(), gbl, graphPanel, 0, 0, 1, 1, 0.5, 0.5);
-		addComponent(getContentPane(), gbl, pCoordinatesPanel, 0, 1, 1, 1, 0.5, 0.5);
+		JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, graphPanel, pCoordinatesPanel);
+		addComponent(getContentPane(), gbl, splitter, 0, 0, 1, 2, 1, 1);
 		addComponent(getContentPane(), gbl, controlsPanel, 0, 2, 1, 1, 0, 0);
 
 		setJMenuBar(createMenuBar());
 		this.pack();
+		splitter.setDividerLocation(0.5);
 		this.setVisible(true);
 	}
 
