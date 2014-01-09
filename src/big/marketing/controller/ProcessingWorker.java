@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import big.marketing.Settings;
 import big.marketing.data.DataType;
 
 import com.mongodb.AggregationOutput;
@@ -78,21 +77,16 @@ public class ProcessingWorker {
 		case IPS:
 		case HEALTH:
 			addGroupingField("hostname");
+			addAdditionalField("statusVal", "$max");
 			addAdditionalField("diskUsage", "$avg");
 			addAdditionalField("pageFileUsage", "$avg");
 			addAdditionalField("numProcs", "$avg");
 			addAdditionalField("loadAverage", "$avg");
 			addAdditionalField("physicalMemoryUsage", "$avg");
+			addAdditionalField("connMade", "$max");
 		case DESCRIPTION:
 			break;
 		}
-
-	}
-
-	public static void main(String[] args) {
-		Settings.loadConfig();
-		ProcessingWorker dp = new ProcessingWorker(MongoController.getInstance(), DataType.FLOW);
-		dp.process();
 	}
 
 	public void addAdditionalField(String field, String operation) {
