@@ -10,38 +10,28 @@ import com.mongodb.DBObject;
  */
 public class HealthMessage implements DBWritable {
 
-	public static final int STATUS_GOOD = 1;
-	public static final int STATUS_WARNING = 2;
-	public static final int STATUS_PROBLEM = 3;
-
-	public static final int CONN_OK = 1;
-	public static final int CONN_NOK = 0;
+	public static final int STATUS_GOOD = 1, STATUS_WARNING = 2, STATUS_PROBLEM = 3;
+	public static final int CONN_OK = 1, CONN_NOK = 0;
 
 	//	private final int id;
 	private final String hostname;
-	private final String serviceName;
-	private final int time;
-	private final int statusVal;
-	private final String receivedFrom;
-	private final int diskUsage;
-	private final int pageFileUsage;
-	private final int numProcs;
-	private final int loadAverage;
-	private final int physicalMemoryUsage;
-	private final int connMade;
+	//	private final String serviceName;
+	private final int time, statusVal;
+	//	private final String receivedFrom;
+	private final int diskUsage, pageFileUsage, numProcs, loadAverage, physicalMemoryUsage, connMade;
 
 	@Override
 	public String toString() {
 		return "HealthMessage [hostname=" + hostname + ", statusVal=" + statusVal + ", time=" + time + ", diskUsage=" + diskUsage
 		      + ", pageFileUsage=" + pageFileUsage + ", numProcs=" + numProcs + ", loadAverage=" + loadAverage + ", physicalMemoryUsage="
-		      + physicalMemoryUsage + "]";
+		      + physicalMemoryUsage + ", connMade=" + connMade + "]";
 	}
 
 	public HealthMessage(DBObject dbo) {
 		this.hostname = (String) dbo.get("hostname");
-		this.serviceName = (String) dbo.get("serviceName");
+		//		this.serviceName = (String) dbo.get("serviceName");
 		this.statusVal = (Integer) dbo.get("statusVal");
-		this.receivedFrom = (String) dbo.get("receivedFrom");
+		//		this.receivedFrom = (String) dbo.get("receivedFrom");
 		this.time = (Integer) dbo.get("time");
 		this.diskUsage = (Integer) dbo.get("diskUsage");
 		this.pageFileUsage = (Integer) dbo.get("pageFileUsage");
@@ -60,13 +50,13 @@ public class HealthMessage implements DBWritable {
 
 		//		this.id = argsToInt(args, 0);
 		this.hostname = argsToString(args, 1);
-		this.serviceName = argsToString(args, 2);
+		//		this.serviceName = argsToString(args, 2);
 		int timeSeconds = (int) Double.parseDouble(args[3]);
 		this.time = (timeSeconds / 60) * 60;
 
 		this.statusVal = argsToInt(args, 4);
 		//		args[5] is the unparsed message content
-		this.receivedFrom = argsToString(args, 6);
+		//		this.receivedFrom = argsToString(args, 6);
 		this.diskUsage = argsToInt(args, 7);
 		this.pageFileUsage = argsToInt(args, 8);
 		this.numProcs = argsToInt(args, 9);
@@ -94,17 +84,17 @@ public class HealthMessage implements DBWritable {
 		return hostname;
 	}
 
-	public String getServiceName() {
-		return serviceName;
-	}
+	//	public String getServiceName() {
+	//		return serviceName;
+	//	}
 
 	public int getStatusVal() {
 		return statusVal;
 	}
 
-	public String getReceivedFrom() {
-		return receivedFrom;
-	}
+	//	public String getReceivedFrom() {
+	//		return receivedFrom;
+	//	}
 
 	public int getTime() {
 		return time;
@@ -137,9 +127,9 @@ public class HealthMessage implements DBWritable {
 	public DBObject asDBObject() {
 		BasicDBObject bdbo = new BasicDBObject();
 		bdbo.append("hostname", hostname);
-		bdbo.append("serviceName", serviceName);
+		//		bdbo.append("serviceName", serviceName);
 		bdbo.append("statusVal", statusVal);
-		bdbo.append("receivedFrom", receivedFrom);
+		//		bdbo.append("receivedFrom", receivedFrom);
 		bdbo.append("time", time);
 		bdbo.append("diskUsage", diskUsage);
 		bdbo.append("pageFileUsage", pageFileUsage);
