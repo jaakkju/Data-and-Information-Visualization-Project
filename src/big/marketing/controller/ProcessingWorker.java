@@ -71,6 +71,7 @@ public class ProcessingWorker {
 			addGroupingField("srcIP");
 			addGroupingField("dstIP");
 			addGroupingField("dstPort");
+			addGroupingField("srcPort");
 			addAdditionalField("duration", "$avg");
 			addAdditionalField("payloadBytes", "$sum");
 			addAdditionalField("totalBytes", "$sum");

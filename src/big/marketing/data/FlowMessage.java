@@ -156,7 +156,7 @@ public class FlowMessage implements DBWritable{
 		dbo.append("srcIP", srcIP);
 		dbo.append("dstIP", dstIP);
 //		dbo.append("Protocol", protocol);
-//		dbo.append("sourcePort", sourcePort);
+		dbo.append("srcPort", srcPort);
 		dbo.append("dstPort", dstPort);
 		dbo.append("duration", duration);
 //		dbo.append("hasSubsequentFragments", hasSubsequentFragments);
