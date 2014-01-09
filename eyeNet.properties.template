@@ -15,6 +15,6 @@ reader.files.health=VAST2013MC3_BigBrother.zip
 reader.files.flow=VAST2013MC3_NetworkFlow.zip
 reader.files.week2=week2data_fixed.zip
 reader.maxrows=500000
-controller.querywindow.size=60000
+controller.querywindow.size=3600
 view.frame.width=1200
 view.frame.height=600
