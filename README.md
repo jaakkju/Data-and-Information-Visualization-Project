@@ -18,6 +18,11 @@ Installation:
 1. [do something]
 2. [do something more]
 
+Mongo:
+restore eyeNet.zip processed data dump file with
+> mongorestore --dbpath [Path to db dump] eyeNet-dbdump
+
+
 
 Dependencies:
 

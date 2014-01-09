@@ -35,7 +35,7 @@ public class Application {
 		controller.addObserver(controlsPanel);
 
 		@SuppressWarnings("unused")
-		WindowFrame frame = new WindowFrame(graphPanel, pCoordinatesPanel, controlsPanel);
+		WindowFrame frame = new WindowFrame(controller, graphPanel, pCoordinatesPanel, controlsPanel);
 	}
 
 	public static void quit() {
