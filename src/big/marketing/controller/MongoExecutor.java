@@ -19,11 +19,13 @@ public class MongoExecutor {
 	public static String MONGOD_PATH = "data/mongo/mongod.exe";
 	public static String DB_PATH = "data/db";
 	public static String MONGO_LOG_FILE = "data/mongo/mongo.log";
+	public static String MONGO_OPTIONS = "--noprealloc --nojournal";
 
 	private static void loadSettings() {
 		MONGOD_PATH = Settings.get("mongo.exe.path");
 		DB_PATH = Settings.get("mongo.exe.dbpath");
 		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
+		MONGO_OPTIONS = Settings.get("mongo.exe.options");
 	}
 
 	public static void startMongoProcess() {
@@ -37,9 +39,13 @@ public class MongoExecutor {
 			if (System.getProperty("os.name").toLowerCase().contains("win"))
 				executable += ".exe";
 			String canPath = new File(executable).getCanonicalPath();
-			logger.info("Starting mongoDB from " + canPath);
-
-			mongoProcess = Runtime.getRuntime().exec(canPath + " --dbpath=" + DB_PATH + " --logpath " + MONGO_LOG_FILE);
+			String mongoCommand = canPath + " --dbpath=" + DB_PATH + " --logpath " + MONGO_LOG_FILE;
+			if (MONGO_OPTIONS != null)
+				mongoCommand = mongoCommand + " "+MONGO_OPTIONS;
+				
+			logger.info("Starting mongoDB, command: " + mongoCommand);
+			
+			mongoProcess = Runtime.getRuntime().exec(mongoCommand);
 
 			logger.info("Sucessfully started MongoDB");
 		} catch (IOException e) {
