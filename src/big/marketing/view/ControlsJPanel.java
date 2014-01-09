@@ -1,80 +1,59 @@
 package big.marketing.view;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.Font;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import org.apache.log4j.Logger;
+
+import big.marketing.Settings;
 import big.marketing.controller.DataController;
-import big.marketing.data.DataType;
-import big.marketing.test.DatabasePerformance;
 
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
 	private final DataController controller;
-	private JButton startReadingButton, resetDatabaseButton, perfTestButton, qWindowButton;
+	private JSlider qWindowSlider;
+
+	static Logger logger = Logger.getLogger(ControlsJPanel.class);
+	private static int QW_MIN = 0, QW_MAX = 1217384;
 
 	public ControlsJPanel(final DataController controller) {
+		loadSettings();
 		this.controller = controller;
-		startReadingButton = new JButton("Read Data");
-		startReadingButton.addActionListener(new ActionListener() {
+		this.setLayout(new BorderLayout());
+
+		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MAX / 2);
+		qWindowSlider.addChangeListener(new ChangeListener() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.readData();
-			}
-		});
-		add(startReadingButton);
-
-		resetDatabaseButton = new JButton("Reset DB");
-		resetDatabaseButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				for (DataType t : DataType.values()) {
-					controller.getMongoController().clearCollection(t);
+			public void stateChanged(ChangeEvent e) {
+				JSlider source = (JSlider) e.getSource();
+				if (!source.getValueIsAdjusting()) {
+					logger.info("Slider moved to " + (int) source.getValue());
 				}
 			}
-
-		});
-		add(resetDatabaseButton);
-
-		perfTestButton = new JButton("performance test");
-		perfTestButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						DatabasePerformance.main(null);
-
-					}
-				}, "PerformanceTester").start();
-			}
 		});
 
-		add(perfTestButton);
+		Font font = new Font("Serif", Font.ITALIC, 15);
+		qWindowSlider.setFont(font);
 
-		qWindowButton = new JButton("Test qWindow");
-		qWindowButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				controller.moveQueryWindow(1364830798);
-			}
-
-		});
-		add(qWindowButton);
+		add(qWindowSlider);
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
 
 	}
+
+	private void loadSettings() {
+		QW_MIN = Settings.getInt("qwindow.data.min");
+		QW_MAX = Settings.getInt("qwindow.data.max");
+	}
+
 }
