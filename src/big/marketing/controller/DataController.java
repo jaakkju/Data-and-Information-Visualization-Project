@@ -82,21 +82,64 @@ public class DataController extends Observable implements Runnable {
 	 * variables from mongo Hides mongo implementation details from views
 	 * 
 	 * @param date in milliseconds marking the center point of the query
-	 * @return TODO return some info
+	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	@SuppressWarnings("unchecked")
-	public void moveQueryWindow(int time) {
+	public boolean moveQueryWindow(int time) {
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
 
 		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "time", start, end);
 		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "time", start, end);
 		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "time", start, end);
+
 		gc.load(qWindowFlow);
+
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " sec, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
 		      + qWindowIPS.size() + " objects");
-		// TODO moveQueryWindow should return some info about the success of the database query
+
+		return !qWindowFlow.isEmpty() & !qWindowHealth.isEmpty() & !qWindowHealth.isEmpty();
+	}
+
+	/**
+	 * This is the same as moveQueryWindow, but queries only certain type of data
+	 * @param time date in milliseconds marking the center point of the query
+	 * @param date in milliseconds marking the center point of the query
+	 * @return true if data was stored into queryWindow variables otherwise false
+	 */
+	@SuppressWarnings("unchecked")
+	public boolean moveQueryWindow(int time, DataType t) {
+		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
+		long startTime = System.currentTimeMillis();
+
+		switch (t) {
+		case FLOW:
+			qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "time", start, end);
+			logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
+			      + QUERYWINDOW_SIZE + " sec, Flow: " + qWindowFlow.size() + " objects");
+			break;
+
+		case HEALTH:
+			qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "time", start, end);
+			logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
+			      + QUERYWINDOW_SIZE + " sec, Health: " + qWindowHealth.size() + " objects");
+			break;
+
+		case IPS:
+			qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "time", start, end);
+			logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
+			      + QUERYWINDOW_SIZE + " sec, IPS: " + qWindowIPS.size() + " objects");
+			break;
+
+		case DESCRIPTION:
+			break;
+
+		default:
+			break;
+		}
+
+		return !qWindowFlow.isEmpty() || !qWindowHealth.isEmpty() || !qWindowHealth.isEmpty();
 	}
 
 	private void loadSettings() {
