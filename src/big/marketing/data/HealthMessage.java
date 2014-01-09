@@ -29,16 +29,29 @@ public class HealthMessage implements DBWritable {
 
 	public HealthMessage(DBObject dbo) {
 		this.hostname = (String) dbo.get("hostname");
-		//		this.serviceName = (String) dbo.get("serviceName");
-		this.statusVal = (Integer) dbo.get("statusVal");
-		//		this.receivedFrom = (String) dbo.get("receivedFrom");
-		this.time = (Integer) dbo.get("time");
-		this.diskUsage = (Integer) dbo.get("diskUsage");
-		this.pageFileUsage = (Integer) dbo.get("pageFileUsage");
-		this.numProcs = (Integer) dbo.get("numProcs");
-		this.loadAverage = (Integer) dbo.get("loadAverage");
-		this.physicalMemoryUsage = (Integer) dbo.get("physicalMemoryUsage");
-		this.connMade = (Integer) dbo.get("connMade");
+		// this.serviceName = (String) dbo.get("serviceName");
+		this.statusVal = convertToInt(dbo.get("statusVal"));
+		// this.receivedFrom = (String) dbo.get("receivedFrom");
+		this.time = convertToInt(dbo.get("time"));
+		this.diskUsage = convertToInt(dbo.get("diskUsage"));
+		this.pageFileUsage = convertToInt(dbo.get("pageFileUsage"));
+		this.numProcs = convertToInt(dbo.get("numProcs"));
+		this.loadAverage = convertToInt(dbo.get("loadAverage"));
+		this.physicalMemoryUsage = convertToInt(dbo.get("physicalMemoryUsage"));
+		this.connMade = convertToInt(dbo.get("connMade"));
+	}
+
+	private int convertToInt(Object o) {
+		if (o instanceof Double) {
+			return ((Double) o).intValue();
+		} else if (o instanceof Integer) {
+			return ((Integer) o).intValue();
+		} else
+			try {
+				return Integer.parseInt((String) o);
+			} catch (Exception e) {
+				return 0;
+			}
 	}
 
 	/**
