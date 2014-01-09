@@ -139,10 +139,11 @@ public class WindowFrame extends JFrame {
 		dbMenu.add(perfItem);
 
 		JMenuItem qWindowItem = new JMenuItem("QueryWindow test");
-		perfItem.addActionListener(new ActionListener() {
+		qWindowItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				System.out.println("TRst");
 				controller.moveQueryWindow(1364830798);
 			}
 		});
