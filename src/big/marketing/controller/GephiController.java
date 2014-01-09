@@ -12,6 +12,8 @@ import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.importer.api.ImportUtils;
 import org.gephi.io.processor.plugin.DefaultProcessor;
+import org.gephi.layout.plugin.force.StepDisplacement;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.api.RenderTarget;
@@ -101,10 +103,29 @@ public class GephiController {
 			return;
 		}
 		importController.process(container, new DefaultProcessor(), workspace);
+		
+		layoutGraph();
+		
 		graphPanel.setupModel(previewController.getModel());
 		previewController.refreshPreview();
 	}
 
+	public void layoutGraph(){
+		
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+		YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
+		layout.setGraphModel(graphModel);
+		layout.initAlgo();
+		layout.resetPropertiesValues();
+		layout.setOptimalDistance(200f);
+		
+		for (int i = 0; i < 100 && layout.canAlgo(); i++) {
+			layout.goAlgo();
+		}
+		layout.endAlgo();
+		
+	}
+	
 	public GraphJPanel getGraphPanel() {
 		return graphPanel;
 	}
