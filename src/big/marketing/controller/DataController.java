@@ -143,11 +143,7 @@ public class DataController extends Observable implements Runnable {
 	}
 
 	private void loadSettings() {
-		try {
-			QUERYWINDOW_SIZE = Integer.valueOf(Settings.get("controller.querywindow.size"));
-		} catch (NumberFormatException err) {
-			logger.error("Loading settings failed, number conversion error", err);
-		}
+		QUERYWINDOW_SIZE = Settings.getInt("controller.querywindow.size");
 	}
 
 	public List<Node> getNetwork() {
