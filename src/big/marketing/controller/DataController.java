@@ -70,6 +70,7 @@ public class DataController extends Observable implements Runnable {
 		try {
 			network = nReader.readNetwork();
 			zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
+			mc.flushBuffers();
 			logger.info("Finished Reading Data");
 		} catch (Exception err) {
 			logger.error("Cannot read data", err);
