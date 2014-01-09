@@ -22,7 +22,7 @@ public class DataController extends Observable implements Runnable {
 	private MongoController mc;
 
 	// qWindow size in milliseconds, default value 1 hour
-	static int QUERYWINDOW_SIZE = 6000;
+	static int QUERYWINDOW_SIZE = 3600;
 
 	// qWindow variables store the data returned from mongo
 	private List<HealthMessage> qWindowHealth = null;
@@ -94,7 +94,7 @@ public class DataController extends Observable implements Runnable {
 		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "time", start, end);
 		gc.load(qWindowFlow);
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
-		      + QUERYWINDOW_SIZE + " ms, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
+		      + QUERYWINDOW_SIZE + " sec, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
 		      + qWindowIPS.size() + " objects");
 		// TODO moveQueryWindow should return some info about the success of the database query
 	}
