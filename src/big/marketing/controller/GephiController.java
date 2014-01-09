@@ -55,7 +55,7 @@ public class GephiController {
 		gImporter.execute(loader);
 		
 		processNewContainer(container);
-		
+		graphPanel.update(null,null);
 	}
 	
 	public void loadSampleFile() {

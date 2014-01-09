@@ -8,10 +8,7 @@ import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.EdgeDraft;
 import org.gephi.io.importer.api.NodeDraft;
 import org.gephi.io.importer.api.Report;
-import org.gephi.io.importer.api.ContainerLoader.DraftFactory;
-import org.gephi.io.importer.api.EdgeDraft.EdgeType;
 import org.gephi.io.importer.spi.SpigotImporter;
-import org.openide.util.Lookup;
 
 import big.marketing.data.FlowMessage;
 
@@ -35,7 +32,7 @@ public class GephiImporter implements SpigotImporter {
 	public boolean execute(ContainerLoader loader) {
 		report = new Report();
 		container = loader;
-		ContainerLoader.DraftFactory fact = Lookup.getDefault().lookup(DraftFactory.class);
+		ContainerLoader.DraftFactory fact = loader.factory();
 		// import...
 		// convert flow messages to gephi internal graph structure
 		for (FlowMessage message : currentFlow){
@@ -45,6 +42,7 @@ public class GephiImporter implements SpigotImporter {
 			if (src == null){
 				src = fact.newNodeDraft();
 				src.setLabel(message.getSourceIP());
+				nodes.put(message.getSourceIP(), src);
 				loader.addNode(src);
 			}
 				
@@ -52,13 +50,13 @@ public class GephiImporter implements SpigotImporter {
 			if (dst == null) {
 				dst = fact.newNodeDraft();
 				dst.setLabel(message.getDestinationIP());
+				nodes.put(message.getDestinationIP(),dst);
 				loader.addNode(dst);
 			}
 			if (!loader.edgeExists(src, dst)){
 				EdgeDraft edge = fact.newEdgeDraft();
 				edge.setSource(src);
 				edge.setTarget(dst);
-				edge.setType(EdgeType.UNDIRECTED);
 				loader.addEdge(edge);
 			}
 		}

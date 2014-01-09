@@ -152,6 +152,12 @@ public class MongoController implements Runnable {
 		sem.release(permits);
 	}
 
+	public void flushBuffers(){
+		for (CollectionHandler handler : collections.values()){
+			handler.flushBuffer();
+		}
+	}
+	
 	private String getCollectionName(DataType t) {
 		switch (t) {
 		case FLOW:

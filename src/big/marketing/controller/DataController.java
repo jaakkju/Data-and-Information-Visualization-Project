@@ -70,6 +70,7 @@ public class DataController extends Observable implements Runnable {
 		try {
 			network = nReader.readNetwork();
 			zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
+			mc.flushBuffers();
 			logger.info("Finished Reading Data");
 		} catch (Exception err) {
 			logger.error("Cannot read data", err);
@@ -91,7 +92,7 @@ public class DataController extends Observable implements Runnable {
 		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "time", start, end);
 		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "time", start, end);
 		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "time", start, end);
-
+		gc.load(qWindowFlow);
 		logger.info("Moved qWindow to " + msdate + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " ms, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
 		      + qWindowIPS.size() + " objects");
