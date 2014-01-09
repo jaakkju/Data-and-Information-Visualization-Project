@@ -58,7 +58,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		buttonPanel.add(stopButton);
 		add(buttonPanel, BorderLayout.LINE_START);
 
-		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MAX / 2);
+		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
 		qWindowSlider.setMajorTickSpacing(100000);
 		qWindowSlider.setMinorTickSpacing(10000);
 		qWindowSlider.setPaintTicks(true);
@@ -69,7 +69,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
 				if (!source.getValueIsAdjusting()) {
-					logger.info("Slider moved to " + (int) source.getValue());
+					controller.moveQueryWindow((int) source.getValue());
 				}
 			}
 		});
