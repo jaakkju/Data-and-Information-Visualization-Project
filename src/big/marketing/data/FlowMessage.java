@@ -1,10 +1,13 @@
 package big.marketing.data;
 
+import org.apache.log4j.Logger;
+
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 public class FlowMessage implements DBWritable{
-
+	static Logger logger = Logger.getLogger(FlowMessage.class);
 	
 	/**
 	 * time in Unixtime
@@ -21,7 +24,8 @@ public class FlowMessage implements DBWritable{
 	private final int payloadBytes;
 	private final int totalBytes;
 	private final int packetCount;
-	
+	private final int srcPortCount;
+	private final int dstPortCount;
 //	private final boolean hasMoreFragments;
 //	private final boolean hasSubsequentFragments;
 	private final int duration;
@@ -42,6 +46,8 @@ public class FlowMessage implements DBWritable{
 		this.dstIP = encodeIP(args[6]); 
 		this.srcPort = Integer.parseInt(args[7]);
 		this.dstPort = Integer.parseInt(args[8]);
+		this.srcPortCount=1;
+		this.dstPortCount=1;
 		
 		// 0 0 -> flow with just one fragment
 		// 0 1 -> last fragment
@@ -68,18 +74,35 @@ public class FlowMessage implements DBWritable{
 		this.dstIP = convertToInt(dbo.get("dstIP"));
 		this.srcPort = convertToInt(dbo.get("srcPort"));
 		this.dstPort = convertToInt(dbo.get("dstPort"));
+		this.srcPortCount = arrayToInt(dbo.get("srcPort"));
+		this.dstPortCount = arrayToInt(dbo.get("dstPort"));
 		this.duration = convertToInt(dbo.get("duration"));
 		this.payloadBytes = convertToInt(dbo.get("payloadBytes"));
 		this.totalBytes = convertToInt(dbo.get("totalBytes"));
 		this.packetCount = convertToInt(dbo.get("packetCount"));
 	}
-
+	
+	private int arrayToInt(Object o){
+		if (o instanceof BasicDBList){
+			BasicDBList list = (BasicDBList) o;
+			return list.size();
+		}else{
+			throw new IllegalArgumentException();
+		}
+	}
+	
 	private int convertToInt(Object o) {
 		if (o instanceof Double) {
 			return ((Double) o).intValue();
 		} else if (o instanceof Integer) {
 			return ((Integer) o).intValue();
-		} else
+		} else if (o instanceof BasicDBList){
+			BasicDBList list = (BasicDBList) o;
+			if (list.size() > 0){
+				return ((Integer) list.get(0)).intValue();
+			}else
+				return 0;
+		}else
 			try {
 				return Integer.parseInt((String) o);
 			} catch (Exception e) {
@@ -106,12 +129,20 @@ public class FlowMessage implements DBWritable{
 		return srcPort;
 	}
 
+	public int getSrcPortCount() {
+		return srcPortCount;
+	}
+
 	public int getDestinationPort() {
 		return dstPort;
 	}
 
-//	public boolean hasMoreFragments() {
-//		return hasMoreFragments;
+	public int getDestinationPortCount() {
+		return dstPortCount;
+	}
+
+	// public boolean hasMoreFragments() {
+	// return hasMoreFragments;
 //	}
 //
 //	public boolean hasSubsequentFragments() {
