@@ -13,6 +13,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 import big.marketing.Application;
 import big.marketing.Settings;
@@ -22,6 +25,7 @@ import big.marketing.data.HealthMessage;
 import big.marketing.data.IPSMessage;
 import big.marketing.data.Node;
 
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -272,6 +276,25 @@ public class MongoController implements Runnable {
 					mc.flushBuffer();
 			}
 		}
+	}
+
+	public IntervalXYDataset getHistogram(DataType t, String xField,
+			String yField, String operator) {
+		// Query
+		DBCollection c = getCollection(t);
+		BasicDBObject groupFields = new BasicDBObject("_id", "$" + xField);
+		groupFields.append("y", new BasicDBObject(operator, "$" + yField));
+		DBObject groupOp = new BasicDBObject("$group", groupFields);
+		AggregationOutput ao = c.aggregate(groupOp);
+
+		// collect data
+		XYSeries series = new XYSeries("flow");
+		for (DBObject dbo : ao.results()) {
+			int x = (Integer) dbo.get("_id");
+			int y = (Integer) dbo.get("y");
+			series.add(x, y);
+		}
+		return new XYSeriesCollection(series);
 	}
 
 	private class CollectionHandler {
