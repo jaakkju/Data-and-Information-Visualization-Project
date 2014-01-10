@@ -26,7 +26,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JButton playButton, stopButton;
 
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
-	private static int QW_MIN = 0, QW_MAX = 1217384;
+	public static int QW_MIN = 0, QW_MAX = 1217384;
 
 	public ControlsJPanel(final DataController controller) {
 		loadSettings();
@@ -58,7 +58,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		buttonPanel.add(stopButton);
 		add(buttonPanel, BorderLayout.LINE_START);
 
-		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
+		qWindowSlider = new CustomJSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
 		qWindowSlider.setMajorTickSpacing(100000);
 		qWindowSlider.setMinorTickSpacing(10000);
 		qWindowSlider.setPaintTicks(true);

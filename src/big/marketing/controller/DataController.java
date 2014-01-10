@@ -22,7 +22,7 @@ public class DataController extends Observable implements Runnable {
 	private MongoController mc;
 
 	// qWindow size in milliseconds, default value 1 hour
-	static int QUERYWINDOW_SIZE = 3600;
+	public static int QUERYWINDOW_SIZE = 3600;
 
 	// qWindow variables store the data returned from mongo
 	private List<HealthMessage> qWindowHealth = null;
