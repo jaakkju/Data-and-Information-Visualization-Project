@@ -46,8 +46,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		this.controller.getGephiController().setGraphPanel(this);
 	}
 
-	
-	public void showChart(IntervalXYDataset dataset){
+	public void showChart(IntervalXYDataset dataset) {
 		JFreeChart chart = ChartFactory.createHistogram("Title", "time", "traffic", dataset, PlotOrientation.VERTICAL, false, false, false);
 		chart.setBackgroundPaint(Color.white);
 		XYPlot plot = (XYPlot) chart.getPlot();
@@ -59,8 +58,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		plot.setRenderer(new XYAreaRenderer());
 		// TODO: make the chart visible by placing a ChartPanel somewhere
 	}
-	
-	
+
 	public void setupModel(PreviewModel previewModel) {
 		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
 		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
@@ -74,8 +72,8 @@ public class GraphJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		if (arg instanceof IntervalXYDataset){
-			showChart((IntervalXYDataset)arg);
+		if (arg instanceof IntervalXYDataset) {
+			showChart((IntervalXYDataset) arg);
 		}
 		if (target != null) {
 			target.refresh();

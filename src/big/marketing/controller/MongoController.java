@@ -62,9 +62,9 @@ public class MongoController implements Runnable {
 	public static MongoController getInstance() {
 		if (instance == null)
 			instance = new MongoController();
-	   return instance;
-   }
-	
+		return instance;
+	}
+
 	private MongoController() {
 		loadSettings();
 
@@ -75,7 +75,7 @@ public class MongoController implements Runnable {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				logger.warn("Interrupted: "+e.getLocalizedMessage());
+				logger.warn("Interrupted: " + e.getLocalizedMessage());
 			}
 			isConnected = connectToDatabase();
 		}
@@ -157,12 +157,12 @@ public class MongoController implements Runnable {
 		sem.release(permits);
 	}
 
-	public void flushBuffers(){
-		for (CollectionHandler handler : collections.values()){
+	public void flushBuffers() {
+		for (CollectionHandler handler : collections.values()) {
 			handler.flushBuffer();
 		}
 	}
-	
+
 	private String getCollectionName(DataType t) {
 		switch (t) {
 		case FLOW:
@@ -196,8 +196,8 @@ public class MongoController implements Runnable {
 		return result;
 	}
 
-	private Object convert(DataType t, DBObject dbo){
-		switch(t){
+	private Object convert(DataType t, DBObject dbo) {
+		switch (t) {
 		case IPS:
 			return new IPSMessage(dbo);
 		case FLOW:
@@ -210,6 +210,7 @@ public class MongoController implements Runnable {
 			return null;
 		}
 	}
+
 	/**
 	 * Aggregate all occuring values of the given field into the set. Useful for
 	 * analyzing the data.
@@ -237,16 +238,16 @@ public class MongoController implements Runnable {
 	static DB getDatabase() {
 		return database;
 	}
-	
-	public Map<String,String> getHostIPMap(){
-		Map<String, String> mapping = new HashMap<>();
+
+	public Map<String, String> getHostIPMap() {
+		Map<String, String> mapping = new HashMap<String, String>();
 		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
-		for (DBObject obj : names.find()){
+		for (DBObject obj : names.find()) {
 			mapping.put((String) obj.get("address"), (String) obj.get("hostName"));
 		}
 		return mapping;
 	}
-	
+
 	public void storeEntry(DataType t, DBObject object) {
 		if (object == null)
 			return;
@@ -278,8 +279,7 @@ public class MongoController implements Runnable {
 		}
 	}
 
-	public IntervalXYDataset getHistogram(DataType t, String xField,
-			String yField, String operator) {
+	public IntervalXYDataset getHistogram(DataType t, String xField, String yField, String operator) {
 		// Query
 		DBCollection c = getCollection(t);
 		BasicDBObject groupFields = new BasicDBObject("_id", "$" + xField);

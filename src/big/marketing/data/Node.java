@@ -10,7 +10,7 @@ import com.mongodb.DBObject;
  *         user workstations. "Administrator" is the administrator workstation.
  *         Others are servers. #Column 3 (Optional): Comments
  */
-public class Node implements DBWritable{
+public class Node implements DBWritable {
 
 	public static final int TYPE_WORKSTATION = 0;
 	public static final int TYPE_ADMINISTRATOR = 1;
@@ -25,7 +25,7 @@ public class Node implements DBWritable{
 	private String comment = null;
 
 	/**
-	 * Constructor takes the one line as a string array from the BigMktNetwork.txt 
+	 * Constructor takes the one line as a string array from the BigMktNetwork.txt
 	 * @param args String array ["IP address, hostname, comment(optional)"]
 	 */
 	public Node(String[] args) {
@@ -88,11 +88,12 @@ public class Node implements DBWritable{
 		dbObject.append("comment", comment);
 		return dbObject;
 	}
-	public Node(DBObject dbo){
+
+	public Node(DBObject dbo) {
 		this.address = (String) dbo.get("address");
 		this.hostName = (String) dbo.get("hostName");
 		this.type = (Integer) dbo.get("type");
 		this.comment = (String) dbo.get("comment");
 	}
-	
+
 }

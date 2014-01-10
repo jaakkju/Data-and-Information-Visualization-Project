@@ -9,8 +9,6 @@ import big.marketing.Settings;
 import big.marketing.controller.MongoController;
 import big.marketing.data.DataType;
 
-import com.mongodb.DBObject;
-
 public class DatabasePerformance {
 	static Logger logger = Logger.getLogger(DatabasePerformance.class);
 
@@ -48,8 +46,8 @@ public class DatabasePerformance {
 			turnTime = System.currentTimeMillis() - s;
 			vals.add(turnTime);
 			objects += test.size();
-			logger.info("Finish querying " + intervalLength + " time units in " + t.name() + ". Objects: " + test.size()
-			      + " Duration: " + turnTime + " ms");
+			logger.info("Finish querying " + intervalLength + " time units in " + t.name() + ". Objects: " + test.size() + " Duration: "
+			      + turnTime + " ms");
 
 		}
 		long totalTime = 0;

@@ -30,7 +30,7 @@ public class MongoExecutor {
 
 	public static void startMongoProcess() {
 		loadSettings();
-		if (mongoProcess != null){
+		if (mongoProcess != null) {
 			logger.info("Database already started!");
 			return;
 		}
@@ -41,10 +41,10 @@ public class MongoExecutor {
 			String canPath = new File(executable).getCanonicalPath();
 			String mongoCommand = canPath + " --dbpath=" + DB_PATH + " --logpath " + MONGO_LOG_FILE;
 			if (MONGO_OPTIONS != null)
-				mongoCommand = mongoCommand + " "+MONGO_OPTIONS;
-				
+				mongoCommand = mongoCommand + " " + MONGO_OPTIONS;
+
 			logger.info("Starting mongoDB, command: " + mongoCommand);
-			
+
 			mongoProcess = Runtime.getRuntime().exec(mongoCommand);
 
 			logger.info("Sucessfully started MongoDB");
@@ -56,10 +56,10 @@ public class MongoExecutor {
 	public static void killMongoProcess() {
 		// Check for open queries and cancel them
 		DB database = MongoController.getDatabase();
-		DBObject dbObject=null;
-		try{
+		DBObject dbObject = null;
+		try {
 			dbObject = database.getCollection("$cmd.sys.inprog").findOne();
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.warn("Failed to get query status, no database connected!");
 			return;
 		}

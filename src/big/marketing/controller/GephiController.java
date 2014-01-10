@@ -11,7 +11,6 @@ import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerFactory;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.importer.api.ImportUtils;
 import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.layout.plugin.force.StepDisplacement;
 import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
@@ -35,7 +34,6 @@ public class GephiController {
 	private DataController dc;
 	private Workspace workspace;
 	private Map<String, String> ipHostMap;
-	
 
 	private static final String file1 = "data/Java.gexf", file2 = "data/LesMiserables.gexf";
 	static String current = file1;
@@ -50,23 +48,23 @@ public class GephiController {
 		// Therefore Init is finished in setGraphPanel(...)
 	}
 
-	public void load(List<FlowMessage> flows){
+	public void load(List<FlowMessage> flows) {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();
 			projectController.closeCurrentWorkspace();
 		}
 		prepareLoad();
-		
+
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
-		GephiImporter gImporter = new GephiImporter(flows,ipHostMap);
-		ContainerLoader loader=container.getLoader();
+		GephiImporter gImporter = new GephiImporter(flows, ipHostMap);
+		ContainerLoader loader = container.getLoader();
 		gImporter.execute(loader);
-		
+
 		processNewContainer(container);
-		graphPanel.update(null,null);
+		graphPanel.update(null, null);
 	}
-	
+
 	public void loadSampleFile() {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
@@ -110,29 +108,29 @@ public class GephiController {
 			return;
 		}
 		importController.process(container, new DefaultProcessor(), workspace);
-		
+
 		layoutGraph();
-		
+
 		graphPanel.setupModel(previewController.getModel());
 		previewController.refreshPreview();
 	}
 
-	public void layoutGraph(){
-		
+	public void layoutGraph() {
+
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
 		layout.setGraphModel(graphModel);
 		layout.initAlgo();
 		layout.resetPropertiesValues();
 		layout.setOptimalDistance(200f);
-		
+
 		for (int i = 0; i < 100 && layout.canAlgo(); i++) {
 			layout.goAlgo();
 		}
 		layout.endAlgo();
-		
+
 	}
-	
+
 	public GraphJPanel getGraphPanel() {
 		return graphPanel;
 	}

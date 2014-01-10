@@ -8,7 +8,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 
 import big.marketing.controller.DataController;
 
-public class CustomJSlider extends JSlider{
+public class CustomJSlider extends JSlider {
 
 	/**
 	 * 
@@ -20,19 +20,20 @@ public class CustomJSlider extends JSlider{
 		setUI(new MySliderUI(this));
 	}
 
-	private class MySliderUI extends BasicSliderUI{
+	private class MySliderUI extends BasicSliderUI {
 		private final int range;
+
 		public MySliderUI(JSlider aSlider) {
 			super(aSlider);
-			range = ControlsJPanel.QW_MAX-ControlsJPanel.QW_MIN;
-			
+			range = ControlsJPanel.QW_MAX - ControlsJPanel.QW_MIN;
+
 		}
 
 		@Override
 		public void paintThumb(Graphics g) {
-			int QW_LENGTH=(int) (getWidth()*DataController.QUERYWINDOW_SIZE / range);
+			int QW_LENGTH = (int) (getWidth() * DataController.QUERYWINDOW_SIZE / range);
 			g.setColor(new Color(0, 0, 255, 120));
-			g.fillRect(thumbRect.width/2 + thumbRect.x - QW_LENGTH/2, thumbRect.y, QW_LENGTH, thumbRect.height);
+			g.fillRect(thumbRect.width / 2 + thumbRect.x - QW_LENGTH / 2, thumbRect.y, QW_LENGTH, thumbRect.height);
 			super.paintThumb(g);
 		}
 	}
