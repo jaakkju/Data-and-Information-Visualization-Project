@@ -17,13 +17,6 @@ import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.types.DependantOriginalColor;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
-import org.jfree.data.xy.IntervalXYDataset;
 import org.openide.util.Lookup;
 
 import processing.core.PApplet;
@@ -51,19 +44,6 @@ public class GraphJPanel extends JPanel implements Observer {
 		this.controller = controller;
 		setLayout(new BorderLayout());
 		this.controller.getGephiController().setGraphPanel(this);
-	}
-
-	public void showChart(IntervalXYDataset dataset) {
-		JFreeChart chart = ChartFactory.createHistogram("Title", "time", "traffic", dataset, PlotOrientation.VERTICAL, false, false, false);
-		chart.setBackgroundPaint(Color.white);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		plot.setBackgroundPaint(Color.lightGray);
-		plot.setRangeGridlinePaint(Color.white);
-		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setAutoTickUnitSelection(true);
-		rangeAxis.setAutoRangeIncludesZero(true);
-		plot.setRenderer(new XYAreaRenderer());
-		// TODO: make the chart visible by placing a ChartPanel somewhere
 	}
 
 	public void layoutGraph() {
@@ -104,8 +84,6 @@ public class GraphJPanel extends JPanel implements Observer {
 				target.refresh();
 				target.resetZoom();
 			}
-		} else if (arg instanceof IntervalXYDataset) {
-			showChart((IntervalXYDataset) arg);
 		}
 	}
 

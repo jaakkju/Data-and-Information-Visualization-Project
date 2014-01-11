@@ -14,6 +14,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
+import org.jfree.data.xy.IntervalXYDataset;
 
 import big.marketing.Settings;
 import big.marketing.controller.DataController;
@@ -58,7 +59,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		buttonPanel.add(stopButton);
 		add(buttonPanel, BorderLayout.LINE_START);
 
-		qWindowSlider = new CustomJSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
+		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
+		qWindowSlider.setUI(new QuerySliderUI(qWindowSlider, QW_MAX - QW_MIN));
 		qWindowSlider.setMajorTickSpacing(100000);
 		qWindowSlider.setMinorTickSpacing(10000);
 		qWindowSlider.setPaintTicks(true);
@@ -78,7 +80,10 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// For now here is nothing to do...
+		if (arg instanceof IntervalXYDataset) {
+			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
+			ui.showChart((IntervalXYDataset) arg);
+		}
 	}
 
 	private void loadSettings() {
