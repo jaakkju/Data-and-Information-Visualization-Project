@@ -8,7 +8,7 @@ import java.util.Observer;
 import javax.swing.JPanel;
 
 import big.marketing.controller.DataController;
-import big.marketing.data.DataSet;
+import big.marketing.data.QueryWindowData;
 import big.marketing.data.HealthMessage;
 
 public class PCoordinatesJPanel extends JPanel implements Observer {
@@ -25,8 +25,8 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (arg instanceof DataSet) {
-			DataSet newData = (DataSet) arg;
+		if (arg instanceof QueryWindowData) {
+			QueryWindowData newData = (QueryWindowData) arg;
 			List<HealthMessage> healthMessages = newData.getHealthData();
 			// do refreshing of the parallel coordinates here
 		}

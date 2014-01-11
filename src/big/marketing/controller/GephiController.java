@@ -19,7 +19,7 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
-import big.marketing.data.DataSet;
+import big.marketing.data.QueryWindowData;
 import big.marketing.data.FlowMessage;
 import big.marketing.view.GraphJPanel;
 
@@ -46,10 +46,10 @@ public class GephiController extends Observable {
 	}
 
 	public void loadEmptyContainer() {
-		load(new DataSet(new ArrayList<FlowMessage>(), null, null, null));
+		load(new QueryWindowData(new ArrayList<FlowMessage>(), null, null, null));
 	}
 
-	public void load(DataSet newDataset) {
+	public void load(QueryWindowData newDataset) {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();

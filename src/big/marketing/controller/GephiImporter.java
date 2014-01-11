@@ -9,18 +9,18 @@ import org.gephi.io.importer.api.NodeDraft;
 import org.gephi.io.importer.api.Report;
 import org.gephi.io.importer.spi.SpigotImporter;
 
-import big.marketing.data.DataSet;
+import big.marketing.data.QueryWindowData;
 import big.marketing.data.FlowMessage;
 
 public class GephiImporter implements SpigotImporter {
 
 	private ContainerLoader container;
 	private Report report;
-	private DataSet data;
+	private QueryWindowData data;
 	private Map<String, String> ipHostMap;
 	Map<String, NodeDraft> nodes;
 
-	public GephiImporter(DataSet dataset, Map<String, String> ipHostMap) {
+	public GephiImporter(QueryWindowData dataset, Map<String, String> ipHostMap) {
 		this.data = dataset;
 		nodes = new HashMap<String, NodeDraft>();
 		this.ipHostMap = ipHostMap;
