@@ -78,7 +78,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-
+		// For now here is nothing to do...
 	}
 
 	private void loadSettings() {

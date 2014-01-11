@@ -6,6 +6,7 @@ import java.util.Observable;
 import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
+import big.marketing.data.DataSet;
 import big.marketing.data.DataType;
 import big.marketing.data.FlowMessage;
 import big.marketing.data.HealthMessage;
@@ -92,13 +93,14 @@ public class DataController extends Observable implements Runnable {
 		qWindowHealth = (List<HealthMessage>) (List<?>) mc.getConstrainedEntries(DataType.HEALTH, "time", start, end);
 		qWindowIPS = (List<IPSMessage>) (List<?>) mc.getConstrainedEntries(DataType.IPS, "time", start, end);
 		qWindowFlow = (List<FlowMessage>) (List<?>) mc.getConstrainedEntries(DataType.FLOW, "time", start, end);
-
-		gc.load(qWindowFlow);
+		DataSet newDataset = new DataSet(qWindowFlow, qWindowHealth, qWindowIPS, network);
+		gc.load(newDataset);
+		setChanged();
 
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " sec, Flow: " + qWindowFlow.size() + " objects, Health: " + qWindowHealth.size() + " objects, IPS: "
 		      + qWindowIPS.size() + " objects");
-
+		notifyObservers(newDataset);
 		return !qWindowFlow.isEmpty() & !qWindowHealth.isEmpty() & !qWindowHealth.isEmpty();
 	}
 
@@ -138,7 +140,7 @@ public class DataController extends Observable implements Runnable {
 		default:
 			break;
 		}
-
+		notifyObservers();
 		return !qWindowFlow.isEmpty() || !qWindowHealth.isEmpty() || !qWindowHealth.isEmpty();
 	}
 

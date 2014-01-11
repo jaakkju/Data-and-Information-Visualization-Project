@@ -1,7 +1,6 @@
 package big.marketing.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.gephi.io.importer.api.ContainerLoader;
@@ -10,17 +9,19 @@ import org.gephi.io.importer.api.NodeDraft;
 import org.gephi.io.importer.api.Report;
 import org.gephi.io.importer.spi.SpigotImporter;
 
+import big.marketing.data.DataSet;
 import big.marketing.data.FlowMessage;
 
 public class GephiImporter implements SpigotImporter {
+
 	private ContainerLoader container;
 	private Report report;
-	private List<FlowMessage> currentFlow;
+	private DataSet data;
 	private Map<String, String> ipHostMap;
 	Map<String, NodeDraft> nodes;
 
-	public GephiImporter(List<FlowMessage> flows, Map<String, String> ipHostMap) {
-		this.currentFlow = flows;
+	public GephiImporter(DataSet dataset, Map<String, String> ipHostMap) {
+		this.data = dataset;
 		nodes = new HashMap<String, NodeDraft>();
 		this.ipHostMap = ipHostMap;
 	}
@@ -37,7 +38,7 @@ public class GephiImporter implements SpigotImporter {
 		ContainerLoader.DraftFactory fact = loader.factory();
 		// import...
 		// convert flow messages to gephi internal graph structure
-		for (FlowMessage message : currentFlow) {
+		for (FlowMessage message : data.getFlowData()) {
 
 			NodeDraft src = nodes.get(message.getSourceIP());
 			if (src == null) {

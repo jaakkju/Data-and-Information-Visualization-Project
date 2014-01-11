@@ -8,6 +8,11 @@ import java.util.Observer;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
+import org.gephi.graph.api.GraphController;
+import org.gephi.graph.api.GraphModel;
+import org.gephi.layout.plugin.force.StepDisplacement;
+import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
+import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
@@ -19,6 +24,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.openide.util.Lookup;
 
 import processing.core.PApplet;
 import big.marketing.controller.DataController;
@@ -32,10 +38,11 @@ public class GraphJPanel extends JPanel implements Observer {
 	private ProcessingTarget target;
 
 	public void setContent(ProcessingTarget target) {
+		logger.info("Init applet");
 		this.target = target;
 		applet = target.getApplet();
 		applet.init();
-		removeAll();
+		//		removeAll();
 		add(applet, BorderLayout.CENTER);
 		controller.getGephiController().render(target);
 	}
@@ -59,25 +66,46 @@ public class GraphJPanel extends JPanel implements Observer {
 		// TODO: make the chart visible by placing a ChartPanel somewhere
 	}
 
-	public void setupModel(PreviewModel previewModel) {
-		previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
-		previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
-		previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
-		previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
-		previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
-		previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+	public void layoutGraph() {
+
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+		YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
+		layout.setGraphModel(graphModel);
+		layout.initAlgo();
+		layout.resetPropertiesValues();
+		layout.setOptimalDistance(200f);
+
+		for (int i = 0; i < 100 && layout.canAlgo(); i++) {
+			layout.goAlgo();
+		}
+		layout.endAlgo();
+
 	}
 
-	// TODO: use update(...), not prepareModel and setTarget
 	@Override
 	public void update(Observable o, Object arg) {
 
-		if (arg instanceof IntervalXYDataset) {
+		if (arg instanceof PreviewController) {
+
+			layoutGraph();
+
+			PreviewController previewController = (PreviewController) arg;
+			PreviewModel previewModel = previewController.getModel();
+			previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+			previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
+			previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
+			previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
+			previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+
+			previewController.refreshPreview();
+
+			if (target != null) {
+				target.refresh();
+				target.resetZoom();
+			}
+		} else if (arg instanceof IntervalXYDataset) {
 			showChart((IntervalXYDataset) arg);
-		}
-		if (target != null) {
-			target.refresh();
-			target.resetZoom();
 		}
 	}
 
