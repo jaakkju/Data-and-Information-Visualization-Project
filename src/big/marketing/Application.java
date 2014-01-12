@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import big.marketing.controller.DataController;
 import big.marketing.controller.MongoExecutor;
+import big.marketing.data.DataType;
 import big.marketing.view.ControlsJPanel;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.PCoordinatesJPanel;
@@ -27,7 +28,8 @@ public class Application {
 		// All panels have a reference to controller so changes in selections and data can be passed to other views
 		GraphJPanel graphPanel = new GraphJPanel(controller);
 		PCoordinatesJPanel pCoordinatesPanel = new PCoordinatesJPanel(controller);
-		ControlsJPanel controlsPanel = new ControlsJPanel(controller);
+		ControlsJPanel controlsPanel = new ControlsJPanel(controller, controller.getMongoController().getHistogram(DataType.FLOW, "time",
+		      "packetCount", "$sum"));
 
 		// DataController implements observer pattern and pushes changes in data and selections to JPanels
 		controller.getGephiController().addObserver(graphPanel);

@@ -30,8 +30,8 @@ import big.marketing.test.DatabasePerformance;
 public class WindowFrame extends JFrame {
 	private static final long serialVersionUID = -8346810238547214403L;
 	private final DataController controller;
-	private static int FRAME_WIDTH = 1200;
-	private static int FRAME_HEIGHT = 600;
+	static int FRAME_WIDTH = 1200;
+	static int FRAME_HEIGHT = 600;
 	private static final String FRAME_TITLE = "eyeNet - Network Monitor";
 	static Logger logger = Logger.getLogger(WindowFrame.class);
 
