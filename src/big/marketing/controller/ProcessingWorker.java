@@ -224,4 +224,13 @@ public class ProcessingWorker {
 		logger.info("Creating index for " + type.name() + " on " + mainFeature);
 		collection.ensureIndex(mainFeature);
 	}
+
+	public Iterable<DBObject> getAggregationQuery(String key, int min, int max) {
+		DBObject match = new BasicDBObject(key, new BasicDBObject("$gt", min).append("$lt", max));
+		DBObject matchOp = new BasicDBObject("$match", match);
+		DBCollection fullData = mc.getCollection(type);
+		DBObject groupOp = setupGroupOperation();
+		AggregationOutput ao = fullData.aggregate(matchOp, groupOp);
+		return ao.results();
+	}
 }

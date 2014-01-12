@@ -29,7 +29,6 @@ import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
@@ -181,13 +180,29 @@ public class MongoController implements Runnable {
 		return database.collectionExists(getCollectionName(t));
 	}
 
-	public List<Object> getConstrainedEntries(DataType t, String key, int min, int max) {
-
+	private Iterable<DBObject> query(DataType t, String key, int min, int max) {
 		BasicDBObject query = new BasicDBObject(key, new BasicDBObject("$lt", max).append("$gt", min));
-		DBCursor cursor = getCollection(t).find(query);
+		return getCollection(t).find(query);
+	}
+
+	private Iterable<DBObject> aggregate(DataType t, String key, int min, int max) {
+		ProcessingWorker pw = new ProcessingWorker(this, t);
+		return pw.getAggregationQuery(key, min, max);
+	}
+
+	public List<Object> getConstrainedEntries(DataType t, String key, int min, int max) {
+		return getConstrainedEntries(t, key, min, max, false);
+	}
+
+	public List<Object> getConstrainedEntries(DataType t, String key, int min, int max, boolean aggregate) {
+		Iterable<DBObject> queryResult = null;
+		if (aggregate)
+			queryResult = aggregate(t, key, min, max);
+		else
+			queryResult = query(t, key, min, max);
 		ArrayList<Object> result = new ArrayList<Object>();
 		try {
-			for (DBObject dbo : cursor) {
+			for (DBObject dbo : queryResult) {
 				result.add(convert(t, dbo));
 			}
 		} catch (Exception e) {
@@ -288,7 +303,7 @@ public class MongoController implements Runnable {
 		AggregationOutput ao = c.aggregate(groupOp);
 
 		// collect data
-		XYSeries series = new XYSeries("flow");
+		XYSeries series = new XYSeries("");
 		for (DBObject dbo : ao.results()) {
 			int x = (Integer) dbo.get("_id");
 			int y = (Integer) dbo.get("y");
