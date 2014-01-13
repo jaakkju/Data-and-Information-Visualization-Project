@@ -194,6 +194,18 @@ public class MongoController implements Runnable {
 		return getConstrainedEntries(t, key, min, max, false);
 	}
 
+	/**
+	 * Queries all entries of type t with an value for key between min and max. Aggregates the result with
+	 * the aggregation parameters specified in ProcessingWorker (which are used for processing the source data).
+	 * <br>
+	 * <b> WARNING: </b> Aggregation result must not be bigger than 16MB due to size restrictions of mongodb!
+	 * @param t type of data to query
+	 * @param key field for query restriction
+	 * @param min minimum value on field key
+	 * @param max maximum value on field kay
+	 * @param aggregate aggregate the results with default aggregation parameters
+	 * @return a list containing the result of the query, converted to the *Message objects according to given type
+	 */
 	public List<Object> getConstrainedEntries(DataType t, String key, int min, int max, boolean aggregate) {
 		Iterable<DBObject> queryResult = null;
 		if (aggregate)
