@@ -319,7 +319,7 @@ public class MongoController implements Runnable {
 		for (DBObject dbo : ao.results()) {
 			int x = (Integer) dbo.get("_id");
 			int y = (Integer) dbo.get("y");
-			series.add(x, y);
+			series.add((long) x * 1000L, y);
 		}
 		return new XYSeriesCollection(series);
 	}

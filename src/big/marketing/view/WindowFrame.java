@@ -1,5 +1,6 @@
 package big.marketing.view;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -47,11 +48,13 @@ public class WindowFrame extends JFrame {
 				super.windowClosing(e);
 			}
 		});
-		GridBagLayout gbl = new GridBagLayout();
-		this.setLayout(gbl);
+		//		GridBagLayout gbl = new GridBagLayout();
+		this.setLayout(new BorderLayout());
 		JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT, graphPanel, pCoordinatesPanel);
-		addComponent(getContentPane(), gbl, splitter, 0, 0, 1, 2, 1, 1);
-		addComponent(getContentPane(), gbl, controlsPanel, 0, 2, 1, 1, 0, 0);
+		//		addComponent(getContentPane(), gbl, splitter, 0, 0, 1, 2, 1, 1);
+		//		addComponent(getContentPane(), gbl, controlsPanel, 0, 2, 1, 1, 0, 0);
+		add(splitter, BorderLayout.CENTER);
+		add(controlsPanel, BorderLayout.SOUTH);
 
 		setJMenuBar(createMenuBar());
 		this.pack();

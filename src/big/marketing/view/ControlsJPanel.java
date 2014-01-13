@@ -2,6 +2,7 @@ package big.marketing.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -90,6 +92,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		chartPanel.add(qWindowSlider, BorderLayout.CENTER);
 		add(chartPanel);
 		//		chartPanel.setBorder(null);
+		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
 	}
 
 	@Override
@@ -117,8 +120,9 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 		rangeAxis.setAutoTickUnitSelection(true);
 		rangeAxis.setAutoRangeIncludesZero(true);
-		NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
-		domainAxis.setRange(ControlsJPanel.QW_MIN, ControlsJPanel.QW_MAX);
+		DateAxis dAxis = new DateAxis();
+		dAxis.setRange((long) ControlsJPanel.QW_MIN * 1000L, (long) ControlsJPanel.QW_MAX * 1000L);
+		plot.setDomainAxis(dAxis);
 		//		domainAxis.setVisible(false);
 		plot.setRenderer(new XYAreaRenderer());
 		//		int length = (int) (qWindowSlider.getWidth() * DataController.QUERYWINDOW_SIZE / (QW_MAX - QW_MIN));
