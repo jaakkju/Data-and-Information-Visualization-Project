@@ -110,7 +110,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		chart.setBackgroundPaint(Color.white);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setBackgroundPaint(Color.lightGray);
-
+		plot.setDomainGridlinesVisible(false);
+		plot.setRangeGridlinesVisible(false);
 		plot.setRangeAxis(new LogarithmicAxis("123"));
 
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
