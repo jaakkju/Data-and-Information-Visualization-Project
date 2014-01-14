@@ -74,6 +74,11 @@ public class DataController extends Observable implements Runnable {
 			logger.info("Started playing at "+startTime+" with stepSize "+stepSize );
 		}
 	}
+	
+	public void playStateChanged(){
+		setChanged();
+		notifyObservers("PlayStateChanged");
+	}
 
 	public void run() {
 

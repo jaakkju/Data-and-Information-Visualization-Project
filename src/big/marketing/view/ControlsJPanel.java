@@ -36,7 +36,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private final DataController controller;
 	private JSlider qWindowSlider;
 	private JPanel buttonPanel;
-	private JButton playPauseButton, stopButton;
+	private JButton playPauseButton;
 	private ChartPanel chartPanel;
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
@@ -51,14 +51,13 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				logger.info(playPauseButton.getText()+" button press");
-				playPauseButton.setText(playPauseButton.getText().equals("Play")?"Pause":"Play");
+				logger.info(playPauseButton.getText() + " button press");
 				controller.playStopButtonPressed(1364802600, 3600);
 			}
 		});
 		add(playPauseButton, BorderLayout.LINE_START);
 
-		buttonPanel =new JPanel(new FlowLayout());
+		buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(playPauseButton);
 
 		add(buttonPanel, BorderLayout.LINE_START);
@@ -87,15 +86,20 @@ public class ControlsJPanel extends JPanel implements Observer {
 		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
 	}
 
+	private void switchPlayButtonName() {
+		playPauseButton.setText(playPauseButton.getText().equals("Play") ? "Pause" : "Play");
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg instanceof IntervalXYDataset) {
 			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
 			showChart((IntervalXYDataset) arg);
-		}else if (arg instanceof Integer){
-			int newTime = (Integer) arg; 
+		} else if (arg instanceof Integer) {
+			int newTime = (Integer) arg;
 			qWindowSlider.setValue(newTime);
-			
+		} else if ("PlayStateChanged".equals(arg)) {
+			switchPlayButtonName();
 		}
 	}
 

@@ -31,6 +31,7 @@ public class Player extends Thread{
 
 	@Override
 	public void run() {
+		dataController.playStateChanged();
 		while (isPlaying){
 			logger.info("Playstep: Moving to time: "+currentTime);
 			dataController.setTime(currentTime);
@@ -51,8 +52,7 @@ public class Player extends Thread{
 			
 		}
 		logger.info("Stopped playing");
-		
-
+		dataController.playStateChanged();
 	}
 
 }
