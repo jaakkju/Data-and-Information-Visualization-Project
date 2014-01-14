@@ -36,7 +36,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private final DataController controller;
 	private JSlider qWindowSlider;
 	private JPanel buttonPanel;
-	private JButton playButton, stopButton;
+	private JButton playPauseButton;
 	private ChartPanel chartPanel;
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
@@ -46,29 +46,20 @@ public class ControlsJPanel extends JPanel implements Observer {
 		this.controller = controller;
 		this.setLayout(new BorderLayout());
 
-		playButton = new JButton("Play");
-		playButton.addActionListener(new ActionListener() {
+		playPauseButton = new JButton("Play");
+		playPauseButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				logger.info("Play button press");
+				logger.info(playPauseButton.getText() + " button press");
+				controller.playStopButtonPressed(1364802600, 3600);
 			}
 		});
-		add(playButton, BorderLayout.LINE_START);
-
-		stopButton = new JButton("Stop");
-		stopButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				logger.info("Stop button press");
-			}
-		});
-		add(stopButton, BorderLayout.LINE_START);
+		add(playPauseButton, BorderLayout.LINE_START);
 
 		buttonPanel = new JPanel(new FlowLayout());
-		buttonPanel.add(playButton);
-		buttonPanel.add(stopButton);
+		buttonPanel.add(playPauseButton);
+
 		add(buttonPanel, BorderLayout.LINE_START);
 
 		//				chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 50, 0, 0, 1920, 1080, false, false, false,
@@ -95,13 +86,20 @@ public class ControlsJPanel extends JPanel implements Observer {
 		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
 	}
 
+	private void switchPlayButtonName() {
+		playPauseButton.setText(playPauseButton.getText().equals("Play") ? "Pause" : "Play");
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
-		logger.info("Update ControlsPanel");
 		if (arg instanceof IntervalXYDataset) {
-			logger.info("Got Dataset");
 			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
 			showChart((IntervalXYDataset) arg);
+		} else if (arg instanceof Integer) {
+			int newTime = (Integer) arg;
+			qWindowSlider.setValue(newTime);
+		} else if ("PlayStateChanged".equals(arg)) {
+			switchPlayButtonName();
 		}
 	}
 
@@ -112,7 +110,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		chart.setBackgroundPaint(Color.white);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setBackgroundPaint(Color.lightGray);
-
+		plot.setDomainGridlinesVisible(false);
+		plot.setRangeGridlinesVisible(false);
 		plot.setRangeAxis(new LogarithmicAxis("123"));
 
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();

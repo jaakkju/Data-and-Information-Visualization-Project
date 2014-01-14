@@ -55,7 +55,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		layout.resetPropertiesValues();
 		layout.setOptimalDistance(200f);
 
-		for (int i = 0; i < 100 && layout.canAlgo(); i++) {
+		for (int i = 0; i < 10 && layout.canAlgo(); i++) {
 			layout.goAlgo();
 		}
 		layout.endAlgo();

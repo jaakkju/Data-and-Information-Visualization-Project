@@ -53,11 +53,14 @@ public class GephiController extends Observable {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();
-			projectController.closeCurrentWorkspace();
+			projectController.cleanWorkspace(projectController.getCurrentWorkspace());
+//			projectController.closeCurrentWorkspace();
+		}else{
+			projectController.newProject();
+			
 		}
 
 		// init
-		projectController.newProject();
 		importController = Lookup.getDefault().lookup(ImportController.class);
 		previewController = Lookup.getDefault().lookup(PreviewController.class);
 		workspace = projectController.getCurrentWorkspace();
