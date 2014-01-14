@@ -23,8 +23,8 @@ public class DataController extends Observable implements Runnable {
 	public static int QUERYWINDOW_SIZE = 3600;
 
 	// currentQueryWindow stores the data returned from mongo
-	private QueryWindowData currentQueryWindow;
-
+	private List<Node> network;
+	
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 
@@ -43,7 +43,6 @@ public class DataController extends Observable implements Runnable {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController(this);
-		currentQueryWindow = new QueryWindowData();
 	}
 
 	public void readData() {
@@ -82,7 +81,7 @@ public class DataController extends Observable implements Runnable {
 		ZipReader zReader = new ZipReader(this.mc);
 		// Handling all reader errors here
 		try {
-			currentQueryWindow.setNetwork(nReader.readNetwork());
+			network = nReader.readNetwork();
 			zReader.read(DataType.FLOW, DataType.IPS, DataType.HEALTH);
 			mc.flushBuffers();
 			logger.info("Finished Reading Data");
@@ -101,7 +100,7 @@ public class DataController extends Observable implements Runnable {
 	public boolean moveQueryWindow(int time) {
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
-
+		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
 		currentQueryWindow.setFlow(mc.getConstrainedEntries(DataType.FLOW, "time", start, end));
 		currentQueryWindow.setIps(mc.getConstrainedEntries(DataType.IPS, "time", start, end));
 		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", start, end));
@@ -114,8 +113,11 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(currentQueryWindow);
+		boolean returnValue =!currentQueryWindow.isEmpty(); 
+		currentQueryWindow = null;
+		System.gc();
 
-		return !currentQueryWindow.isEmpty();
+		return returnValue;
 	}
 
 	/**
@@ -127,6 +129,7 @@ public class DataController extends Observable implements Runnable {
 	public boolean moveQueryWindow(int time, DataType t) {
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
+		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
 		List<Object> newEntries = mc.getConstrainedEntries(t, "time", start, end);
 		switch (t) {
 		case FLOW:

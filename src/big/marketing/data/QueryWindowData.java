@@ -20,10 +20,26 @@ public class QueryWindowData {
 	}
 
 	public QueryWindowData(List<FlowMessage> flow, List<HealthMessage> health, List<IPSMessage> ips, List<Node> network) {
-		this.flow = flow;
-		this.health = health;
-		this.ips = ips;
-		this.network = network;
+		
+		if (flow == null)
+			this.flow = Collections.emptyList();
+		else
+			this.flow = flow;
+		
+		if (health == null)
+			this.health = Collections.emptyList();
+		else
+			this.health = health;
+		
+		if (ips == null)
+			this.ips = Collections.emptyList();
+		else
+			this.ips = ips;
+		
+		if (network == null)
+			this.network = Collections.emptyList();
+		else
+			this.network = network;
 	}
 
 	public List<FlowMessage> getFlowData() {
