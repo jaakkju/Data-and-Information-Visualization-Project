@@ -30,9 +30,9 @@ public class Player extends Thread{
 	@Override
 	public void run() {
 		while (isPlaying){
-			currentTime += stepSize;
 			logger.info("Playstep: Moving to time: "+currentTime);
 			dataController.setTime(currentTime);
+			currentTime += stepSize;
 			
 			try {
 	         Thread.sleep(sleepMillis);
