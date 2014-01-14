@@ -40,7 +40,7 @@ public class Player extends Thread{
 				isPlaying = false;
 			}else if (currentTime < ControlsJPanel.QW_MIN){
 				logger.info("Reached minimum time, stopping...");
-				isPlaying = true;
+				isPlaying = false;
 			}
 			
 			try {
