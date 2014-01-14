@@ -52,6 +52,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				logger.info(playPauseButton.getText()+" button press");
+				playPauseButton.setText(playPauseButton.getText().equals("Play")?"Pause":"Play");
 				controller.playStopButtonPressed(1364802600, 3600);
 			}
 		});
