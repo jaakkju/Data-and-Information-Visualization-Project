@@ -52,6 +52,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				logger.info("Play button press");
+				controller.playStopButtonPressed(1364802600, 3600);
 			}
 		});
 		add(playButton, BorderLayout.LINE_START);
@@ -62,6 +63,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				logger.info("Stop button press");
+				controller.playStopButtonPressed(0, 0);
 			}
 		});
 		add(stopButton, BorderLayout.LINE_START);
@@ -102,6 +104,11 @@ public class ControlsJPanel extends JPanel implements Observer {
 			logger.info("Got Dataset");
 			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
 			showChart((IntervalXYDataset) arg);
+		}else if (arg instanceof Integer){
+			int newTime = (Integer) arg; 
+			logger.info("Switching sliderposition to time "+newTime);
+			qWindowSlider.setValue(newTime);
+			
 		}
 	}
 

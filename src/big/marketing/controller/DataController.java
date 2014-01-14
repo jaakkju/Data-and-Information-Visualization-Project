@@ -29,6 +29,7 @@ public class DataController extends Observable implements Runnable {
 	private Node selectedNode = null;
 
 	private Thread readingThread, processingThread;
+	private Player player;
 
 	private static DataController instance;
 
@@ -54,6 +55,25 @@ public class DataController extends Observable implements Runnable {
 		DataProcessor dp = new DataProcessor(this.mc, DataType.FLOW, DataType.IPS, DataType.HEALTH);
 		processingThread = new Thread(dp, "ProcessingThread");
 		processingThread.start();
+	}
+	
+	public void setTime(int newTime){
+		setChanged();
+		notifyObservers(newTime);
+	}
+	
+	public void playStopButtonPressed(int startTime, int stepSize){
+		if (player != null && player.isAlive()){
+			// actually playing
+			player.stopPlaying();
+			logger.info("Stopped playing");
+		}
+		else{
+			// no player yet or playing finished
+			player = new Player(this,startTime,stepSize,100);
+			player.startPlaying();
+			logger.info("Started playing at "+startTime+" with stepSize "+stepSize );
+		}
 	}
 
 	public void run() {
