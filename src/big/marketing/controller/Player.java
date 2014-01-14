@@ -11,7 +11,6 @@ public class Player extends Thread{
 	
 	public Player(DataController dc, int startTime, int stepSize, int sleepMillis) {
 		super("PlayThread");
-		logger.info("Created 1 play object");
 	   this.dataController = dc;
 	   this.currentTime = startTime;
 	   this.stepSize = stepSize;
@@ -32,7 +31,7 @@ public class Player extends Thread{
 	public void run() {
 		while (isPlaying){
 			currentTime += stepSize;
-			logger.info("Move to "+currentTime);
+			logger.info("Playstep: Moving to time: "+currentTime);
 			dataController.setTime(currentTime);
 			
 			try {
@@ -42,6 +41,7 @@ public class Player extends Thread{
          }
 			
 		}
+		logger.info("Stopped playing");
 		
 
 	}

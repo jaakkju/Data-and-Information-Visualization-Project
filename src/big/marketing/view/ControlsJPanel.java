@@ -36,7 +36,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private final DataController controller;
 	private JSlider qWindowSlider;
 	private JPanel buttonPanel;
-	private JButton playButton, stopButton;
+	private JButton playPauseButton, stopButton;
 	private ChartPanel chartPanel;
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
@@ -46,31 +46,20 @@ public class ControlsJPanel extends JPanel implements Observer {
 		this.controller = controller;
 		this.setLayout(new BorderLayout());
 
-		playButton = new JButton("Play");
-		playButton.addActionListener(new ActionListener() {
+		playPauseButton = new JButton("Play");
+		playPauseButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				logger.info("Play button press");
+				logger.info(playPauseButton.getText()+" button press");
 				controller.playStopButtonPressed(1364802600, 3600);
 			}
 		});
-		add(playButton, BorderLayout.LINE_START);
+		add(playPauseButton, BorderLayout.LINE_START);
 
-		stopButton = new JButton("Stop");
-		stopButton.addActionListener(new ActionListener() {
+		buttonPanel =new JPanel(new FlowLayout());
+		buttonPanel.add(playPauseButton);
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				logger.info("Stop button press");
-				controller.playStopButtonPressed(0, 0);
-			}
-		});
-		add(stopButton, BorderLayout.LINE_START);
-
-		buttonPanel = new JPanel(new FlowLayout());
-		buttonPanel.add(playButton);
-		buttonPanel.add(stopButton);
 		add(buttonPanel, BorderLayout.LINE_START);
 
 		//				chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 50, 0, 0, 1920, 1080, false, false, false,
@@ -99,14 +88,11 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		logger.info("Update ControlsPanel");
 		if (arg instanceof IntervalXYDataset) {
-			logger.info("Got Dataset");
 			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
 			showChart((IntervalXYDataset) arg);
 		}else if (arg instanceof Integer){
 			int newTime = (Integer) arg; 
-			logger.info("Switching sliderposition to time "+newTime);
 			qWindowSlider.setValue(newTime);
 			
 		}

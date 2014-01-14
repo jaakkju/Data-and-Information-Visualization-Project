@@ -65,7 +65,7 @@ public class DataController extends Observable implements Runnable {
 		if (player != null && player.isAlive()){
 			// actually playing
 			player.stopPlaying();
-			logger.info("Stopped playing");
+			logger.info("Waiting for current query to finish, then stopping playing");
 		}
 		else{
 			// no player yet or playing finished
