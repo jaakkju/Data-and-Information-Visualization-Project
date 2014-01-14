@@ -18,14 +18,11 @@
  * 
  */
 
-package big.marketing.xdat.chart;
+package big.marketing.xdat;
 
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.data.DataSheet;
-import big.marketing.xdat.data.Parameter;
 
 /**
  * Provides the possibility to filter the Designs on a {@link chart.ParallelCoordinatesChart}.

@@ -17,7 +17,7 @@
  * along with xdat.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.text.NumberFormat;
 import java.text.ParseException;

@@ -18,7 +18,7 @@
  * 
  */
 
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.awt.FontMetrics;
 import java.io.Serializable;
@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.CorruptDataException;
 
 /**
  * A Parameter represents a parameter of a {@link data.DataSheet}.

@@ -17,16 +17,12 @@
  * along with xdat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package big.marketing.xdat.chart;
+package big.marketing.xdat;
 
 import java.awt.Color;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.UserPreferences;
-import big.marketing.xdat.data.DataSheet;
-import big.marketing.xdat.data.Parameter;
 
 /**
  * A serializable representation of all relevant settings for an Axis on a Parallel coordinates shart.

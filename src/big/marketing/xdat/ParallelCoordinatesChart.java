@@ -18,7 +18,7 @@
  * 
  */
 
-package big.marketing.xdat.chart;
+package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -29,10 +29,6 @@ import java.util.Vector;
 import javax.swing.ProgressMonitor;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.UserPreferences;
-import big.marketing.xdat.data.DataSheet;
-import big.marketing.xdat.data.Design;
 
 /**
  * A serializable representation of all relevant settings for a Parallel coordinates chart which is displayed on

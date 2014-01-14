@@ -18,7 +18,7 @@
  * 
  */
 
-package big.marketing.xdat.chart;
+package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,8 +26,6 @@ import java.awt.Point;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.data.DataSheet;
 
 /**
  * A serializable representation of all relevant settings for a chart which is displayed on

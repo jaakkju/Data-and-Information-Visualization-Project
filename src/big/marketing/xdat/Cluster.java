@@ -18,12 +18,10 @@
  * 
  */
 
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.awt.Color;
 import java.io.Serializable;
-
-import big.marketing.xdat.UserPreferences;
 
 /**
  * A group of {@link data.Design}s that can be displayed in a userspecified different color or

@@ -18,7 +18,7 @@
  * 
  */
 
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -28,7 +28,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.ProgressMonitor;
 import javax.swing.event.ListDataListener;
@@ -36,10 +35,6 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.InconsistentDataException;
-import big.marketing.xdat.UserPreferences;
-import big.marketing.xdat.chart.ParallelCoordinatesChart;
 
 /**
  * A representation of the data imported from a text file.
@@ -93,7 +88,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 	 * @param dataHasHeaders specifies whether the data has headers to read the Parameter names from.
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public DataSheet(String pathToInputFile, boolean dataHasHeaders, Main mainWindow, ProgressMonitor progressMonitor) throws IOException {
+	public DataSheet(String pathToInputFile, boolean dataHasHeaders, ProgressMonitor progressMonitor) throws IOException {
 		UserPreferences userPreferences = new UserPreferences("eyeNet"); //TODO Implement User Preferences > Main.getUserPreferences();
 		this.clusterSet = new ClusterSet(this);
 		this.delimiter = userPreferences.getDelimiter();
@@ -101,18 +96,24 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.delimiter = this.delimiter + "+";
 		importData(pathToInputFile, dataHasHeaders, progressMonitor);
 		boolean continueChecking = true;
-		for (int i = 0; i < this.parameters.size(); i++) {
-			if (this.parameters.get(i).isMixed() && continueChecking) {
-				int userAction = JOptionPane.showConfirmDialogger.info(mainWindow, "Parameter " + this.parameters.get(i).getName()
-				      + " has numeric values in some designs\n"
-				      + "and non-numerical values in others. \nThis will result in the parameter being treated as a \n"
-				      + "non-numeric parameter. \n" + "If this is incorrect it is recommended to find the design(s)\n"
-				      + "with non-numeric values and correct or remove them.\n\n" + "Press Ok to continue checking parameters or Cancel to\n"
-				      + "suppress further warnings.", "Mixed Parameter Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-				continueChecking = (userAction == JOptionPane.OK_OPTION);
 
-			}
-		}
+		//		 TODO THIS DOES SOME THING		
+		//				for (int i = 0; i < this.parameters.size(); i++) {
+		//					if (this.parameters.get(i).isMixed() && continueChecking) {
+		//						int userAction = JOptionPane.showConfirmDialogger.info(mainWindow, "Parameter " + this.parameters.get(i).getName()
+		//						      + " has numeric values in some designs\n"
+		//						      + "and non-numerical values in others. \nThis will result in the parameter being treated as a \n"
+		//						      + "non-numeric parameter. \n" + "If this is incorrect it is recommended to find the design(s)\n"
+		//						      + "with non-numeric values and correct or remove them.\n\n" + "Press Ok to continue checking parameters or Cancel to\n"
+		//						      + "suppress further warnings.", "Mixed Parameter Warning", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+		//						continueChecking = (userAction == JOptionPane.OK_OPTION);
+		//		
+		//					}
+		//				}
+	}
+
+	public DataSheet() {
+		// TODO Auto-generated constructor stub
 	}
 
 	/**

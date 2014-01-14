@@ -18,7 +18,7 @@
  * 
  */
 
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.awt.Color;
 import java.io.Serializable;

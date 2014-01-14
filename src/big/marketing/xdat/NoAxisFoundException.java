@@ -1,5 +1,5 @@
 /*
- *  Copyright 2013, Enguerrand de Rochefort modified by Juhani Jaakkola
+ *  Copyright 2013, Enguerrand de Rochefort
  * 
  * This file is part of xdat.
  *
@@ -20,23 +20,25 @@
 
 package big.marketing.xdat;
 
-
 /**
- * This exception is thrown when the data of a discrete parameter is corrupt.
- * <p>
- * @see data.Parameter
+ * This exception is thrown when trying to get an axis at an 
+ * x location where no axis is found. 
  */
-public class CorruptDataException extends RuntimeException {
-
+public class NoAxisFoundException 
+extends Exception 
+{
+	
 	/** The version tracking unique identifier for Serialization. */
 	static final long serialVersionUID = 0000;
-
+	
 	/**
-	 * Instantiates a new corrupt data exception.
-	 * @param corruptParameter the corrupt parameter
+	 * Instantiates a new NoAxisFound exception.
 	 */
-	public CorruptDataException(Parameter corruptParameter) {
-		super("The data of parameter \"" + corruptParameter.getName() + "\" seems to be corrupt!");
+	public NoAxisFoundException(int x) 
+	{
+		super("No Axis found at x position "+x);
 	}
+
+
 
 }

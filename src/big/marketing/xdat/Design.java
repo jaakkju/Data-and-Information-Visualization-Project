@@ -18,17 +18,13 @@
  * 
  */
 
-package big.marketing.xdat.data;
+package big.marketing.xdat;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
-
-import big.marketing.xdat.chart.Axis;
-import big.marketing.xdat.chart.Filter;
-import big.marketing.xdat.chart.ParallelCoordinatesChart;
 
 /**
  * A Design represents a row in the {@link data.DataSheet}. It stores the values for each {@link data.Parameter} of the dataSheet.
