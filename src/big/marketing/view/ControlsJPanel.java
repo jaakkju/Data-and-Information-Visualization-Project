@@ -3,6 +3,7 @@ package big.marketing.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
@@ -11,11 +12,12 @@ import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -43,6 +45,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JButton playPauseButton;
 	private ChartPanel chartPanel;
 	private JLabel currentTimeLabel;
+	private JSpinner playSpeedSpinner;
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
@@ -58,22 +61,23 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				logger.info(playPauseButton.getText() + " button press");
-				controller.playStopButtonPressed(1364802600, 3600);
+				controller.playStopButtonPressed(qWindowSlider.getValue(), (Integer) playSpeedSpinner.getValue());
 			}
 		});
-		add(playPauseButton, BorderLayout.LINE_START);
-
 		buttonPanel = new JPanel();
-		BoxLayout bl = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
-		buttonPanel.setLayout(bl);
+		//		BoxLayout bl = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+		buttonPanel.setLayout(new FlowLayout());
+		currentTimeLabel = new JLabel(" ");
+		playSpeedSpinner = new JSpinner(new SpinnerNumberModel(3600, 60, Integer.MAX_VALUE, 100));
+		buttonPanel.add(new JLabel("Play speed:"));
+		buttonPanel.add(playSpeedSpinner);
 		buttonPanel.add(playPauseButton);
-		currentTimeLabel = new JLabel();
 		buttonPanel.add(currentTimeLabel);
-		add(buttonPanel, BorderLayout.LINE_START);
 
-		//				chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 50, 0, 0, 1920, 1080, false, false, false,
-		//				      false, false, false);
-		chartPanel = new ChartPanel(showChart(sliderBackgroundData));
+		add(buttonPanel, BorderLayout.SOUTH);
+
+		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
+		      false, false, false);
 		chartPanel.setLayout(new BorderLayout());
 		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
 		qWindowSlider.setOpaque(false);
