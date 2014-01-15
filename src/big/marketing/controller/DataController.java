@@ -6,9 +6,9 @@ import java.util.Observable;
 import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
-import big.marketing.data.QueryWindowData;
 import big.marketing.data.DataType;
 import big.marketing.data.Node;
+import big.marketing.data.QueryWindowData;
 import big.marketing.reader.NetworkReader;
 import big.marketing.reader.ZipReader;
 
@@ -24,7 +24,7 @@ public class DataController extends Observable implements Runnable {
 
 	// currentQueryWindow stores the data returned from mongo
 	private List<Node> network;
-	
+
 	private Node[] highlightedNodes = null;
 	private Node selectedNode = null;
 
@@ -55,27 +55,26 @@ public class DataController extends Observable implements Runnable {
 		processingThread = new Thread(dp, "ProcessingThread");
 		processingThread.start();
 	}
-	
-	public void setTime(int newTime){
+
+	public void setTime(int newTime) {
 		setChanged();
 		notifyObservers(newTime);
 	}
-	
-	public void playStopButtonPressed(int startTime, int stepSize){
-		if (player != null && player.isAlive()){
+
+	public void playStopButtonPressed(int startTime, int stepSize) {
+		if (player != null && player.isAlive()) {
 			// actually playing
 			player.stopPlaying();
 			logger.info("Waiting for current query to finish, then stopping playing");
-		}
-		else{
+		} else {
 			// no player yet or playing finished
-			player = new Player(this,startTime,stepSize,100);
+			player = new Player(this, startTime, stepSize, 100);
 			player.startPlaying();
-			logger.info("Started playing at "+startTime+" with stepSize "+stepSize );
+			logger.info("Started playing at " + startTime + " with stepSize " + stepSize);
 		}
 	}
-	
-	public void playStateChanged(){
+
+	public void playStateChanged() {
 		setChanged();
 		notifyObservers("PlayStateChanged");
 	}
@@ -103,6 +102,7 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time) {
+		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
 		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
@@ -118,7 +118,7 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(currentQueryWindow);
-		boolean returnValue =!currentQueryWindow.isEmpty(); 
+		boolean returnValue = !currentQueryWindow.isEmpty();
 		currentQueryWindow = null;
 		System.gc();
 
@@ -132,6 +132,7 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time, DataType t) {
+		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
 		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);

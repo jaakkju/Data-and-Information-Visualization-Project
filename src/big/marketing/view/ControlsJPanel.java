@@ -6,12 +6,18 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -38,6 +44,9 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JPanel buttonPanel;
 	private JButton playPauseButton;
 	private ChartPanel chartPanel;
+	private JLabel currentTimeLabel;
+	private JSpinner playSpeedSpinner;
+	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
 
@@ -52,19 +61,23 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				logger.info(playPauseButton.getText() + " button press");
-				controller.playStopButtonPressed(1364802600, 3600);
+				controller.playStopButtonPressed(qWindowSlider.getValue(), (Integer) playSpeedSpinner.getValue());
 			}
 		});
-		add(playPauseButton, BorderLayout.LINE_START);
-
-		buttonPanel = new JPanel(new FlowLayout());
+		buttonPanel = new JPanel();
+		//		BoxLayout bl = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
+		buttonPanel.setLayout(new FlowLayout());
+		currentTimeLabel = new JLabel(" ");
+		playSpeedSpinner = new JSpinner(new SpinnerNumberModel(3600, 60, Integer.MAX_VALUE, 100));
+		buttonPanel.add(new JLabel("Play speed:"));
+		buttonPanel.add(playSpeedSpinner);
 		buttonPanel.add(playPauseButton);
+		buttonPanel.add(currentTimeLabel);
 
-		add(buttonPanel, BorderLayout.LINE_START);
+		add(buttonPanel, BorderLayout.SOUTH);
 
-		//				chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 50, 0, 0, 1920, 1080, false, false, false,
-		//				      false, false, false);
-		chartPanel = new ChartPanel(showChart(sliderBackgroundData));
+		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
+		      false, false, false);
 		chartPanel.setLayout(new BorderLayout());
 		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
 		qWindowSlider.setOpaque(false);
@@ -75,6 +88,9 @@ public class ControlsJPanel extends JPanel implements Observer {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				JSlider source = (JSlider) e.getSource();
+				int newTime = source.getValue();
+				Date date = new Date(newTime * 1000L);
+				currentTimeLabel.setText(formatter.format(date));
 				if (!source.getValueIsAdjusting()) {
 					controller.moveQueryWindow((int) source.getValue());
 				}
@@ -84,6 +100,13 @@ public class ControlsJPanel extends JPanel implements Observer {
 		add(chartPanel);
 		//		chartPanel.setBorder(null);
 		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
+		qWindowSlider.setValue(QW_MIN);
+	}
+
+	public void setCurrentTime(int i) {
+		// clamp time between QW_MIN and QW_MAX
+		i = Math.min(QW_MAX, Math.max(QW_MIN, i));
+		qWindowSlider.setValue(i);
 	}
 
 	private void switchPlayButtonName() {
@@ -93,11 +116,10 @@ public class ControlsJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg instanceof IntervalXYDataset) {
-			QuerySliderUI ui = (QuerySliderUI) qWindowSlider.getUI();
 			showChart((IntervalXYDataset) arg);
 		} else if (arg instanceof Integer) {
 			int newTime = (Integer) arg;
-			qWindowSlider.setValue(newTime);
+			setCurrentTime(newTime);
 		} else if ("PlayStateChanged".equals(arg)) {
 			switchPlayButtonName();
 		}

@@ -19,8 +19,8 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
-import big.marketing.data.QueryWindowData;
 import big.marketing.data.FlowMessage;
+import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
 
 public class GephiController extends Observable {
@@ -49,15 +49,48 @@ public class GephiController extends Observable {
 		load(new QueryWindowData(new ArrayList<FlowMessage>(), null, null, null));
 	}
 
+	/**
+	 * Terminates all current active Threads which name one of the given threadNames. <br>
+	 * 
+	 * <b>WARNING:</b>Be careful, no security checks are done, can break the VM.
+	 * @param terminationTargets
+	 */
+	private void terminateThreads(String... terminationTargets) {
+		// All Threads are organized in a tree structure, so get the root of the tree
+		ThreadGroup tg = Thread.currentThread().getThreadGroup();
+		while (tg.getParent() != null) {
+			tg = tg.getParent();
+		}
+		// now we have the root node of the tree and can fetch all current active Threads
+		// Allocate some additional slots because new Threads could have been started between call of tg.activeCount() and tg.enumerate()
+		Thread[] threads = new Thread[tg.activeCount() + 5];
+		int realCount = tg.enumerate(threads);
+		for (int i = 0; i < realCount; i++) {
+			Thread thread = threads[i];
+			if (thread == null)
+				continue;
+			for (String terminationName : terminationTargets) {
+				if (thread.getName().equals(terminationName)) {
+					logger.info("Killing Thread " + thread.getName());
+					thread.stop();
+				}
+			}
+		}
+	}
+
 	public void load(QueryWindowData newDataset) {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();
 			projectController.cleanWorkspace(projectController.getCurrentWorkspace());
-//			projectController.closeCurrentWorkspace();
-		}else{
+			//			projectController.closeCurrentWorkspace();
+
+			// REALLY DIRTY HACK !!!
+			terminateThreads("DHNS View Destructor");
+			// END REALLY DIRTY HACK!!!!
+
+		} else {
 			projectController.newProject();
-			
 		}
 
 		// init
