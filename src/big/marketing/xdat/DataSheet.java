@@ -98,7 +98,7 @@ public class DataSheet implements ListModel {
 			data.add(design);
 		}
 
-		logger.info("Loaded health messages to DataSheet " + idCounter + " values");
+		//		logger.info("Loaded health messages to DataSheet " + idCounter + " values");
 	}
 
 	/**

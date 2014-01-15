@@ -159,9 +159,9 @@ public class Axis implements Serializable {
 
 		if (this.autoFit) {
 			autofit();
-			logger.info("Created Axis: " + parameter.getName() + ",  Settings initialized, AutoFit max: " + this.max + " min: " + this.min);
+			//			logger.info("Created Axis: " + parameter.getName() + ",  Settings initialized, AutoFit max: " + this.max + " min: " + this.min);
 		} else {
-			logger.info("Created Axis: " + parameter.getName() + ", Settings initialized, AutoFit: false");
+			//			logger.info("Created Axis: " + parameter.getName() + ", Settings initialized, AutoFit: false");
 		}
 	}
 
