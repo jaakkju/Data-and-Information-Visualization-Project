@@ -10,8 +10,7 @@ import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
-import org.gephi.layout.plugin.force.StepDisplacement;
-import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout;
+import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperty;
@@ -49,13 +48,17 @@ public class GraphJPanel extends JPanel implements Observer {
 	public void layoutGraph() {
 
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
-		YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
+		ForceAtlas2 layout = new ForceAtlas2(null);
+		//		YifanHuLayout layout = new YifanHuLayout(null, new StepDisplacement(1f));
 		layout.setGraphModel(graphModel);
 		layout.initAlgo();
 		layout.resetPropertiesValues();
-		layout.setOptimalDistance(200f);
+		//		layout.setOptimalDistance(200f);
+		layout.setEdgeWeightInfluence(0.0);
+		layout.setScalingRatio(50.0);
+		layout.setLinLogMode(false);
 
-		for (int i = 0; i < 10 && layout.canAlgo(); i++) {
+		for (int i = 0; i < 100 && layout.canAlgo(); i++) {
 			layout.goAlgo();
 		}
 		layout.endAlgo();
