@@ -22,11 +22,8 @@ package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.io.Serializable;
 import java.util.Vector;
-
-import javax.swing.ProgressMonitor;
 
 import org.apache.log4j.Logger;
 
@@ -62,7 +59,7 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	static final int BOTTOM_PADDING = 60;
 
 	/** The background color of this Chart. */
-	private Color backGroundColor;
+	private Color backGroundColor = Color.WHITE;
 
 	/**
 	 * The top margin of the Chart.
@@ -123,7 +120,7 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	private Color filterColor;
 
 	/** Specifies whether the design IDs next to the left-most Axis should be shown. */
-	private boolean showDesignIDs;
+	private boolean showDesignIDs = true;
 
 	/**
 	 * Switch that enables displaying filtered designs.
@@ -150,13 +147,10 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * Instantiates a new parallel coordinates chart.
 	 * @param dataSheet the data sheet
 	 */
-	public ParallelCoordinatesChart(DataSheet dataSheet, ProgressMonitor progressMonitor, int id) {
-		super(dataSheet, id);
-		this.setLocation(new Point(100, 100));
-		this.setFrameSize(new Dimension(800, 600));
+	public ParallelCoordinatesChart(DataSheet dataSheet, Dimension dimensions) {
+		super(dataSheet, dimensions);
+
 		UserPreferences userPreferences = new UserPreferences("eyeNet"); //TODO implement User Preferences > Main.getUserPreferences();
-		this.backGroundColor = userPreferences.getParallelCoordinatesDefaultBackgroundColor();
-		this.showDesignIDs = userPreferences.isParallelCoordinatesShowDesignIDs();
 		this.showFilteredDesigns = userPreferences.isParallelCoordinatesShowFilteredDesigns();
 		this.verticallyOffsetAxisLabels = userPreferences.isParallelCoordinatesVerticallyOffsetAxisLabels();
 		this.activeDesignColor = userPreferences.getParallelCoordinatesActiveDesignDefaultColor();
@@ -169,27 +163,14 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 		this.showOnlySelectedDesigns = userPreferences.isParallelCoordinatesShowOnlySelectedDesigns();
 		this.filterHeight = userPreferences.getParallelCoordinatesFilterHeight();
 		this.filterWidth = userPreferences.getParallelCoordinatesFilterWidth();
-		logger.info("constructor: Base settings read. Creating axes...");
-		progressMonitor.setMaximum(dataSheet.getParameterCount() - 1);
-		progressMonitor.setNote("Building Chart...");
-		for (int i = 0; i < dataSheet.getParameterCount() && !progressMonitor.isCanceled(); i++) {
-			//			logger.info("constructor: Creating axis "+dataSheet.getParameter(i).getName());
-			Axis newAxis = new Axis(dataSheet, this, dataSheet.getParameter(i));
-			this.addAxis(newAxis);
-			progressMonitor.setProgress(i);
-		}
 
-		if (!progressMonitor.isCanceled()) {
-			progressMonitor.setNote("Building Filters...");
-			progressMonitor.setProgress(0);
-			//			logger.info("constructor: axes created. Creating filters...");
-			for (int i = 0; i < dataSheet.getParameterCount() && !progressMonitor.isCanceled(); i++) {
-				this.axes.get(i).addFilters();
-				progressMonitor.setProgress(i);
-			}
-			//			logger.info("constructor: filters created. ");		
+		for (int i = 0; i < dataSheet.getParameterCount(); i++) {
+			Axis axis = new Axis(dataSheet, this, dataSheet.getParameter(i));
+			this.addAxis(axis);
 		}
-
+		for (int i = 0; i < dataSheet.getParameterCount(); i++) {
+			this.axes.get(i).addFilters();
+		}
 	}
 
 	/**
@@ -197,7 +178,7 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * @return the title
 	 */
 	public String getTitle() {
-		return "Parallel Coordinates Chart " + this.getID();
+		return "Parallel Coordinates Chart";
 	}
 
 	/**
@@ -435,7 +416,7 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * @return the height
 	 */
 	public int getAxisHeight() {
-		return this.getFrameSize().height - this.getAxisTopPos() - BOTTOM_PADDING;
+		return this.getDimensions().height - this.getAxisTopPos() - BOTTOM_PADDING;
 	}
 
 	/**

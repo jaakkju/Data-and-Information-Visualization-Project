@@ -22,7 +22,6 @@ package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.io.Serializable;
 
 import org.apache.log4j.Logger;
@@ -39,14 +38,8 @@ public abstract class Chart implements Serializable {
 	/** The version tracking unique identifier for Serialization. */
 	static final long serialVersionUID = 1;
 
-	/** The location of the {@link gui.frames.ChartFrame} on the screen. */
-	private Point location;
-
-	/** The chart's id to form the title. */
-	private int id;
-
 	/** The size of this Chart. */
-	private Dimension frameSize;
+	private Dimension dimensions;
 
 	/**
 	 * The data sheet that is displayed in this Chart.
@@ -58,11 +51,9 @@ public abstract class Chart implements Serializable {
 	 * Instantiates a new chart.
 	 * @param dataSheet the data sheet
 	 */
-	public Chart(DataSheet dataSheet, int id) {
+	public Chart(DataSheet dataSheet, Dimension dimensions) {
 		this.dataSheet = dataSheet;
-		this.id = id;
-		this.location = new Point(100, 100);
-		this.frameSize = new Dimension(800, 600);
+		this.dimensions = dimensions;
 	}
 
 	/**
@@ -70,14 +61,6 @@ public abstract class Chart implements Serializable {
 	 * @return the title
 	 */
 	public abstract String getTitle();
-
-	/**
-	 * Gets the id.
-	 * @return the id
-	 */
-	public int getID() {
-		return this.id;
-	}
 
 	/**
 	 * Determines the width of this Chart.
@@ -120,41 +103,15 @@ public abstract class Chart implements Serializable {
 	public abstract void setBackGroundColor(Color backGroundColor);
 
 	/**
-	 * Gets the size that this chart's frame takes up on screen.
-	 * @return the size of this Chart.
-	 */
-	public Dimension getFrameSize() {
-		return frameSize;
-	}
-
-	/**
-	 * Sets the size that this chart's frame takes up on screen.chart.getWidth() - chart.getScatterPlot2D().getMargin();
-	 * @param size the new size of this Chart.
-	 */
-	public void setFrameSize(Dimension size) {
-		logger.info("setFrameSize: New height = " + size.height);
-		logger.info("setFrameSize: New width = " + size.width);
-		this.frameSize = size;
-	}
-
-	/**
-	 * Gets the location of this Chart on the Screen.
-	 * @return the location of this Chart on the Screen.
-	 */
-	public Point getLocation() {
-		return location;
-	}
-
-	/**
-	 * Sets the location of this Chart on the Screen..
-	 * @param location the new location of this Chart on the Screen.
-	 */
-	public void setLocation(Point location) {
-		this.location = location;
-	}
-
-	/**
 	 * Reset display settings to default.
 	 */
 	public abstract void resetDisplaySettingsToDefault();
+
+	public Dimension getDimensions() {
+		return dimensions;
+	}
+
+	public void setDimensions(Dimension dimensions) {
+		this.dimensions = dimensions;
+	}
 }

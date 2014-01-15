@@ -19,8 +19,11 @@ Installation:
 2. [do something more]
 
 Mongo:
-restore eyeNet.zip processed data dump file with
-> mongorestore --dbpath [Path to db dump] eyeNet-dbdump
+restore eyeNet.zip processed data dump file with - Example
+mongorestore --dbpath c:\Users\jaakkju\Dropbox\Projektit\daiv-project\data\eyeNet c:\Users\jaakkju\Dropbox\Projektit\daiv-project\data\eyeNet\eyeNet
+
+run mongo command - Example
+mongod --dbpath c:\Users\jaakkju\Dropbox\Projektit\daiv-project\data\eyeNet --noprealloc --nojournal
 
 
 

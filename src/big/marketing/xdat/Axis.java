@@ -151,17 +151,18 @@ public class Axis implements Serializable {
 	 * @param parameter the Parameter represented by this Axis
 	 */
 	public Axis(DataSheet dataSheet, ParallelCoordinatesChart chart, Parameter parameter) {
-		logger.info("constructor invoked. Parameter name: " + parameter.getName());
-		logger.info("constructor invoked. Read Base settings.");
+
 		this.dataSheet = dataSheet;
 		this.chart = chart;
 		this.parameter = parameter;
-		logger.info("constructor: Base settings read. Initialise settings...");
 		initialiseSettings();
-		logger.info("constructor: settings initialised. Autofit...");
-		if (this.autoFit)
+
+		if (this.autoFit) {
 			autofit();
-		logger.info("constructor: Autofit done");
+			logger.info("Created Axis: " + parameter.getName() + ",  Settings initialized, AutoFit max: " + this.max + " min: " + this.min);
+		} else {
+			logger.info("Created Axis: " + parameter.getName() + ", Settings initialized, AutoFit: false");
+		}
 	}
 
 	/**
@@ -210,7 +211,6 @@ public class Axis implements Serializable {
 		this.max = this.dataSheet.getMaxValueOf(this.parameter);
 		this.min = this.dataSheet.getMinValueOf(this.parameter);
 		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
-		logger.info("autofit: max = " + max + ", min = " + min);
 	}
 
 	/**

@@ -38,11 +38,8 @@ import org.apache.log4j.Logger;
  * on parameters that are not quantifiable, such as different shapes of an object or similar.
  * 
  */
-public class Parameter implements Serializable {
+public class Parameter {
 	static Logger logger = Logger.getLogger(Parameter.class);
-
-	/** The version tracking unique identifier for Serialization. */
-	static final long serialVersionUID = 0003;
 
 	/** Datasheet to which the parameter belongs. */
 	private DataSheet dataSheet;
@@ -66,9 +63,10 @@ public class Parameter implements Serializable {
 	 * Instantiates a new parameter.
 	 * @param name the parameter name
 	 */
-	public Parameter(String name, DataSheet dataSheet) {
+	public Parameter(String name, DataSheet dataSheet, Boolean numeric) {
 		this.name = name;
 		this.dataSheet = dataSheet;
+		this.numeric = numeric;
 	}
 
 	/**
@@ -133,55 +131,6 @@ public class Parameter implements Serializable {
 	}
 
 	/**
-	 * Checks whether the parameter is numeric or discrete by rechecking all designs.
-	 * @return true, if the parameter is numeric
-	 */
-	public boolean checkIfNumeric() {
-		this.numeric = true;
-		for (int i = 0; i < this.dataSheet.getDesignCount(); i++) {
-			try {
-				String string = this.dataSheet.getDesign(i).getStringValue(this);
-				NumberParser.parseNumber(string.toString());
-				this.atLeastOneNumeric = true;
-			} catch (ParseException e) {
-				this.setNumeric(false);
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Specifies whether the parameter is numeric or dicrete. If a parameter is switched to non-numeric for the first time
-	 * all existing designs are checked to identify all discrete levels.
-	 * @param numeric specifies if the parameter is numeric
-	 */
-	public void setNumeric(boolean numeric) {
-
-		if (this.numeric && !numeric) {
-			this.atLeastOneNonNumeric = true;
-			for (int i = 0; i < this.dataSheet.getDesignCount(); i++) {
-				String string = this.dataSheet.getDesign(i).getStringValue(this);
-				Iterator<String> it = discreteLevels.iterator();
-				boolean stringFound = false;
-				while (it.hasNext()) {
-					if (string.equalsIgnoreCase(it.next())) {
-						stringFound = true;
-						break;
-					}
-				}
-
-				if (!stringFound) {
-					// String not found, add it to discrete levels
-					logger.info("getDoubleValueOf: string " + string + " not found, adding it to tree set ");
-					this.discreteLevels.add(string);
-				}
-			}
-		}
-		this.numeric = numeric;
-	}
-
-	/**
 	 * @param atLeastOneNumeric specifies whether there is at least one design with a numeric value for this design
 	 */
 	public void setAtLeastOneNumeric(boolean atLeastOneNumeric) {
@@ -206,14 +155,13 @@ public class Parameter implements Serializable {
 				this.atLeastOneNumeric = true;
 				return value;
 			} catch (ParseException e1) {
-				this.setNumeric(false);
+				this.numeric = false;
 				this.atLeastOneNonNumeric = true;
 			}
 		}
 
 		int index = 0;
 		Iterator<String> it = discreteLevels.iterator();
-		logger.info("getDoubleValueOf: checking index of string " + string);
 		while (it.hasNext()) {
 			if (string.equalsIgnoreCase(it.next())) {
 				return (double) index;
@@ -222,16 +170,12 @@ public class Parameter implements Serializable {
 		}
 
 		// String not found, add it to discrete levels
-		logger.info("getDoubleValueOf: string " + string + " not found, adding it to tree set ");
 		this.discreteLevels.add(string);
 		index = 0;
 		it = discreteLevels.iterator();
-		logger.info("getDoubleValueOf: re-checking index of string " + string);
 		while (it.hasNext()) {
 			String next = it.next();
-			logger.info("getDoubleValueOf: comparing string " + string + " to string " + next);
 			if (string.equalsIgnoreCase(next)) {
-				logger.info("getDoubleValueOf: match found, returning index " + index);
 				return (double) index;
 			}
 			index++;
@@ -250,20 +194,20 @@ public class Parameter implements Serializable {
 	 */
 	public String getStringValueOf(double value) {
 		if (this.numeric) {
-			logger.info("getStringValueOf: Parameter " + this.name + " is numeric. Returning " + (Double.toString(value)));
+			//			logger.info("getStringValueOf: Parameter " + this.name + " is numeric. Returning " + (Double.toString(value)));
 			return Double.toString(value);
 		} else {
-			logger.info("getStringValueOf: Parameter " + this.name + " is not numeric. ");
-			logger.info("value = " + value);
+			//			logger.info("getStringValueOf: Parameter " + this.name + " is not numeric. ");
+			//			logger.info("value = " + value);
 			int index = (int) value;
-			logger.info("getStringValueOf: index is " + index);
+			//			logger.info("getStringValueOf: index is " + index);
 			int currentIndex = 0;
 			Iterator<String> it = discreteLevels.iterator();
 			while (it.hasNext()) {
-				logger.info("getStringValueOf: checking currentIndex " + currentIndex + " against index " + index);
+				//logger.info("getStringValueOf: checking currentIndex " + currentIndex + " against index " + index);
 				String next = it.next();
 				if (currentIndex == index) {
-					logger.info("getStringValueOf: check positive. Returning string " + next);
+					//					logger.info("getStringValueOf: check positive. Returning string " + next);
 					return next;
 				}
 				currentIndex++;

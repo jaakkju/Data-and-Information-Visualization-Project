@@ -75,7 +75,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart chart, DataSheet dataSheet) {
 		super(dataSheet, chart);
 		this.chart = chart;
-		logger.info("constructor called");
+
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
@@ -94,7 +94,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			this.drawAxes(g);
 		} else {
 			g.drawImage(this.bufferedImage, 0, 0, this);
-			logger.info("paintComponent: drawing dragged axis ");
 			g.setColor(new Color(100, 100, 100));
 			int yPosition = chart.getAxisTopPos();
 			int xPosition = this.dragCurrentX;
@@ -110,7 +109,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @param g the graphics object
 	 */
 	public void drawDesigns(Graphics g) {
-		logger.info("drawDesigns called");
 		ParallelCoordinatesChart chart = ((ParallelCoordinatesChart) this.getChart());
 		int axisTopPos = chart.getAxisTopPos();
 		int designLabelFontSize = chart.getDesignLabelFontSize();
@@ -455,15 +453,16 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				this.dragOffsetY = lf.getYPos() - dragStartY;
 			}
 		}
-		if (this.draggedFilter == null && e.getButton() == 1) {
-			try {
-				this.storeBufferedImage();
-				this.draggedAxis = this.getAxisAtLocation(dragStartX);
-				logger.info("mousePressed: Drag started, dragged axis : " + this.draggedAxis.getName());
-			} catch (NoAxisFoundException e1) {
-				e1.printStackTrace();
-			}
-		}
+		// TODO DRAG AXIS		
+		//		if (this.draggedFilter == null && e.getButton() == 1) {
+		//			try {
+		//				this.storeBufferedImage();
+		//				this.draggedAxis = this.getAxisAtLocation(dragStartX);
+		//				logger.info("mousePressed: Drag started, dragged axis : " + this.draggedAxis.getName());
+		//			} catch (NoAxisFoundException e1) {
+		//				e1.printStackTrace();
+		//			}
+		//		}
 	}
 
 	/*
@@ -515,8 +514,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			// try to make the filter follow the drag operation, but always keep it within axis boundaries and opposite filter
 			this.draggedFilter.setYPos(Math.max(Math.min(e.getY() + this.dragOffsetY, this.draggedFilter.getLowestPos()),
 			      this.draggedFilter.getHighestPos()));
-			logger.info("ChartPanel: Dragging filter on axis " + this.draggedFilter.getAxis().getName());
-			logger.info("ChartPanel: Related parameter name is " + this.draggedFilter.getAxis().getParameter().getName());
 			repaint();
 		} else if (this.draggedAxis != null) {
 			this.dragCurrentX = e.getX();

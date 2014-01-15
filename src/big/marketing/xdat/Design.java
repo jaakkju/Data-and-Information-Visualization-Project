@@ -21,7 +21,6 @@
 package big.marketing.xdat;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
@@ -82,29 +81,13 @@ public class Design implements Serializable {
 		this.id = id;
 	}
 
-	/**
-	 * Sets the value for a given parameter.
-	 * @param param the parameter for which the value should be set
-	 * @param parameterValue the parameter value
-	 */
-	public void setValue(Parameter param, String parameterValue) {
-		try {
-			this.numericalParameterValues.put(param, NumberParser.parseNumber(parameterValue));
-			param.setAtLeastOneNumeric(true);
-			if (this.stringParameterValues.containsKey(param)) {
-				this.stringParameterValues.remove(param);
-			}
+	public void setStringValue(Parameter param, String value) {
+		stringParameterValues.put(param, value);
+	}
 
-		} catch (ParseException e1) {
-			logger.info("setValue: parameterValue " + parameterValue + " was not recogized as numeric. Parameter " + param.getName()
-			      + " set to non-numeric.");
-			param.setNumeric(false);
-			this.stringParameterValues.put(param, parameterValue);
-			if (this.numericalParameterValues.containsKey(param)) {
-				this.numericalParameterValues.remove(param);
-			}
-		}
-
+	public void setNumValue(Parameter param, float value) {
+		param.setAtLeastOneNumeric(true);
+		this.numericalParameterValues.put(param, value);
 	}
 
 	/**
@@ -192,7 +175,7 @@ public class Design implements Serializable {
 	 * @param active the active
 	 */
 	public void setActive(Filter filter, boolean active) {
-		logger.info("setting activation of filter to " + active);
+		//		logger.info("setting activation of filter to " + active);
 		this.activationMap.put(filter, active);
 	}
 

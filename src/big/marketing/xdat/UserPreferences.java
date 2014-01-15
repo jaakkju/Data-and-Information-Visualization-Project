@@ -67,7 +67,6 @@ public class UserPreferences {
 	 * Instantiates a new user preferences object.
 	 */
 	public UserPreferences(String versionString) {
-		logger.info("Loading Xdat Preferences");
 		this.prefs = Preferences.userNodeForPackage(getClass());
 		this.versionString = versionString;
 	}

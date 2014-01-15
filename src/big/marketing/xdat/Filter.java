@@ -310,7 +310,6 @@ public class Filter implements Serializable {
 			this.setValue(this.axis.getMax());
 		} else if (this.filterType == UPPER_FILTER) {
 			double value = this.axis.getMax();
-			logger.info("reset: maxValue = " + value);
 			this.setValue(value);
 		} else if (this.filterType == LOWER_FILTER && this.axis.isAxisInverted()) {
 			this.setValue(this.axis.getMax());
