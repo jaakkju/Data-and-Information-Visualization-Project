@@ -307,6 +307,8 @@ public class MongoController implements Runnable {
 	}
 
 	public IntervalXYDataset getHistogram(DataType t, String xField, String yField, String operator) {
+
+		logger.info("Fetching slider background data");
 		// Query
 		DBCollection c = getCollection(t);
 		BasicDBObject groupFields = new BasicDBObject("_id", "$" + xField);
@@ -321,6 +323,7 @@ public class MongoController implements Runnable {
 			int y = (Integer) dbo.get("y");
 			series.add((long) x * 1000L, y);
 		}
+		logger.info("Fetched slider backgroud data");
 		return new XYSeriesCollection(series);
 	}
 
