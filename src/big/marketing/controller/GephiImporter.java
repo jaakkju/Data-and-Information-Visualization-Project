@@ -44,7 +44,8 @@ public class GephiImporter implements SpigotImporter {
 			if (src == null) {
 				src = fact.newNodeDraft();
 				String hostName = ipHostMap.get(message.getSourceIP());
-				src.setLabel(hostName == null ? "extern" : hostName);
+				String label = hostName == null ? "extern" : hostName;
+				src.setLabel(label.substring(0, 1));
 				nodes.put(message.getSourceIP(), src);
 				loader.addNode(src);
 			}
@@ -53,7 +54,8 @@ public class GephiImporter implements SpigotImporter {
 			if (dst == null) {
 				dst = fact.newNodeDraft();
 				String hostName = ipHostMap.get(message.getDestinationIP());
-				dst.setLabel(hostName == null ? "extern" : hostName);
+				String label = hostName == null ? "extern" : hostName;
+				dst.setLabel(label.substring(0, 1));
 				nodes.put(message.getDestinationIP(), dst);
 				loader.addNode(dst);
 			}
