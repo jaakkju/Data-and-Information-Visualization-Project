@@ -103,7 +103,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
 		      false, false, false);
 		chartPanel.setLayout(new BorderLayout());
-		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN);
+		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN + 1);
 		qWindowSlider.setOpaque(false);
 		qWindowSlider.setUI(new QuerySliderUI(qWindowSlider));
 
