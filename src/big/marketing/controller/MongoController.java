@@ -269,22 +269,16 @@ public class MongoController implements Runnable {
 		return database;
 	}
 
-	public List<Node> getNetwork() {
+	public Map<String, Node> getNetwork() {
 		List<Node> result = new ArrayList<Node>();
+		Map<String, Node> ipNodeMap = new HashMap<String, Node>();
 		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
 		for (DBObject obj : names.find()) {
-			result.add((Node) convert(DataType.DESCRIPTION, obj));
+			Node n = (Node) convert(DataType.DESCRIPTION, obj);
+			result.add(n);
+			ipNodeMap.put(n.getAddress(), n);
 		}
-		return result;
-	}
-
-	public Map<String, String> getHostIPMap() {
-		Map<String, String> mapping = new HashMap<String, String>();
-		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
-		for (DBObject obj : names.find()) {
-			mapping.put((String) obj.get("address"), (String) obj.get("hostName"));
-		}
-		return mapping;
+		return ipNodeMap;
 	}
 
 	public void storeEntry(DataType t, DBObject object) {
@@ -343,7 +337,6 @@ public class MongoController implements Runnable {
 		// Query fetches collection t
 		DBCollection c = getCollection(t);
 		AggregationOutput ao = c.aggregate(groupOp);
-
 		TimeSeries timeserie = new TimeSeries(cName);
 
 		HashMap<Integer, Integer> valueMap = new HashMap<Integer, Integer>();

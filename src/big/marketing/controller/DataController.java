@@ -2,6 +2,7 @@ package big.marketing.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 
 import org.apache.log4j.Logger;
@@ -25,7 +26,7 @@ public class DataController extends Observable implements Runnable {
 
 	// currentQueryWindow stores the data returned from mongo
 	private List<Node> network;
-
+	private Map<String, Node> ipMap;
 	private Node[] highlightedNodes = null;
 	private Node[] selectedNodes = null;
 
@@ -44,7 +45,8 @@ public class DataController extends Observable implements Runnable {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController(this);
-		network = mc.getNetwork();
+		ipMap = mc.getNetwork();
+		network = new ArrayList<>(ipMap.values());
 		if (network.isEmpty()) {
 			logger.warn("Loading Nodes from database failed!");
 		}

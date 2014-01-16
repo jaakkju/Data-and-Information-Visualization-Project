@@ -20,6 +20,7 @@ import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
 import big.marketing.data.FlowMessage;
+import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
 
@@ -32,12 +33,12 @@ public class GephiController extends Observable {
 
 	private DataController dc;
 	private Workspace workspace;
-	private Map<String, String> ipHostMap;
+	private Map<String, Node> ipMap;
 
 	public GephiController(DataController dc) {
 		projectController = Lookup.getDefault().lookup(ProjectController.class);
 		this.dc = dc;
-		ipHostMap = dc.getMongoController().getHostIPMap();
+		ipMap = dc.getMongoController().getNetwork();
 		// load an emtpy graph for initializing the RenderTarget and Applet(in GraphPanel)
 		loadEmptyContainer();
 
@@ -100,7 +101,7 @@ public class GephiController extends Observable {
 
 		// import to container
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
-		GephiImporter gImporter = new GephiImporter(newDataset, ipHostMap);
+		GephiImporter gImporter = new GephiImporter(newDataset, ipMap);
 		ContainerLoader loader = container.getLoader();
 		gImporter.execute(loader);
 
