@@ -324,7 +324,7 @@ public class MongoController implements Runnable {
 			tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
 			return tSeriesCollection;
 
-		case HEALTH:
+		case IPS:
 			BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$" + "time");
 			groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
 			DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
