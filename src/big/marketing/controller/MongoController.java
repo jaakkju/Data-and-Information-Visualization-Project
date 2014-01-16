@@ -318,24 +318,39 @@ public class MongoController implements Runnable {
 		}
 	}
 
-	public TimeSeriesCollection getHistogram(DataType t, String xField, String yField, String operator) {
+	public TimeSeriesCollection getHistogramTCollection() {
+		TimeSeriesCollection tSeriesCollection = new TimeSeriesCollection();
 
-		logger.info("Fetching slider background data");
-		// Query
+		// Creating grouping object for FLOW
+		BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$" + "time");
+		groupFieldsFlow.append("y", new BasicDBObject("$sum", "$" + "packetCount"));
+		DBObject groupOpFlow = new BasicDBObject("$group", groupFieldsFlow);
+
+		tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
+
+		BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$" + "time");
+		groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
+		DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
+
+		tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpIPS, "_id", "y", DataType.FLOW.toString(), true));
+
+		return tSeriesCollection;
+	}
+
+	public TimeSeries getTimeSerie(DataType t, DBObject groupOp, String groupNameX, String groupNameY, String cName, Boolean useMovingAverage) {
+		long begin = new Date().getTime();
+
+		// Query fetches collection t
 		DBCollection c = getCollection(t);
-		BasicDBObject groupFields = new BasicDBObject("_id", "$" + xField);
-		groupFields.append("y", new BasicDBObject(operator, "$" + yField));
-		DBObject groupOp = new BasicDBObject("$group", groupFields);
 		AggregationOutput ao = c.aggregate(groupOp);
 
-		// collect data
-		TimeSeries ts = new TimeSeries("");
+		TimeSeries timeserie = new TimeSeries(cName);
 
 		HashMap<Integer, Integer> valueMap = new HashMap<Integer, Integer>();
 		List<Integer> xVals = new ArrayList<Integer>();
 		for (DBObject dbo : ao.results()) {
-			int x = (Integer) dbo.get("_id");
-			int y = (Integer) dbo.get("y");
+			int x = (Integer) dbo.get(groupNameX);
+			int y = (Integer) dbo.get(groupNameY);
 			xVals.add(x);
 			valueMap.put(x, y);
 		}
@@ -343,13 +358,16 @@ public class MongoController implements Runnable {
 		int min = Collections.min(xVals);
 		int max = Collections.max(xVals);
 		for (int i = min; i <= max; i += 60) {
-			ts.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
+			timeserie.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
 		}
-		logger.info("Fetched slider backgroud data");
-		ts = MovingAverage.createMovingAverage(ts, "", 50, 100);
-		TimeSeriesCollection tseries = new TimeSeriesCollection(ts);
-		return tseries;
 
+		if (useMovingAverage) {
+			timeserie = MovingAverage.createMovingAverage(timeserie, "", 50, 100);
+		}
+
+		logger.info("Fetched slider backgroud data, DataType:" + t.toString() + ", query took " + (new Date().getTime() - begin));
+
+		return timeserie;
 	}
 
 	private class CollectionHandler {

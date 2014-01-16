@@ -197,7 +197,6 @@ public class DataSheet {
 
 	/**
 	 * Gets the design count.
-	 * 
 	 * @return the design count
 	 */
 	public int getDesignCount() {
@@ -206,7 +205,6 @@ public class DataSheet {
 
 	/**
 	 * Gets the cluster set.
-	 * 
 	 * @return the cluster set
 	 */
 	public ClusterSet getClusterSet() {
@@ -215,7 +213,6 @@ public class DataSheet {
 
 	/**
 	 * Sets the cluster set.
-	 * 
 	 * @param clusterSet the new cluster set
 	 */
 	public void setClusterSet(ClusterSet clusterSet) {

@@ -21,6 +21,8 @@ public class HealthMessage implements DBWritable {
 		OK, NOK;
 	}
 
+	private String ADMIN = "Administrator";
+
 	public static final int STATUS_GOOD = 1, STATUS_WARNING = 2, STATUS_PROBLEM = 3;
 	public static final int CONN_OK = 1, CONN_NOK = 0;
 
@@ -163,6 +165,10 @@ public class HealthMessage implements DBWritable {
 
 	public String connMadeToString() {
 		return connMade > 0 ? "OK" : "NOK";
+	}
+
+	public boolean fromAdministrator() {
+		return hostname.contains(ADMIN);
 	}
 
 	public DBObject asDBObject() {
