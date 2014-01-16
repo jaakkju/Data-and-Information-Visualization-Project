@@ -53,7 +53,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
 
-	public ControlsJPanel(final DataController controller, IntervalXYDataset sliderBackgroundData) {
+	public ControlsJPanel(final DataController controller) {
 		loadSettings();
 		this.controller = controller;
 		this.setLayout(new BorderLayout());
@@ -100,8 +100,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		workstationBox.addActionListener(selectionListener);
 		buttonPanel.add(workstationBox);
 
-		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
-		      false, false, false);
+		//		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
+		//		      false, false, false);
 		chartPanel.setLayout(new BorderLayout());
 		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN + 1);
 		qWindowSlider.setOpaque(false);
