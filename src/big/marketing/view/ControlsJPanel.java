@@ -151,14 +151,14 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	public JFreeChart showChart(IntervalXYDataset dataset) {
 
-		JFreeChart chart = ChartFactory.createHistogram("", "", "", dataset, PlotOrientation.VERTICAL, false, false, false);
+		JFreeChart chart = ChartFactory.createHistogram("", "", "", dataset, PlotOrientation.VERTICAL, true, false, false);
 
 		chart.setBackgroundPaint(Color.white);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setBackgroundPaint(Color.lightGray);
 		plot.setDomainGridlinesVisible(false);
 		plot.setRangeGridlinesVisible(false);
-		plot.setRangeAxis(new LogarithmicAxis("123"));
+		plot.setRangeAxis(new LogarithmicAxis("packetCount"));
 
 		NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
 		rangeAxis.setVisible(false);
