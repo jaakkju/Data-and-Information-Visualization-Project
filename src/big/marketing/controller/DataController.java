@@ -109,7 +109,7 @@ public class DataController extends Observable implements Runnable {
 		currentQueryWindow.setFlow(mc.getConstrainedEntries(DataType.FLOW, "time", start, end));
 		currentQueryWindow.setIps(mc.getConstrainedEntries(DataType.IPS, "time", start, end));
 
-		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 1, time + 1));
+		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 60, time + 60));
 
 		gc.load(currentQueryWindow);
 
