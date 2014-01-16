@@ -16,6 +16,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.jfree.data.time.Minute;
+import org.jfree.data.time.MovingAverage;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
@@ -336,6 +337,7 @@ public class MongoController implements Runnable {
 			ts.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
 		}
 		logger.info("Fetched slider backgroud data");
+		ts = MovingAverage.createMovingAverage(ts, "", 50, 100);
 		TimeSeriesCollection tseries = new TimeSeriesCollection(ts);
 		return tseries;
 
