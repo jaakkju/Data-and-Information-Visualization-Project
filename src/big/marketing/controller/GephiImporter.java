@@ -9,21 +9,22 @@ import org.gephi.io.importer.api.NodeDraft;
 import org.gephi.io.importer.api.Report;
 import org.gephi.io.importer.spi.SpigotImporter;
 
-import big.marketing.data.QueryWindowData;
 import big.marketing.data.FlowMessage;
+import big.marketing.data.Node;
+import big.marketing.data.QueryWindowData;
 
 public class GephiImporter implements SpigotImporter {
 
 	private ContainerLoader container;
 	private Report report;
 	private QueryWindowData data;
-	private Map<String, String> ipHostMap;
+	private Map<String, Node> ipMap;
 	Map<String, NodeDraft> nodes;
 
-	public GephiImporter(QueryWindowData dataset, Map<String, String> ipHostMap) {
+	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap) {
 		this.data = dataset;
 		nodes = new HashMap<String, NodeDraft>();
-		this.ipHostMap = ipHostMap;
+		this.ipMap = ipMap;
 	}
 
 	/**
@@ -43,8 +44,10 @@ public class GephiImporter implements SpigotImporter {
 			NodeDraft src = nodes.get(message.getSourceIP());
 			if (src == null) {
 				src = fact.newNodeDraft();
-				String hostName = ipHostMap.get(message.getSourceIP());
-				String label = hostName == null ? "extern" : hostName;
+				Node networkNode = ipMap.get(message.getSourceIP());
+				String label = "extern";
+				if (networkNode != null)
+					label = networkNode.getHostName();
 				src.setLabel(label.substring(0, 1));
 				nodes.put(message.getSourceIP(), src);
 				loader.addNode(src);
@@ -53,8 +56,10 @@ public class GephiImporter implements SpigotImporter {
 			NodeDraft dst = nodes.get(message.getDestinationIP());
 			if (dst == null) {
 				dst = fact.newNodeDraft();
-				String hostName = ipHostMap.get(message.getDestinationIP());
-				String label = hostName == null ? "extern" : hostName;
+				Node networkNode = ipMap.get(message.getDestinationIP());
+				String label = "extern";
+				if (networkNode != null)
+					label = networkNode.getHostName();
 				dst.setLabel(label.substring(0, 1));
 				nodes.put(message.getDestinationIP(), dst);
 				loader.addNode(dst);
