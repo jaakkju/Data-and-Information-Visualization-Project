@@ -68,7 +68,7 @@ public class DataController extends Observable implements Runnable {
 			logger.info("Waiting for current query to finish, then stopping playing");
 		} else {
 			// no player yet or playing finished
-			player = new Player(this, startTime, stepSize, 100);
+			player = new Player(this, startTime, stepSize, 1000);
 			player.startPlaying();
 			logger.info("Started playing at " + startTime + " with stepSize " + stepSize);
 		}
