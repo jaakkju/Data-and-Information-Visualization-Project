@@ -34,13 +34,15 @@ import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.general.Dataset;
+import org.jfree.chart.renderer.xy.XYAreaRenderer;
+import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.RectangleInsets;
 
 import big.marketing.Settings;
 import big.marketing.controller.DataController;
+import big.marketing.data.DataType;
 
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
@@ -52,8 +54,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JLabel currentTimeLabel;
 	private JSpinner playSpeedSpinner;
 	private JCheckBox adminBox, serverBox, workstationBox;
-	private JComboBox<String> typeCombo;
-	private Map<String, Dataset> datasetCache;
+	private JComboBox<DataType> typeCombo;
+	private Map<DataType, XYDataset> datasetCache;
 
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
@@ -63,7 +65,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		loadSettings();
 		this.controller = controller;
 		this.setLayout(new BorderLayout());
-		datasetCache = new HashMap<String, Dataset>();
+		datasetCache = new HashMap<DataType, XYDataset>();
 		playPauseButton = new JButton("Play");
 		playPauseButton.addActionListener(new ActionListener() {
 
@@ -106,12 +108,29 @@ public class ControlsJPanel extends JPanel implements Observer {
 		workstationBox.addActionListener(selectionListener);
 		buttonPanel.add(workstationBox);
 
-		typeCombo = new JComboBox<String>(new String[] { "FLOW", "IPS" });
+		typeCombo = new JComboBox<DataType>(DataType.values());
 		typeCombo.setEditable(false);
+		typeCombo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JComboBox<DataType> source = (JComboBox<DataType>) arg0.getSource();
+				DataType type = (DataType) source.getSelectedItem();
+				XYDataset entry = datasetCache.get(type);
+				if (entry == null) {
+					entry = controller.getMongoController().getHistogramTCollection(type);
+					datasetCache.put(type, entry);
+				}
+				XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+				plot.setDataset(entry);
+			}
+		});
 		buttonPanel.add(typeCombo);
 
-		//		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
-		//		      false, false, false);
+		TimeSeriesCollection data = controller.getMongoController().getHistogramTCollection(DataType.FLOW);
+		datasetCache.put(DataType.FLOW, data);
+		chartPanel = new ChartPanel(showChart(data), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false, false, false,
+		      false);
 		chartPanel.setLayout(new BorderLayout());
 		qWindowSlider = new JSlider(JSlider.HORIZONTAL, QW_MIN, QW_MAX, QW_MIN + 1);
 		qWindowSlider.setOpaque(false);
@@ -179,7 +198,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		dAxis.setRange((long) ControlsJPanel.QW_MIN * 1000L, (long) ControlsJPanel.QW_MAX * 1000L);
 		plot.setDomainAxis(dAxis);
 		//		domainAxis.setVisible(false);
-		plot.setRenderer(new XYLineAndShapeRenderer());
+		plot.setRenderer(new XYAreaRenderer());
 		//		int length = (int) (qWindowSlider.getWidth() * DataController.QUERYWINDOW_SIZE / (QW_MAX - QW_MIN));
 		//		plot.setAxisOffset(new RectangleInsets(0, length / 4, 0, length / 4));
 		plot.setAxisOffset(new RectangleInsets(0, 0, 0, 0));
