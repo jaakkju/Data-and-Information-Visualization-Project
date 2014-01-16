@@ -10,6 +10,9 @@ import com.mongodb.DBObject;
  */
 public class HealthMessage implements DBWritable {
 
+	public static String[] FIELDS = { "Hostname", "statusVal", "DiskUsage", "PageFileUsage", "NumProcs", "LoadAverage",
+	      "PhysicalMemoryUsage", "ConnMade" };
+
 	public enum STATUS {
 		GOOD, WARNING, PROBLEM;
 	}

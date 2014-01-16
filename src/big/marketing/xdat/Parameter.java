@@ -63,10 +63,9 @@ public class Parameter {
 	 * Instantiates a new parameter.
 	 * @param name the parameter name
 	 */
-	public Parameter(String name, DataSheet dataSheet, Boolean numeric) {
+	public Parameter(String name, DataSheet dataSheet) {
 		this.name = name;
 		this.dataSheet = dataSheet;
-		this.numeric = numeric;
 	}
 
 	/**

@@ -86,7 +86,6 @@ public class Design implements Serializable {
 	}
 
 	public void setNumValue(Parameter param, float value) {
-		param.setAtLeastOneNumeric(true);
 		this.numericalParameterValues.put(param, value);
 	}
 

@@ -27,6 +27,8 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
@@ -34,7 +36,7 @@ import org.apache.log4j.Logger;
 /**
  * Panel that is used to display a {@link chart.ParallelCoordinatesChart}.
  */
-public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener {
+public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
 	static Logger logger = Logger.getLogger(ParallelCoordinatesChartPanel.class);
 
 	/** The version tracking unique identifier for Serialization. */
@@ -76,7 +78,9 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		// TODO		this.addMouseWheelListener(this);
+
+		paint(getGraphics());
+		this.addMouseWheelListener(this);
 	}
 
 	/**
@@ -518,34 +522,32 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		//		}
 	}
 
-	// TODO MOUSE WHEEL ACTION
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		int modifier = e.getModifiers();
+		if (modifier == 0) {
+			this.parallelCoordinatesChart.incrementAxisWidth(-e.getUnitsToScroll());
+		} else if (modifier == 2) {
+			int x = e.getX();
+			try {
+				Axis axis = this.getAxisAtLocation(x);
+				logger.info("Wheeled on axis " + axis.getName());
+				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
+			} catch (NoAxisFoundException e1) {
+			}
+		}
 
-	//	@Override
-	//	public void mouseWheelMoved(MouseWheelEvent e) {
-	//		int modifier = e.getModifiers();
-	//		if (modifier == 0) {
-	//			this.chart.incrementAxisWidth(-e.getUnitsToScroll());
-	//		} else if (modifier == 2) {
-	//			int x = e.getX();
-	//			try {
-	//				Axis axis = this.getAxisAtLocation(x);
-	//				logger.info("Wheeled on axis " + axis.getName());
-	//				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
-	//			} catch (NoAxisFoundException e1) {
-	//			}
-	//		}
-	//
-	//		else if (modifier == 8) {
-	//			int x = e.getX();
-	//			try {
-	//				Axis axis = this.getAxisAtLocation(x);
-	//				logger.info("wheeled on axis " + axis.getName());
-	//				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
-	//			} catch (NoAxisFoundException e1) {
-	//			}
-	//		}
-	//		this.repaint();
-	//	}
+		else if (modifier == 8) {
+			int x = e.getX();
+			try {
+				Axis axis = this.getAxisAtLocation(x);
+				logger.info("wheeled on axis " + axis.getName());
+				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
+			} catch (NoAxisFoundException e1) {
+			}
+		}
+		this.repaint();
+	}
 
 	/**
 	 * Writes the current chart state to the temporary buffered image.
