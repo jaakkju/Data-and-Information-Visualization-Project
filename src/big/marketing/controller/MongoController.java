@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +15,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
-import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.data.time.Minute;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
 
 import big.marketing.Application;
 import big.marketing.Settings;
@@ -306,7 +308,7 @@ public class MongoController implements Runnable {
 		}
 	}
 
-	public IntervalXYDataset getHistogram(DataType t, String xField, String yField, String operator) {
+	public TimeSeriesCollection getHistogram(DataType t, String xField, String yField, String operator) {
 
 		logger.info("Fetching slider background data");
 		// Query
@@ -317,14 +319,26 @@ public class MongoController implements Runnable {
 		AggregationOutput ao = c.aggregate(groupOp);
 
 		// collect data
-		XYSeries series = new XYSeries("");
+		TimeSeries ts = new TimeSeries("");
+
+		HashMap<Integer, Integer> valueMap = new HashMap<Integer, Integer>();
+		List<Integer> xVals = new ArrayList<Integer>();
 		for (DBObject dbo : ao.results()) {
 			int x = (Integer) dbo.get("_id");
 			int y = (Integer) dbo.get("y");
-			series.add((long) x * 1000L, y);
+			xVals.add(x);
+			valueMap.put(x, y);
+		}
+
+		int min = Collections.min(xVals);
+		int max = Collections.max(xVals);
+		for (int i = min; i <= max; i += 60) {
+			ts.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
 		}
 		logger.info("Fetched slider backgroud data");
-		return new XYSeriesCollection(series);
+		TimeSeriesCollection tseries = new TimeSeriesCollection(ts);
+		return tseries;
+
 	}
 
 	private class CollectionHandler {
