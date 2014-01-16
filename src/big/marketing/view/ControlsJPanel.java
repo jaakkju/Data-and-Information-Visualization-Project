@@ -8,12 +8,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -31,7 +34,8 @@ import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYAreaRenderer;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.ui.RectangleInsets;
 
@@ -48,6 +52,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JLabel currentTimeLabel;
 	private JSpinner playSpeedSpinner;
 	private JCheckBox adminBox, serverBox, workstationBox;
+	private JComboBox<String> typeCombo;
+	private Map<String, Dataset> datasetCache;
 
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
@@ -57,7 +63,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		loadSettings();
 		this.controller = controller;
 		this.setLayout(new BorderLayout());
-
+		datasetCache = new HashMap<String, Dataset>();
 		playPauseButton = new JButton("Play");
 		playPauseButton.addActionListener(new ActionListener() {
 
@@ -99,6 +105,10 @@ public class ControlsJPanel extends JPanel implements Observer {
 		workstationBox = new JCheckBox("Workstations");
 		workstationBox.addActionListener(selectionListener);
 		buttonPanel.add(workstationBox);
+
+		typeCombo = new JComboBox<String>(new String[] { "FLOW", "IPS" });
+		typeCombo.setEditable(false);
+		buttonPanel.add(typeCombo);
 
 		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
 		      false, false, false);
@@ -169,7 +179,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		dAxis.setRange((long) ControlsJPanel.QW_MIN * 1000L, (long) ControlsJPanel.QW_MAX * 1000L);
 		plot.setDomainAxis(dAxis);
 		//		domainAxis.setVisible(false);
-		plot.setRenderer(new XYAreaRenderer());
+		plot.setRenderer(new XYLineAndShapeRenderer());
 		//		int length = (int) (qWindowSlider.getWidth() * DataController.QUERYWINDOW_SIZE / (QW_MAX - QW_MIN));
 		//		plot.setAxisOffset(new RectangleInsets(0, length / 4, 0, length / 4));
 		plot.setAxisOffset(new RectangleInsets(0, 0, 0, 0));
