@@ -25,6 +25,7 @@ public class DataController extends Observable implements Runnable {
 	public static int QUERYWINDOW_SIZE = 3600;
 
 	// currentQueryWindow stores the data returned from mongo
+	private QueryWindowData currentQueryWindow;
 	private List<Node> network;
 	private Map<String, Node> ipMap;
 	private Node[] highlightedNodes = null;
@@ -123,7 +124,7 @@ public class DataController extends Observable implements Runnable {
 	public boolean moveQueryWindow(int time) {
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
-		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
+		currentQueryWindow = new QueryWindowData(null, null, null, network);
 		currentQueryWindow.setFlow(mc.getConstrainedEntries(DataType.FLOW, "time", start, end));
 		currentQueryWindow.setIps(mc.getConstrainedEntries(DataType.IPS, "time", start, end));
 
@@ -137,11 +138,9 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(currentQueryWindow);
-		boolean returnValue = !currentQueryWindow.isEmpty();
-		currentQueryWindow = null;
 		System.gc();
 
-		return returnValue;
+		return !currentQueryWindow.isEmpty();
 	}
 
 	/**
@@ -154,7 +153,6 @@ public class DataController extends Observable implements Runnable {
 		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
-		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
 		List<Object> newEntries = mc.getConstrainedEntries(t, "time", start, end);
 		switch (t) {
 		case FLOW:
