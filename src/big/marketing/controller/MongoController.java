@@ -326,7 +326,7 @@ public class MongoController implements Runnable {
 		groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
 		DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
 
-		tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpIPS, "_id", "y", DataType.FLOW.toString(), true));
+		tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), true));
 
 		return tSeriesCollection;
 	}
