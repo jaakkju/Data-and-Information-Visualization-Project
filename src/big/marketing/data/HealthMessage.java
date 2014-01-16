@@ -5,12 +5,11 @@ import com.mongodb.DBObject;
 
 /**
  * Class stores the information from a single network health message from a node
- * 
  * @author jaakkju
  */
 public class HealthMessage implements DBWritable {
 
-	public static String[] FIELDS = { "Hostname", "statusVal", "DiskUsage", "PageFileUsage", "NumProcs", "LoadAverage",
+	public static String[] FIELDS = { "Hostname", "StatusVal", "DiskUsage", "PageFileUsage", "NumProcs", "LoadAverage",
 	      "PhysicalMemoryUsage", "ConnMade" };
 
 	public enum STATUS {

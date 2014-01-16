@@ -20,7 +20,6 @@
 
 package big.marketing.xdat;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
@@ -79,18 +78,6 @@ public abstract class ChartPanel extends JPanel {
 	public void drawPlotFieldBackground(Graphics g) {
 		g.setColor(this.chart.getBackGroundColor());
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see javax.swing.JComponent#getPreferredSize()
-	 */
-	public Dimension getPreferredSize() {
-		int width = marginLeft + marginRight + chart.getWidth();
-		int height = marginTop + marginBottom + chart.getHeight();
-		Dimension preferredSize = new Dimension(width, height);
-
-		return preferredSize;
 	}
 
 	/**

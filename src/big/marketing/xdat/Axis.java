@@ -49,13 +49,13 @@ public class Axis implements Serializable {
 	 * Specifies whether this Axis is autofitted.
 	 * If true, the {@link #autoFit} method is called before painting the Axis on the Chart.
 	 * */
-	private boolean autoFit;
+	private boolean autoFit = true;
 
 	/** The maximum value of this Axis. */
-	private double max;
+	private double max = 10.0;
 
 	/** The minimum value of this Axis. */
-	private double min;
+	private double min = -10.0;
 
 	/** The data sheet that is displayed with the Chart to which this Axis belongs. */
 	private DataSheet dataSheet;
@@ -67,51 +67,51 @@ public class Axis implements Serializable {
 	 * Determines the distance to the adjacent Axes in pixels.
 	 * The distance to an adjacent Axis is determined by half the sum of both axes widths.
 	 */
-	private int width;
+	private int width = 200;
 
 	/** The number of tics on this Axis. */
-	private int ticCount;
+	private int ticCount = 11;
 
 	/**
 	 * The axis color.
 	 * The Color in which the Axis is displayed on the Chart.
 	 */
-	private Color axisColor;
+	private Color axisColor = Color.BLACK;
 
 	/**
 	 * The axis label font color.
 	 * Each Axis is labeled with the Parameter name on top of the Axis. This field specifies which Color should be used for this label.
 	 * */
-	private Color axisLabelFontColor;
+	private Color axisLabelFontColor = Color.BLACK;
 
 	/**
 	 * The tic label font color.
 	 * Each tic has a label showing the value to which the tic corresponds. This field specifies which Color should be used for this label.
 	 **/
-	private Color ticLabelFontColor;
+	private Color ticLabelFontColor = Color.BLACK;
 
 	/**
 	 * The axis label font size.
 	 * Each Axis is labeled with the Parameter name on top of the Axis. This field specifies which font size should be used for this label.
 	 */
-	private int axisLabelFontSize;
+	private int axisLabelFontSize = 20;
 
 	/**
 	 * The tic label font size.
 	 * Each tic has a label showing the value to which the tic corresponds. This field specifies which font size should be used for this
 	 * label.
 	 */
-	private int ticLabelFontSize;
+	private int ticLabelFontSize = 10;
 
 	/**
 	 * The tic label number format.
 	 * Each tic has a label showing the value to which the tic corresponds. This field specifies which number format should be used for this
 	 * label.
 	 */
-	private String ticLabelFormat;
+	private String ticLabelFormat = "%4.3f";
 
 	/** The tic length in pixels. */
-	private int ticLength;
+	private int ticLength = 4;
 
 	/** Specifies whether the Axis is displayed on the Chart. */
 	private boolean active = true;
@@ -135,14 +135,14 @@ public class Axis implements Serializable {
 	 * 
 	 * @see Filter
 	 * */
-	private boolean filterInverted;
+	private boolean filterInverted = false;
 
 	/**
 	 * Specifies whether the Axis should be displayed upside down.
 	 * If true, values are ascending from top to bottom.
 	 * If false, values are ascending from bottom to top.
 	 */
-	private boolean axisInverted;
+	private boolean axisInverted = false;
 
 	/**
 	 * Instantiates a new Axis.
@@ -155,44 +155,13 @@ public class Axis implements Serializable {
 		this.dataSheet = dataSheet;
 		this.chart = chart;
 		this.parameter = parameter;
-		initialiseSettings();
+
+		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
 
 		if (this.autoFit) {
 			autofit();
-			//			logger.info("Created Axis: " + parameter.getName() + ",  Settings initialized, AutoFit max: " + this.max + " min: " + this.min);
 		} else {
-			//			logger.info("Created Axis: " + parameter.getName() + ", Settings initialized, AutoFit: false");
 		}
-	}
-
-	/**
-	 * Initialise display settings.
-	 */
-	public void initialiseSettings() {
-		UserPreferences userPreferences = new UserPreferences("eyeNet"); // TODO Implement UserPreferences > Main.getUserPreferences();
-		this.width = userPreferences.getParallelCoordinatesAxisWidth();
-		this.ticCount = userPreferences.getParallelCoordinatesAxisTicCount();
-		this.axisColor = userPreferences.getParallelCoordinatesAxisColor();
-		this.axisLabelFontColor = userPreferences.getParallelCoordinatesAxisLabelFontColor();
-		this.ticLabelFontColor = userPreferences.getParallelCoordinatesAxisTicLabelFontColor();
-		this.axisLabelFontSize = userPreferences.getParallelCoordinatesAxisLabelFontSize();
-		this.ticLabelFontSize = userPreferences.getParallelCoordinatesAxisTicLabelFontSize();
-		this.ticLabelFormat = userPreferences.getParallelCoordinatesAxisTicLabelFormat();
-		this.ticLength = userPreferences.getParallelCoordinatesAxisTicLength();
-		this.filterInverted = userPreferences.isFilterInverted();
-		this.axisInverted = userPreferences.isParallelCoordinatesAxisInverted();
-		this.autoFit = userPreferences.isParallelCoordinatesAutoFitAxis();
-		this.min = userPreferences.getParallelCoordinatesAxisDefaultMin();
-		this.max = userPreferences.getParallelCoordinatesAxisDefaultMax();
-		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
-	}
-
-	/**
-	 * Reset display settings to default.
-	 */
-	public void resetSettingsToDefault() {
-		initialiseSettings();
-		autofit();
 	}
 
 	/**

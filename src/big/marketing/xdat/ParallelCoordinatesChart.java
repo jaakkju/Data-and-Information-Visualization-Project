@@ -156,14 +156,6 @@ public class ParallelCoordinatesChart extends Chart {
 	}
 
 	/**
-	 * Gets the title.
-	 * @return the title
-	 */
-	public String getTitle() {
-		return "Parallel Coordinates Chart";
-	}
-
-	/**
 	 * Determines the width of this Chart.
 	 * @return the width of this Chart
 	 */
@@ -203,16 +195,6 @@ public class ParallelCoordinatesChart extends Chart {
 			}
 		}
 		return width;
-	}
-
-	/**
-	 * Sets the axis width.
-	 * @param width the new axis width
-	 */
-	public void setAxisWidth(int width) {
-		for (int i = 0; i < axes.size(); i++) {
-			axes.get(i).setWidth(width);
-		}
 	}
 
 	/**

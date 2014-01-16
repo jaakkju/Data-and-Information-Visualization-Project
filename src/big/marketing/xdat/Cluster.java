@@ -61,9 +61,7 @@ public class Cluster implements Serializable {
 	public Cluster(String name, int uniqueIdentificationNumber) {
 		this.name = name;
 		this.uniqueIdentificationNumber = uniqueIdentificationNumber;
-
-		// TODO Implement User Preferences > Main.getUserPreferences().getParallelCoordinatesActiveDesignDefaultColor();
-		this.activeDesignColor = new UserPreferences("eyeNet").getParallelCoordinatesActiveDesignDefaultColor();
+		this.activeDesignColor = Color.YELLOW;
 	}
 
 	/**

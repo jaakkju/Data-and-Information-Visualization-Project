@@ -53,12 +53,6 @@ public abstract class Chart {
 	}
 
 	/**
-	 * Gets the title.
-	 * @return the title
-	 */
-	public abstract String getTitle();
-
-	/**
 	 * Determines the width of this Chart.
 	 * @return the width of this Chart
 	 */

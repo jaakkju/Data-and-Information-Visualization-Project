@@ -371,41 +371,18 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		throw new NoAxisFoundException(x);
 	}
 
-	// TODO MOVE AXIS ACTION
-	//	/**
-	//	 * Finds the new index when dragging an axis to a given x location.
-	//	 * 
-	//	 * @param x the location
-	//	 * @return the found index
-	//	 */
-	//	private int getNewAxisIndexAtLocation(int x) throws NoAxisFoundException {
-	//		for (int i = 0; i < this.chart.getAxisCount(); i++) {
-	//			Filter uf = this.chart.getAxis(i).getUpperFilter();
-	//			if // check if this axis was meant by the click
-	//			(this.chart.getAxis(i).isActive() && x < uf.getXPos()) {
-	//				logger.info("getNewAxisIndexAtLocation: returning index " + i);
-	//				return i;
-	//			}
-	//		}
-	//		logger.info("getNewAxisIndexAtLocation: returning index " + this.chart.getAxisCount());
-	//		return this.chart.getAxisCount();
-	//	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == 3) {
-			logger.info("mouseClicked: button " + e.getButton());
 			int x = e.getX();
 			int y = e.getY();
 
-			logger.info("mouseClicked: x " + x);
-			logger.info("mouseClicked: y " + y);
 			try {
 				Axis axis = this.getAxisAtLocation(x);
-				logger.info("Clicked on axis " + axis.getName());
+				logger.info("MouseClick event: button 3, clicked on axis " + axis.getName());
 				(new ParallelCoordinatesContextMenu(axis, this)).show(this, x, y);
 			} catch (NoAxisFoundException e1) {
 				e1.printStackTrace();
@@ -451,16 +428,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				this.dragOffsetY = lf.getYPos() - dragStartY;
 			}
 		}
-		// TODO DRAG AXIS	ACTION
-		//		if (this.draggedFilter == null && e.getButton() == 1) {
-		//			try {
-		//				this.storeBufferedImage();
-		//				this.draggedAxis = this.getAxisAtLocation(dragStartX);
-		//				logger.info("mousePressed: Drag started, dragged axis : " + this.draggedAxis.getName());
-		//			} catch (NoAxisFoundException e1) {
-		//				e1.printStackTrace();
-		//			}
-		//		}
 	}
 
 	/*
@@ -468,30 +435,8 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e) {
-		boolean repaintRequired = false;
 		if (this.draggedFilter != null) {
-			repaintRequired = true;
 			this.draggedFilter = null;
-		}
-		//		TODO MOVE AXIS ACTION
-		//		if (this.draggedAxis != null) {
-		//			repaintRequired = true;
-		//			try {
-		//				int newIndex = this.getNewAxisIndexAtLocation(e.getX() - 1); // column index starts at one, param index at 0
-		//				DataSheetTableColumnModel cm = (DataSheetTableColumnModel) this.mainWindow.getDataSheetTablePanel().getDataTable()
-		//				      .getColumnModel();
-		//				int currentIndex = this.mainWindow.getDataSheet().getParameterIndex(this.draggedAxis.getName()) + 1;
-		//				logger.info("mouseReleased: dragged axis " + this.draggedAxis.getName() + " had index " + currentIndex);
-		//				if (newIndex > currentIndex)
-		//					cm.moveColumn(currentIndex, newIndex);
-		//				else if (newIndex < currentIndex)
-		//					cm.moveColumn(currentIndex, newIndex + 1);
-		//			} catch (NoAxisFoundException e1) {
-		//				e1.printStackTrace();
-		//			}
-		//			this.draggedAxis = null;
-		//		}
-		if (repaintRequired) {
 			repaint();
 		}
 	}
@@ -515,11 +460,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			      this.draggedFilter.getHighestPos()));
 			repaint();
 		}
-		// TODO AXIS DRAGGED ACTION
-		//		else if (this.draggedAxis != null) {
-		//			this.dragCurrentX = e.getX();
-		//			this.repaint();
-		//		}
 	}
 
 	@Override
@@ -531,17 +471,13 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			int x = e.getX();
 			try {
 				Axis axis = this.getAxisAtLocation(x);
-				logger.info("Wheeled on axis " + axis.getName());
 				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
 			} catch (NoAxisFoundException e1) {
 			}
-		}
-
-		else if (modifier == 8) {
+		} else if (modifier == 8) {
 			int x = e.getX();
 			try {
 				Axis axis = this.getAxisAtLocation(x);
-				logger.info("wheeled on axis " + axis.getName());
 				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
 			} catch (NoAxisFoundException e1) {
 			}

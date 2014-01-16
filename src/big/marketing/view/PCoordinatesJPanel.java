@@ -7,6 +7,8 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
+
 import big.marketing.controller.DataController;
 import big.marketing.data.HealthMessage;
 import big.marketing.data.QueryWindowData;
@@ -16,8 +18,12 @@ import big.marketing.xdat.ParallelCoordinatesChartPanel;
 
 public class PCoordinatesJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7723958207563842249L;
+	static Logger logger = Logger.getLogger(PCoordinatesJPanel.class);
 
 	private final DataController controller;
+
+	private ParallelCoordinatesChartPanel currentPanel;
+	private boolean init = false;
 
 	public PCoordinatesJPanel(DataController controller) {
 		this.setLayout(new BorderLayout());
@@ -31,11 +37,22 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 			List<HealthMessage> healthMessages = newData.getHealthData();
 
 			// Do refreshing of the parallel coordinates here
-			DataSheet data = new DataSheet(healthMessages);
-			ParallelCoordinatesChart chart = new ParallelCoordinatesChart(data, this.getSize());
-			ParallelCoordinatesChartPanel chartPanel = new ParallelCoordinatesChartPanel(chart, data);
+			DataSheet dataSheet = new DataSheet(healthMessages);
+			ParallelCoordinatesChart chart = new ParallelCoordinatesChart(dataSheet, this.getSize());
 
-			this.add(chartPanel);
+			if (!init) {
+				init = true;
+				logger.info("Added first panel to PCoordinates view, init = true");
+				currentPanel = new ParallelCoordinatesChartPanel(chart, dataSheet);
+				add(currentPanel);
+				revalidate();
+			} else {
+				remove(currentPanel);
+				currentPanel = new ParallelCoordinatesChartPanel(chart, dataSheet);
+				add(currentPanel);
+				revalidate();
+			}
+
 		}
 	}
 }

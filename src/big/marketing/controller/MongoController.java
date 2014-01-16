@@ -317,19 +317,28 @@ public class MongoController implements Runnable {
 
 		switch (t) {
 		case FLOW:
-			BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$" + "time");
-			groupFieldsFlow.append("y", new BasicDBObject("$sum", "$" + "packetCount"));
+			BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$time");
+			groupFieldsFlow.append("y", new BasicDBObject("$sum", "$packetCount"));
 			DBObject groupOpFlow = new BasicDBObject("$group", groupFieldsFlow);
 
 			tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
 			return tSeriesCollection;
 
 		case IPS:
-			BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$" + "time");
+			BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$time");
 			groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
 			DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
 
-			tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), true));
+			tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), false));
+			return tSeriesCollection;
+
+		case HEALTH:
+			//			BasicDBObject groupFieldsHealth = new BasicDBObject("_id", new BasicDBObject("time", "$time").append("status", "$statusVal"));
+			BasicDBObject groupFieldsHealth = new BasicDBObject("_id", "$time");
+			groupFieldsHealth.append("y", new BasicDBObject("$sum", 1));
+			DBObject groupOpIPSHealth = new BasicDBObject("$group", groupFieldsHealth);
+
+			tSeriesCollection.addSeries(getTimeSerie(DataType.HEALTH, groupOpIPSHealth, "_id", "y", DataType.HEALTH.toString(), false));
 			return tSeriesCollection;
 
 		default:
@@ -364,7 +373,7 @@ public class MongoController implements Runnable {
 			timeserie = MovingAverage.createMovingAverage(timeserie, "", 50, 100);
 		}
 
-		logger.info("Fetched slider backgroud data, DataType:" + t.toString() + ", query took " + (new Date().getTime() - begin));
+		logger.info("Fetched slider backgroud data, DataType:" + t.toString() + ", query took " + (new Date().getTime() - begin) + " ms");
 
 		return timeserie;
 	}
