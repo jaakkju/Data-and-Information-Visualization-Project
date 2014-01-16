@@ -15,6 +15,20 @@ public class QuerySliderUI extends BasicSliderUI {
 		super(aSlider);
 	}
 
+	protected void scrollDueToClickInTrack(int direction) {
+		// this is the default behaviour, let's comment that out
+		//scrollByBlock(direction);
+
+		int value = slider.getValue();
+
+		if (slider.getOrientation() == JSlider.HORIZONTAL) {
+			value = this.valueForXPosition(slider.getMousePosition().x);
+		} else if (slider.getOrientation() == JSlider.VERTICAL) {
+			value = this.valueForYPosition(slider.getMousePosition().y);
+		}
+		slider.setValue(value);
+	}
+
 	@Override
 	protected Dimension getThumbSize() {
 		int length = (int) (slider.getWidth() * DataController.QUERYWINDOW_SIZE / (slider.getMaximum() - slider.getMinimum()));
