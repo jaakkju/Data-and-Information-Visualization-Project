@@ -22,9 +22,6 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 
 	private final DataController controller;
 
-	private ParallelCoordinatesChartPanel currentPanel;
-	private boolean init = false;
-
 	public PCoordinatesJPanel(DataController controller) {
 		this.setLayout(new BorderLayout());
 		this.controller = controller;
@@ -37,22 +34,12 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 			List<HealthMessage> healthMessages = newData.getHealthData();
 
 			// Do refreshing of the parallel coordinates here
+			removeAll();
 			DataSheet dataSheet = new DataSheet(healthMessages);
 			ParallelCoordinatesChart chart = new ParallelCoordinatesChart(dataSheet, this.getSize());
-
-			if (!init) {
-				init = true;
-				logger.info("Added first panel to PCoordinates view, init = true");
-				currentPanel = new ParallelCoordinatesChartPanel(chart, dataSheet);
-				add(currentPanel);
-				revalidate();
-			} else {
-				remove(currentPanel);
-				currentPanel = new ParallelCoordinatesChartPanel(chart, dataSheet);
-				add(currentPanel);
-				revalidate();
-			}
-
+			ParallelCoordinatesChartPanel panel = new ParallelCoordinatesChartPanel(chart, dataSheet);
+			add(panel);
+			revalidate();
 		}
 	}
 }

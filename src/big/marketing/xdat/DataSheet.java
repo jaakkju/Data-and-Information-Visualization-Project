@@ -135,7 +135,6 @@ public class DataSheet {
 
 	/**
 	 * Gets the index of the Parameter with the name parameterName.
-	 * 
 	 * @param parameterName the Parameter name
 	 * @return the index
 	 */
