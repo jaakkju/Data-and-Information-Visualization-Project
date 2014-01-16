@@ -102,14 +102,13 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time) {
-		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
 		QueryWindowData currentQueryWindow = new QueryWindowData(null, null, null, network);
 		currentQueryWindow.setFlow(mc.getConstrainedEntries(DataType.FLOW, "time", start, end));
 		currentQueryWindow.setIps(mc.getConstrainedEntries(DataType.IPS, "time", start, end));
 
-		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 1, time + 1));
+		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 60, time + 60));
 
 		gc.load(currentQueryWindow);
 

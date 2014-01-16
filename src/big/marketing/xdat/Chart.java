@@ -22,21 +22,17 @@ package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
 /**
- * A serializable representation of all relevant settings for a chart which is displayed on
+ * A representation of all relevant settings for a chart which is displayed on
  * a ChartFrame.
  * This class should be extended to model actual charts.
  * @see chart.ParallelCoordinatesChart
  */
-public abstract class Chart implements Serializable {
+public abstract class Chart {
 	static Logger logger = Logger.getLogger(Chart.class);
-
-	/** The version tracking unique identifier for Serialization. */
-	static final long serialVersionUID = 1;
 
 	/** The size of this Chart. */
 	private Dimension dimensions;
@@ -103,14 +99,17 @@ public abstract class Chart implements Serializable {
 	public abstract void setBackGroundColor(Color backGroundColor);
 
 	/**
-	 * Reset display settings to default.
+	 * Returns the size of the chart as a Dimension
+	 * @return size
 	 */
-	public abstract void resetDisplaySettingsToDefault();
-
 	public Dimension getDimensions() {
 		return dimensions;
 	}
 
+	/**
+	 * Sets the size of the chart as Dimension
+	 * @param dimensions size
+	 */
 	public void setDimensions(Dimension dimensions) {
 		this.dimensions = dimensions;
 	}

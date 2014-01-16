@@ -10,6 +10,14 @@ import com.mongodb.DBObject;
  */
 public class HealthMessage implements DBWritable {
 
+	public enum STATUS {
+		GOOD, WARNING, PROBLEM;
+	}
+
+	public enum CONN {
+		OK, NOK;
+	}
+
 	public static final int STATUS_GOOD = 1, STATUS_WARNING = 2, STATUS_PROBLEM = 3;
 	public static final int CONN_OK = 1, CONN_NOK = 0;
 
@@ -135,6 +143,23 @@ public class HealthMessage implements DBWritable {
 
 	public int getConnMade() {
 		return connMade;
+	}
+
+	public String statusValToString() {
+		switch (statusVal) {
+		case STATUS_GOOD:
+			return "GOOD";
+		case STATUS_WARNING:
+			return "WARNING";
+		case STATUS_PROBLEM:
+			return "PROBLEM";
+		default:
+			return "EMPTY";
+		}
+	}
+
+	public String connMadeToString() {
+		return connMade > 0 ? "OK" : "NOK";
 	}
 
 	public DBObject asDBObject() {

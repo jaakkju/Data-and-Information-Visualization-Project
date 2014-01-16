@@ -73,12 +73,12 @@ public class DataSheet implements ListModel {
 
 		// TODO Dirty coding
 		this.parameters.add(new Parameter(params[0], this, false));
-		this.parameters.add(new Parameter(params[1], this, true));
 		this.parameters.add(new Parameter(params[2], this, true));
 		this.parameters.add(new Parameter(params[3], this, true));
 		this.parameters.add(new Parameter(params[4], this, true));
 		this.parameters.add(new Parameter(params[5], this, true));
 		this.parameters.add(new Parameter(params[6], this, true));
+		this.parameters.add(new Parameter(params[1], this, true));
 		this.parameters.add(new Parameter(params[7], this, true));
 
 		int idCounter = 0;
@@ -87,12 +87,12 @@ public class DataSheet implements ListModel {
 
 			// { "Hostname", "statusVal", "DiskUsage", "PageFileUsage", "NumProcs", "LoadAverage", "PhysicalMemoryUsage", "ConnMade" };
 			design.setStringValue(parameters.get(0), healthMessage.getHostname());
-			design.setNumValue(parameters.get(1), healthMessage.getStatusVal());
-			design.setNumValue(parameters.get(2), healthMessage.getDiskUsage());
-			design.setNumValue(parameters.get(3), healthMessage.getPageFileUsage());
-			design.setNumValue(parameters.get(4), healthMessage.getNumProcs());
-			design.setNumValue(parameters.get(5), healthMessage.getLoadAverage());
-			design.setNumValue(parameters.get(6), healthMessage.getPhysicalMemoryUsage());
+			design.setNumValue(parameters.get(1), healthMessage.getDiskUsage());
+			design.setNumValue(parameters.get(2), healthMessage.getPageFileUsage());
+			design.setNumValue(parameters.get(3), healthMessage.getNumProcs());
+			design.setNumValue(parameters.get(4), healthMessage.getLoadAverage());
+			design.setNumValue(parameters.get(5), healthMessage.getPhysicalMemoryUsage());
+			design.setNumValue(parameters.get(6), healthMessage.getStatusVal());
 			design.setNumValue(parameters.get(7), healthMessage.getConnMade());
 
 			data.add(design);

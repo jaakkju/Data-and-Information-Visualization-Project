@@ -44,10 +44,10 @@ public abstract class ChartPanel extends JPanel {
 	private int marginTop = 20;
 
 	/** The bottom margin. */
-	private int marginBottom = 80;
+	private int marginBottom = 20;
 
 	/** The left margin. */
-	private int marginLeft = 80;
+	private int marginLeft = 60;
 
 	/** The right margin. */
 	private int marginRight = 20;

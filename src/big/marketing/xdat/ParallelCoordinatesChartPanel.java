@@ -27,8 +27,6 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
 import org.apache.log4j.Logger;
@@ -36,14 +34,14 @@ import org.apache.log4j.Logger;
 /**
  * Panel that is used to display a {@link chart.ParallelCoordinatesChart}.
  */
-public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
+public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener {
 	static Logger logger = Logger.getLogger(ParallelCoordinatesChartPanel.class);
 
 	/** The version tracking unique identifier for Serialization. */
 	static final long serialVersionUID = 0003;
 
 	/** The chart . */
-	private ParallelCoordinatesChart chart;
+	private ParallelCoordinatesChart parallelCoordinatesChart;
 
 	/** The buffered image that is used to make redrawing the chart more efficient. */
 	private BufferedImage bufferedImage;
@@ -72,18 +70,17 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @param mainWindow the main Window
 	 * @param chart the chart
 	 */
-	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart chart, DataSheet dataSheet) {
-		super(dataSheet, chart);
-		this.chart = chart;
+	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart parallelCoordinatesChart, DataSheet dataSheet) {
+		super(dataSheet, parallelCoordinatesChart);
+		this.parallelCoordinatesChart = parallelCoordinatesChart;
 
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.addMouseWheelListener(this);
+		// TODO		this.addMouseWheelListener(this);
 	}
 
 	/**
 	 * Overridden to implement the painting of the chart.
-	 * 
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
 	public void paintComponent(Graphics g) {
@@ -95,11 +92,11 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		} else {
 			g.drawImage(this.bufferedImage, 0, 0, this);
 			g.setColor(new Color(100, 100, 100));
-			int yPosition = chart.getAxisTopPos();
+			int yPosition = parallelCoordinatesChart.getAxisTopPos();
 			int xPosition = this.dragCurrentX;
-			g.drawLine(xPosition - 1, yPosition, xPosition - 1, yPosition + (chart.getAxisHeight()));
-			g.drawLine(xPosition, yPosition, xPosition, yPosition + (chart.getAxisHeight()));
-			g.drawLine(xPosition + 1, yPosition, xPosition + 1, yPosition + (chart.getAxisHeight()));
+			g.drawLine(xPosition - 1, yPosition, xPosition - 1, yPosition + (parallelCoordinatesChart.getAxisHeight()));
+			g.drawLine(xPosition, yPosition, xPosition, yPosition + (parallelCoordinatesChart.getAxisHeight()));
+			g.drawLine(xPosition + 1, yPosition, xPosition + 1, yPosition + (parallelCoordinatesChart.getAxisHeight()));
 		}
 	}
 
@@ -149,10 +146,8 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				currentDesignClusterActive = currentDesign.getCluster().isActive();
 			}
 
-			//			logger.info("drawDesigns: currentDesignClusterActive = "+currentDesignClusterActive);
 			boolean currentDesignActive = true;
 			currentDesignActive = currentDesign.isActive(chart); // determine if current design is active
-			//			logger.info("drawDesigns: currentDesign.isActive(chart) = "+currentDesign.isActive(chart));
 
 			boolean displayDesign; // flag that determines if design will be displayed
 
@@ -231,7 +226,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 
 	/**
 	 * Draws the axes.
-	 * 
 	 * @param g the graphics object
 	 */
 	public void drawAxes(Graphics g) {
@@ -357,23 +351,23 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 
 	/**
 	 * Finds the axis at a given location in the chart.
-	 * 
 	 * @param x the location
 	 * @return the found axis
 	 */
 	private Axis getAxisAtLocation(int x) throws NoAxisFoundException {
-		for (int i = 0; i < this.chart.getAxisCount(); i++) {
-			Filter uf = this.chart.getAxis(i).getUpperFilter();
+		for (int i = 0; i < this.parallelCoordinatesChart.getAxisCount(); i++) {
+			Filter uf = this.parallelCoordinatesChart.getAxis(i).getUpperFilter();
 			if // check if this axis was meant by the click
-			(this.chart.getAxis(i).isActive() && x >= uf.getXPos() - 0.5 * this.chart.getAxis(i).getWidth()
-			      && x < uf.getXPos() + 0.5 * this.chart.getAxis(i).getWidth()) {
-				return this.chart.getAxis(i);
+			(this.parallelCoordinatesChart.getAxis(i).isActive()
+			      && x >= uf.getXPos() - 0.5 * this.parallelCoordinatesChart.getAxis(i).getWidth()
+			      && x < uf.getXPos() + 0.5 * this.parallelCoordinatesChart.getAxis(i).getWidth()) {
+				return this.parallelCoordinatesChart.getAxis(i);
 			}
 		}
 		throw new NoAxisFoundException(x);
 	}
 
-	// TODO MOVE AXIS ACTION RELATED
+	// TODO MOVE AXIS ACTION
 	//	/**
 	//	 * Finds the new index when dragging an axis to a given x location.
 	//	 * 
@@ -453,7 +447,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				this.dragOffsetY = lf.getYPos() - dragStartY;
 			}
 		}
-		// TODO DRAG AXIS		
+		// TODO DRAG AXIS	ACTION
 		//		if (this.draggedFilter == null && e.getButton() == 1) {
 		//			try {
 		//				this.storeBufferedImage();
@@ -494,7 +488,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		//			this.draggedAxis = null;
 		//		}
 		if (repaintRequired) {
-			this.repaint();
+			repaint();
 		}
 	}
 
@@ -511,43 +505,47 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 */
 	public void mouseDragged(MouseEvent e) {
 		if (this.draggedFilter != null) {
+
 			// try to make the filter follow the drag operation, but always keep it within axis boundaries and opposite filter
 			this.draggedFilter.setYPos(Math.max(Math.min(e.getY() + this.dragOffsetY, this.draggedFilter.getLowestPos()),
 			      this.draggedFilter.getHighestPos()));
 			repaint();
-		} else if (this.draggedAxis != null) {
-			this.dragCurrentX = e.getX();
-			this.repaint();
 		}
+		// TODO AXIS DRAGGED ACTION
+		//		else if (this.draggedAxis != null) {
+		//			this.dragCurrentX = e.getX();
+		//			this.repaint();
+		//		}
 	}
 
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		int modifier = e.getModifiers();
-		if (modifier == 0) {
-			this.chart.incrementAxisWidth(-e.getUnitsToScroll());
-		} else if (modifier == 2) {
-			int x = e.getX();
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				logger.info("wheeled on axis " + axis.getName());
-				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
-			} catch (NoAxisFoundException e1) {
-			}
-		}
+	// TODO MOUSE WHEEL ACTION
 
-		else if (modifier == 8) {
-			int x = e.getX();
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				logger.info("wheeled on axis " + axis.getName());
-				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
-			} catch (NoAxisFoundException e1) {
-			}
-		}
-		this.repaint();
-
-	}
+	//	@Override
+	//	public void mouseWheelMoved(MouseWheelEvent e) {
+	//		int modifier = e.getModifiers();
+	//		if (modifier == 0) {
+	//			this.chart.incrementAxisWidth(-e.getUnitsToScroll());
+	//		} else if (modifier == 2) {
+	//			int x = e.getX();
+	//			try {
+	//				Axis axis = this.getAxisAtLocation(x);
+	//				logger.info("Wheeled on axis " + axis.getName());
+	//				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
+	//			} catch (NoAxisFoundException e1) {
+	//			}
+	//		}
+	//
+	//		else if (modifier == 8) {
+	//			int x = e.getX();
+	//			try {
+	//				Axis axis = this.getAxisAtLocation(x);
+	//				logger.info("wheeled on axis " + axis.getName());
+	//				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
+	//			} catch (NoAxisFoundException e1) {
+	//			}
+	//		}
+	//		this.repaint();
+	//	}
 
 	/**
 	 * Writes the current chart state to the temporary buffered image.

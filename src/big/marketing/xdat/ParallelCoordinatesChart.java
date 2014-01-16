@@ -22,13 +22,12 @@ package big.marketing.xdat;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.io.Serializable;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 /**
- * A serializable representation of all relevant settings for a Parallel coordinates chart which is displayed on
+ * A representation of all relevant settings for a Parallel coordinates chart which is displayed on
  * a ChartFrame.
  * The data that was imported by the user can be displayed on a Parallel coordinates Chart.
  * The Parallel coordinates Chart is built by as many vertical Axes as Parameters are present in the underlying DataSheet and
@@ -49,14 +48,12 @@ import org.apache.log4j.Logger;
  * @see data.DataSheet
  * @see data.Design
  */
-public class ParallelCoordinatesChart extends Chart implements Serializable {
+public class ParallelCoordinatesChart extends Chart {
+
 	static Logger logger = Logger.getLogger(ParallelCoordinatesChart.class);
 
-	/** The version tracking unique identifier for Serialization. */
-	static final long serialVersionUID = 4;
-
 	/** Padding at the bottom of the chart. */
-	static final int BOTTOM_PADDING = 60;
+	static final int BOTTOM_PADDING = 20;
 
 	/** The background color of this Chart. */
 	private Color backGroundColor = Color.WHITE;
@@ -83,30 +80,29 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * The design label font size.
 	 * The design IDs are shown as labels next to the left-most Axis. This field specifies the font size for these labels.
 	 */
-	private int designLabelFontSize;
+	private int designLabelFontSize = 10;
 
 	/** Specifies the line thickness for designs. */
 	private int lineThickness = 1;
 
 	/** Specifies the line thickness for selected designs. */
-	private int selectedDesignsLineThickness = 1;
+	private int selectedDesignsLineThickness = 2;
 
 	/**
 	 * The active design color.
 	 * All Designs that are not filtered and do not belong to any Clusters are displayed in this Color.
 	 * New Clusters are also given this Color by default.
-	 * 
 	 * @see data.Design
 	 * @see data.Cluster
 	 * */
-	private Color activeDesignColor;
+	private Color activeDesignColor = Color.BLUE;
 
 	/**
 	 * The selected design color.
 	 * All Designs that are selected in the data sheet table are displayed in this color, except if only selected designs
 	 * are displayed, in which case they are displayed in the color in which they would otherwise have been displayed in unselected state.
 	 * */
-	private Color selectedDesignColor;
+	private Color selectedDesignColor = Color.GREEN;
 
 	/**
 	 * The filtered design color.
@@ -114,34 +110,34 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * This is only relevant if {@link #showFilteredDesigns} is true.
 	 * @see data.Design
 	 * */
-	private Color filteredDesignColor;
+	private Color filteredDesignColor = Color.GRAY;
 
 	/** The color in which the Filters are shown on this Chart. */
-	private Color filterColor;
+	private Color filterColor = Color.RED;
 
 	/** Specifies whether the design IDs next to the left-most Axis should be shown. */
-	private boolean showDesignIDs = true;
+	private boolean showDesignIDs = false;
 
 	/**
 	 * Switch that enables displaying filtered designs.
 	 * If this switch is true, designs are displayed in the Color specified by {@link #filteredDesignColor}
 	 */
-	private boolean showFilteredDesigns;
+	private boolean showFilteredDesigns = false;
 
 	/**
 	 * Switch that reduces display of designs to the selected ones.
 	 * If this switch is true, only selected designs are displayed
 	 */
-	private boolean showOnlySelectedDesigns;
+	private boolean showOnlySelectedDesigns = false;
 
 	/** The height of the triangles that represent the filter in pixels. */
-	private int filterHeight;
+	private int filterHeight = 10;
 
 	/**
 	 * The width of one half triangle that represents a filter in pixels. In other words,
 	 * the filter triangle will be twice as large as the value entered here.
 	 */
-	private int filterWidth;
+	private int filterWidth = 7;
 
 	/**
 	 * Instantiates a new parallel coordinates chart.
@@ -149,20 +145,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 */
 	public ParallelCoordinatesChart(DataSheet dataSheet, Dimension dimensions) {
 		super(dataSheet, dimensions);
-
-		UserPreferences userPreferences = new UserPreferences("eyeNet"); //TODO implement User Preferences > Main.getUserPreferences();
-		this.showFilteredDesigns = userPreferences.isParallelCoordinatesShowFilteredDesigns();
-		this.verticallyOffsetAxisLabels = userPreferences.isParallelCoordinatesVerticallyOffsetAxisLabels();
-		this.activeDesignColor = userPreferences.getParallelCoordinatesActiveDesignDefaultColor();
-		this.selectedDesignColor = userPreferences.getParallelCoordinatesSelectedDesignDefaultColor();
-		this.filteredDesignColor = userPreferences.getParallelCoordinatesFilteredDesignDefaultColor();
-		this.designLabelFontSize = userPreferences.getParallelCoordinatesDesignLabelFontSize();
-		this.lineThickness = userPreferences.getParallelCoordinatesLineThickness();
-		this.selectedDesignsLineThickness = userPreferences.getParallelCoordinatesSelectedDesignLineThickness();
-		this.filterColor = userPreferences.getParallelCoordinatesFilterDefaultColor();
-		this.showOnlySelectedDesigns = userPreferences.isParallelCoordinatesShowOnlySelectedDesigns();
-		this.filterHeight = userPreferences.getParallelCoordinatesFilterHeight();
-		this.filterWidth = userPreferences.getParallelCoordinatesFilterWidth();
 
 		for (int i = 0; i < dataSheet.getParameterCount(); i++) {
 			Axis axis = new Axis(dataSheet, this, dataSheet.getParameter(i));
@@ -264,7 +246,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 		} else {
 			topPos = getMaxAxisLabelFontSize() + this.getTopMargin() * 2 + this.getFilterHeight();
 		}
-		//		logger.info("getAxisTopPos: returning "+topPos);
 		return topPos;
 	}
 
@@ -274,7 +255,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * @return the Axis with index index
 	 */
 	public Axis getAxis(int index) {
-
 		return axes.get(index);
 	}
 
@@ -370,48 +350,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	}
 
 	/**
-	 * Adds an Axis at the position index.
-	 * @param index the index where the Axis should be added
-	 * @param axis the Axis to be added
-	 */
-	public void addAxis(int index, Axis axis) {
-		this.axes.add(index, axis);
-	}
-
-	/**
-	 * Removes the axis with index index.
-	 * @param index the index of the Axis to be removed
-	 */
-	public void removeAxis(int index) {
-		this.axes.remove(index);
-	}
-
-	/**
-	 * Removes the axis with name name.
-	 * @param parameterName the name of the parameter for which the Axis should be removed
-	 */
-	public void removeAxis(String parameterName) {
-		for (int i = 0; i < this.axes.size(); i++) {
-			if (parameterName.equals(this.axes.get(i).getParameter().getName())) {
-				this.axes.remove(i);
-				return;
-			}
-		}
-		throw new IllegalArgumentException("Axis " + parameterName + " not found");
-	}
-
-	/**
-	 * Function to reorder the axes in the chart
-	 * @param oldIndex the index of the axis to be moved
-	 * @param newIndex the target index for the axis to be moved
-	 */
-	public void moveAxis(int oldIndex, int newIndex) {
-		logger.info("moveAxis called with arguments " + oldIndex + " and " + newIndex);
-		Axis axis = this.axes.remove(oldIndex);
-		this.axes.insertElementAt(axis, newIndex);
-	}
-
-	/**
 	 * Gets the Axis height in pixels.
 	 * @return the height
 	 */
@@ -463,9 +401,7 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 			return design.getCluster().getActiveDesignColor();
 		} else if (designActive) {
 			return activeDesignColor;
-		}
-
-		else {
+		} else {
 			return filteredDesignColor;
 		}
 	}
@@ -612,30 +548,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 */
 	public int getTopMargin() {
 		return topMargin;
-	}
-
-	/**
-	 * Reset display settings to default.
-	 */
-	public void resetDisplaySettingsToDefault() {
-		UserPreferences userPreferences = new UserPreferences("eyeNet"); //TODO implement User Preferences > Main.getUserPreferences();Main.getUserPreferences();
-		this.backGroundColor = userPreferences.getParallelCoordinatesDefaultBackgroundColor();
-		this.showDesignIDs = userPreferences.isParallelCoordinatesShowDesignIDs();
-		this.showFilteredDesigns = userPreferences.isParallelCoordinatesShowFilteredDesigns();
-		this.showOnlySelectedDesigns = userPreferences.isParallelCoordinatesShowOnlySelectedDesigns();
-		this.activeDesignColor = userPreferences.getParallelCoordinatesActiveDesignDefaultColor();
-		this.selectedDesignColor = userPreferences.getParallelCoordinatesSelectedDesignDefaultColor();
-		this.filteredDesignColor = userPreferences.getParallelCoordinatesFilteredDesignDefaultColor();
-		this.designLabelFontSize = userPreferences.getParallelCoordinatesDesignLabelFontSize();
-		this.lineThickness = userPreferences.getParallelCoordinatesLineThickness();
-		this.selectedDesignsLineThickness = userPreferences.getParallelCoordinatesSelectedDesignLineThickness();
-		this.verticallyOffsetAxisLabels = userPreferences.isParallelCoordinatesVerticallyOffsetAxisLabels();
-		this.filterColor = userPreferences.getParallelCoordinatesFilterDefaultColor();
-		this.filterHeight = userPreferences.getParallelCoordinatesFilterHeight();
-		this.filterWidth = userPreferences.getParallelCoordinatesFilterWidth();
-		for (int i = 0; i < axes.size(); i++) {
-			axes.get(i).resetSettingsToDefault();
-		}
 	}
 
 	/**
