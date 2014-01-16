@@ -47,7 +47,7 @@ public class GephiController extends Observable {
 	}
 
 	public void loadEmptyContainer() {
-		load(new QueryWindowData(new ArrayList<FlowMessage>(), null, null, null));
+		load(new QueryWindowData(new ArrayList<FlowMessage>(), null, null, null), null);
 	}
 
 	/**
@@ -79,7 +79,9 @@ public class GephiController extends Observable {
 		}
 	}
 
-	public void load(QueryWindowData newDataset) {
+	public void load(QueryWindowData newDataset, Node[] selectedNodes) {
+		if (selectedNodes == null)
+			selectedNodes = new Node[0];
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();
@@ -101,7 +103,7 @@ public class GephiController extends Observable {
 
 		// import to container
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
-		GephiImporter gImporter = new GephiImporter(newDataset, ipMap);
+		GephiImporter gImporter = new GephiImporter(newDataset, ipMap, selectedNodes);
 		ContainerLoader loader = container.getLoader();
 		gImporter.execute(loader);
 

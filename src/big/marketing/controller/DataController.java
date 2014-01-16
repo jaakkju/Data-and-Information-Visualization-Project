@@ -130,7 +130,7 @@ public class DataController extends Observable implements Runnable {
 
 		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 60, time + 60));
 
-		gc.load(currentQueryWindow);
+		gc.load(currentQueryWindow, selectedNodes);
 
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " sec, Flow: " + currentQueryWindow.getFlowData().size() + " objects, Health: "
@@ -157,7 +157,7 @@ public class DataController extends Observable implements Runnable {
 		switch (t) {
 		case FLOW:
 			currentQueryWindow.setFlow(newEntries);
-			gc.load(currentQueryWindow);
+			gc.load(currentQueryWindow, selectedNodes);
 			break;
 
 		case HEALTH:
