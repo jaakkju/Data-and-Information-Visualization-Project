@@ -323,7 +323,7 @@ public class MongoController implements Runnable {
 		AggregationOutput ao = c.aggregate(groupOp);
 
 		// collect data
-		TimeSeries ts = new TimeSeries("");
+		TimeSeries ts = new TimeSeries(yField + " values");
 
 		HashMap<Integer, Integer> valueMap = new HashMap<Integer, Integer>();
 		List<Integer> xVals = new ArrayList<Integer>();
@@ -340,7 +340,8 @@ public class MongoController implements Runnable {
 			ts.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
 		}
 		logger.info("Fetched slider backgroud data");
-		ts = MovingAverage.createMovingAverage(ts, "", 50, 100);
+		ts = MovingAverage.createMovingAverage(ts, yField + " values", 50, 100);
+
 		TimeSeriesCollection tseries = new TimeSeriesCollection(ts);
 		return tseries;
 
