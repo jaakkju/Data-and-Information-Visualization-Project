@@ -1,6 +1,8 @@
 package big.marketing.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.gephi.io.importer.api.ContainerLoader;
@@ -20,11 +22,13 @@ public class GephiImporter implements SpigotImporter {
 	private QueryWindowData data;
 	private Map<String, Node> ipMap;
 	Map<String, NodeDraft> nodes;
+	private Node[] selectedNodes;
 
-	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap) {
+	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap, Node[] selectedNodes) {
 		this.data = dataset;
 		nodes = new HashMap<String, NodeDraft>();
 		this.ipMap = ipMap;
+		this.selectedNodes = selectedNodes;
 	}
 
 	/**
@@ -39,7 +43,17 @@ public class GephiImporter implements SpigotImporter {
 		ContainerLoader.DraftFactory fact = loader.factory();
 		// import...
 		// convert flow messages to gephi internal graph structure
+		List<Node> selected = new ArrayList<Node>();
+		for (Node n : selectedNodes) {
+			selected.add(n);
+		}
 		for (FlowMessage message : data.getFlowData()) {
+
+			// dont use nodes that are not selected
+			Node ssrc = ipMap.get(message.getSourceIP());
+			Node ddst = ipMap.get(message.getDestinationIP());
+			if (ssrc != null && !selected.contains(ssrc) && ddst != null && !selected.contains(ddst))
+				continue;
 
 			NodeDraft src = nodes.get(message.getSourceIP());
 			if (src == null) {
