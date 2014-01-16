@@ -28,7 +28,7 @@ public class Application {
 		GraphJPanel graphPanel = new GraphJPanel(controller);
 		PCoordinatesJPanel pCoordinatesPanel = new PCoordinatesJPanel(controller);
 
-		ControlsJPanel controlsPanel = new ControlsJPanel(controller, controller.getMongoController().getHistogramTCollection());
+		ControlsJPanel controlsPanel = new ControlsJPanel(controller);
 
 		// DataController implements observer pattern and pushes changes in data and selections to JPanels
 		controller.getGephiController().addObserver(graphPanel);

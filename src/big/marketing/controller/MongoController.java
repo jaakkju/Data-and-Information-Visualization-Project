@@ -312,23 +312,29 @@ public class MongoController implements Runnable {
 		}
 	}
 
-	public TimeSeriesCollection getHistogramTCollection() {
+	public TimeSeriesCollection getHistogramTCollection(DataType t) {
 		TimeSeriesCollection tSeriesCollection = new TimeSeriesCollection();
 
-		// Creating grouping object for FLOW
-		BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$" + "time");
-		groupFieldsFlow.append("y", new BasicDBObject("$sum", "$" + "packetCount"));
-		DBObject groupOpFlow = new BasicDBObject("$group", groupFieldsFlow);
+		switch (t) {
+		case FLOW:
+			BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$" + "time");
+			groupFieldsFlow.append("y", new BasicDBObject("$sum", "$" + "packetCount"));
+			DBObject groupOpFlow = new BasicDBObject("$group", groupFieldsFlow);
 
-		tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
+			tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
+			return tSeriesCollection;
 
-		BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$" + "time");
-		groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
-		DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
+		case HEALTH:
+			BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$" + "time");
+			groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
+			DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
 
-		tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), true));
+			tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), true));
+			return tSeriesCollection;
 
-		return tSeriesCollection;
+		default:
+			return null;
+		}
 	}
 
 	public TimeSeries getTimeSerie(DataType t, DBObject groupOp, String groupNameX, String groupNameY, String cName, Boolean useMovingAverage) {
