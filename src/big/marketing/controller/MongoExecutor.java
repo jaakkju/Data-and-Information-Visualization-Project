@@ -43,6 +43,16 @@ public class MongoExecutor {
 			if (MONGO_OPTIONS != null)
 				mongoCommand = mongoCommand + " " + MONGO_OPTIONS;
 
+			// remove lockFile of mongoDB
+			try {
+				File lockFile = new File(DB_PATH, "mongod.lock");
+				if (lockFile.exists())
+					lockFile.delete();
+				logger.info("Removed mongo lock file");
+			} catch (Exception e) {
+				logger.error("Could not remove mongo lock file! Are you sure monge is not running?");
+			}
+
 			logger.info("Starting mongoDB, command: " + mongoCommand);
 
 			mongoProcess = Runtime.getRuntime().exec(mongoCommand);
@@ -81,6 +91,12 @@ public class MongoExecutor {
 		if (mongoProcess != null) {
 			logger.info("Shutting down database...");
 			mongoProcess.destroy();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			mongoProcess = null;
 		}
 	}

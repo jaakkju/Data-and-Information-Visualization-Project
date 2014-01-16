@@ -1,5 +1,6 @@
 package big.marketing.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
@@ -26,7 +27,7 @@ public class DataController extends Observable implements Runnable {
 	private List<Node> network;
 
 	private Node[] highlightedNodes = null;
-	private Node selectedNode = null;
+	private Node[] selectedNodes = null;
 
 	private Thread readingThread, processingThread;
 	private Player player;
@@ -43,6 +44,22 @@ public class DataController extends Observable implements Runnable {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController(this);
+		network = mc.getNetwork();
+		if (network.isEmpty()) {
+			logger.warn("Loading Nodes from database failed!");
+		}
+	}
+
+	public void selectNodesOfType(boolean selectAdmin, boolean selectServer, boolean selectWorkstations) {
+		List<Node> selected = new ArrayList<Node>();
+		for (Node n : network) {
+			if (selectWorkstations && n.isWorkstation() || selectServer && n.isServer() || selectAdmin && n.isAdministator())
+				selected.add(n);
+		}
+		selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
+		logger.info("Selected " + selectedNodes.length + " Nodes");
+		setChanged();
+		notifyObservers(selectedNodes);
 	}
 
 	public void readData() {
@@ -171,8 +188,8 @@ public class DataController extends Observable implements Runnable {
 		setChanged();
 	}
 
-	public void setSelectedNode(Node selectedNode) {
-		this.selectedNode = selectedNode;
+	public void setSelectedNode(Node[] selectedNode) {
+		this.selectedNodes = selectedNode;
 		setChanged();
 	}
 
@@ -180,8 +197,8 @@ public class DataController extends Observable implements Runnable {
 		return highlightedNodes;
 	}
 
-	public Node getSelectedNode() {
-		return selectedNode;
+	public Node[] getSelectedNode() {
+		return selectedNodes;
 	}
 
 	public MongoController getMongoController() {

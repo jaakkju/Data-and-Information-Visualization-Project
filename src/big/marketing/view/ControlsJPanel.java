@@ -13,6 +13,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -46,6 +47,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private ChartPanel chartPanel;
 	private JLabel currentTimeLabel;
 	private JSpinner playSpeedSpinner;
+	private JCheckBox adminBox, serverBox, workstationBox;
+
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
@@ -75,6 +78,27 @@ public class ControlsJPanel extends JPanel implements Observer {
 		buttonPanel.add(currentTimeLabel);
 
 		add(buttonPanel, BorderLayout.SOUTH);
+
+		ActionListener selectionListener = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.selectNodesOfType(adminBox.isSelected(), serverBox.isSelected(), workstationBox.isSelected());
+
+			}
+		};
+
+		adminBox = new JCheckBox("Admin");
+		adminBox.addActionListener(selectionListener);
+		buttonPanel.add(adminBox);
+
+		serverBox = new JCheckBox("Servers");
+		serverBox.addActionListener(selectionListener);
+		buttonPanel.add(serverBox);
+
+		workstationBox = new JCheckBox("Workstations");
+		workstationBox.addActionListener(selectionListener);
+		buttonPanel.add(workstationBox);
 
 		chartPanel = new ChartPanel(showChart(sliderBackgroundData), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false,
 		      false, false, false);
