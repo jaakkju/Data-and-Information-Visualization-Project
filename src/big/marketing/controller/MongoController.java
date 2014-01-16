@@ -340,9 +340,9 @@ public class MongoController implements Runnable {
 			ts.add(new Minute(new Date(i * 1000L)), valueMap.get(i));
 		}
 		logger.info("Fetched slider backgroud data");
-		ts = MovingAverage.createMovingAverage(ts, yField + " values", 50, 100);
-
 		TimeSeriesCollection tseries = new TimeSeriesCollection(ts);
+		ts = MovingAverage.createMovingAverage(ts, "avg" + yField + " values", 50, 100);
+		tseries.addSeries(ts);
 		return tseries;
 
 	}
