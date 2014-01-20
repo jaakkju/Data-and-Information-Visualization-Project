@@ -43,9 +43,6 @@ public class Design implements Serializable {
 	/** The design id. */
 	private int id;
 
-	/** The cluster to which the design belongs. */
-	private Cluster cluster;
-
 	/**
 	 * is used to store the information is the design is filtered. Information is kept for
 	 * each {@link chart.Filter} individually. Each Filter is responsible for updating this
@@ -250,21 +247,4 @@ public class Design implements Serializable {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	/**
-	 * Gets the cluster to which the design belongs.
-	 * @return the cluster
-	 */
-	public Cluster getCluster() {
-		return cluster;
-	}
-
-	/**
-	 * Sets the cluster.
-	 * @param cluster the new cluster to which the design belongs.
-	 */
-	public void setCluster(Cluster cluster) {
-		this.cluster = cluster;
-	}
-
 }

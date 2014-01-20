@@ -145,11 +145,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			}
 			boolean firstAxisDrawn = false;
 			boolean currentDesignClusterActive = true;
-			if (currentDesign.getCluster() != null) // determine if design belongs to an active cluster
-			{
-				currentDesignClusterActive = currentDesign.getCluster().isActive();
-			}
-
 			boolean currentDesignActive = true;
 			currentDesignActive = currentDesign.isActive(chart); // determine if current design is active
 
@@ -165,13 +160,9 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			if (displayDesign) // only draw design if the cluster is active and the design is active (or inactive design drawing is active)
 			{
 				int lineThickness;
-				if (chart.isShowOnlySelectedDesigns() || !currentDesign.isSelected()) {
-					g.setColor(chart.getDesignColor(currentDesign, currentDesignActive));
-					lineThickness = chart.getDesignLineThickness(currentDesign);
-				} else {
-					g.setColor(chart.getSelectedDesignColor());
-					lineThickness = chart.getSelectedDesignsLineThickness();
-				}
+				g.setColor(chart.getSelectedDesignColor());
+				lineThickness = chart.getSelectedDesignsLineThickness();
+
 				int xPositionCurrent = this.getMarginLeft();
 				int yPositionCurrent = axisTopPos;
 				int xPositionLast = xPositionCurrent;
