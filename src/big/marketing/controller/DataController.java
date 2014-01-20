@@ -48,6 +48,7 @@ public class DataController extends Observable implements Runnable {
 		this.gc = new GephiController(this);
 		ipMap = mc.getNetwork();
 		network = new ArrayList<>(ipMap.values());
+		selectedNodes = (Node[]) network.toArray(new Node[network.size()]);
 		if (network.isEmpty()) {
 			logger.warn("Loading Nodes from database failed!");
 		}

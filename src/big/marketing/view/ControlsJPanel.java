@@ -97,19 +97,22 @@ public class ControlsJPanel extends JPanel implements Observer {
 		};
 
 		adminBox = new JCheckBox("Admin");
+		adminBox.setSelected(true);
 		adminBox.addActionListener(selectionListener);
 		buttonPanel.add(adminBox);
 
 		serverBox = new JCheckBox("Servers");
+		serverBox.setSelected(true);
 		serverBox.addActionListener(selectionListener);
 		buttonPanel.add(serverBox);
 
 		workstationBox = new JCheckBox("Workstations");
+		workstationBox.setSelected(true);
 		workstationBox.addActionListener(selectionListener);
 		buttonPanel.add(workstationBox);
 
 		typeCombo = new JComboBox<DataType>(DataType.values());
-		typeCombo.setEditable(false);
+		typeCombo.setEditable(true);
 		typeCombo.addActionListener(new ActionListener() {
 
 			@Override
