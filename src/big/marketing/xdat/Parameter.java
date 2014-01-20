@@ -20,7 +20,6 @@
 
 package big.marketing.xdat;
 
-import java.awt.FontMetrics;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Comparator;
@@ -50,12 +49,6 @@ public class Parameter {
 	/** Specifies whether the parameter is numeric. If it is not, it is discrete. */
 	private boolean numeric = true;
 
-	/** Specifies at least one design has a numeric value */
-	private boolean atLeastOneNumeric = false;
-
-	/** Specifies at least one design has a non-numeric value */
-	private boolean atLeastOneNonNumeric = false;
-
 	/** The discrete levels. Only applies for non-numeric parameters. */
 	private TreeSet<String> discreteLevels = new TreeSet<String>(new ReverseStringComparator());
 
@@ -82,15 +75,6 @@ public class Parameter {
 	 */
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	/**
-	 * Checks whether the parameter is mixed. A parameter is mixed if at least one design has a numeric value
-	 * and at least one design has a non-numeric value.
-	 * @return true, if the parameter is mixed
-	 */
-	public boolean isMixed() {
-		return (this.atLeastOneNonNumeric && this.atLeastOneNumeric);
 	}
 
 	/**
@@ -130,13 +114,6 @@ public class Parameter {
 	}
 
 	/**
-	 * @param atLeastOneNumeric specifies whether there is at least one design with a numeric value for this design
-	 */
-	public void setAtLeastOneNumeric(boolean atLeastOneNumeric) {
-		this.atLeastOneNumeric = atLeastOneNumeric;
-	}
-
-	/**
 	 * Gets a numeric representation of a string value for this parameter.
 	 * If the parameter is numeric, an attempt is made to parse the string as a Double. If this attempt leads to a ParseException, the
 	 * parameter is not considered numeric anymore, but is transformed into a discrete parameter.
@@ -151,11 +128,9 @@ public class Parameter {
 		if (this.numeric) {
 			try {
 				double value = NumberParser.parseNumber(string);
-				this.atLeastOneNumeric = true;
 				return value;
 			} catch (ParseException e1) {
 				this.numeric = false;
-				this.atLeastOneNonNumeric = true;
 			}
 		}
 
@@ -193,20 +168,16 @@ public class Parameter {
 	 */
 	public String getStringValueOf(double value) {
 		if (this.numeric) {
-			//			logger.info("getStringValueOf: Parameter " + this.name + " is numeric. Returning " + (Double.toString(value)));
 			return Double.toString(value);
+
 		} else {
-			//			logger.info("getStringValueOf: Parameter " + this.name + " is not numeric. ");
-			//			logger.info("value = " + value);
 			int index = (int) value;
-			//			logger.info("getStringValueOf: index is " + index);
 			int currentIndex = 0;
 			Iterator<String> it = discreteLevels.iterator();
+
 			while (it.hasNext()) {
-				//logger.info("getStringValueOf: checking currentIndex " + currentIndex + " against index " + index);
 				String next = it.next();
 				if (currentIndex == index) {
-					//					logger.info("getStringValueOf: check positive. Returning string " + next);
 					return next;
 				}
 				currentIndex++;
@@ -224,42 +195,8 @@ public class Parameter {
 		if (this.isNumeric()) {
 			throw new RuntimeException("Parameter " + this.name + " is numeric!");
 		} else {
-			//			logger.info("getDiscreteLevelCount returning size "+this.discreteLevels.size());
 			return this.discreteLevels.size();
 		}
-	}
-
-	/**
-	 * Checks the count of designs for which this parameter is on the discrete level defined by
-	 * the given string argument. If the count is zero, the discrete level is removed.
-	 * Only applies to non-numeric parameters.
-	 * @param stringValueToCheck the discrete level for which the occurrence count should be returned
-	 */
-	public void checkOccurrenceInDiscreteLevel(String stringValueToCheck) {
-		if (this.isNumeric()) {
-			throw new RuntimeException("Parameter " + this.name + " is numeric!");
-		} else {
-			int occurrenceCount = 0;
-			for (int i = 0; i < this.dataSheet.getDesignCount(); i++) {
-				if (this.dataSheet.getDesign(i).getStringValue(this).equalsIgnoreCase(stringValueToCheck)) {
-					occurrenceCount++;
-				}
-			}
-			if (occurrenceCount < 1) {
-				this.discreteLevels.remove(stringValueToCheck);
-			}
-		}
-	}
-
-	/**
-	 * Reset discrete levels to an empty TreeSet.
-	 */
-	public void resetDiscreteLevelsAndState() {
-		logger.info("resetDiscreteLevels called");
-		this.discreteLevels = new TreeSet<String>(new ReverseStringComparator());
-		this.numeric = true;
-		this.atLeastOneNonNumeric = false;
-		this.atLeastOneNumeric = false;
 	}
 
 	/**
@@ -276,38 +213,6 @@ public class Parameter {
 		 */
 		public int compare(String s1, String s2) {
 			return (s2.compareToIgnoreCase(s1));
-		}
-	}
-
-	/**
-	 * Gets the longest tic label string.
-	 * @param fm the FontMetrics for which the string width should be calculated
-	 * @return the stringlength
-	 */
-	public int getLongestTicLabelStringLength(FontMetrics fm, String numberFormat) {
-		if (this.isNumeric()) {
-			double minValue = Double.POSITIVE_INFINITY;
-			double maxValue = Double.NEGATIVE_INFINITY;
-
-			for (int i = 0; i < dataSheet.getDesignCount(); i++) {
-				if (dataSheet.getDesign(i).getDoubleValue(this) > maxValue)
-					maxValue = dataSheet.getDesign(i).getDoubleValue(this);
-				if (dataSheet.getDesign(i).getDoubleValue(this) < minValue)
-					minValue = dataSheet.getDesign(i).getDoubleValue(this);
-			}
-			int minLength = fm.stringWidth(String.format(numberFormat, minValue));
-			int maxLength = fm.stringWidth(String.format(numberFormat, maxValue));
-			logger.info("paintComponent: minLength " + minLength);
-			logger.info("paintComponent: maxLength " + maxLength);
-			return Math.max(minLength, maxLength);
-		} else {
-			int length = 0;
-			for (int i = 0; i < this.getDiscreteLevelCount(); i++) {
-				int tempLength = fm.stringWidth(this.getStringValueOf(i));
-				if (tempLength > length)
-					length = tempLength;
-			}
-			return length;
 		}
 	}
 }
