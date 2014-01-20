@@ -63,6 +63,7 @@ public class DataController extends Observable implements Runnable {
 		logger.info("Selected " + selectedNodes.length + " Nodes");
 		setChanged();
 		notifyObservers(selectedNodes);
+		gc.load(currentQueryWindow, selectedNodes);
 	}
 
 	public void readData() {

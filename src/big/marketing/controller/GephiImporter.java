@@ -47,13 +47,16 @@ public class GephiImporter implements SpigotImporter {
 		for (Node n : selectedNodes) {
 			selected.add(n);
 		}
+		System.out.println(selected.size());
 		for (FlowMessage message : data.getFlowData()) {
 
 			// dont use nodes that are not selected
-			Node ssrc = ipMap.get(message.getSourceIP());
-			Node ddst = ipMap.get(message.getDestinationIP());
-			if (ssrc != null && !selected.contains(ssrc) && ddst != null && !selected.contains(ddst))
+			Node srcNetworkNode = ipMap.get(message.getSourceIP());
+			Node destNetworkNode = ipMap.get(message.getDestinationIP());
+
+			if (!isVisibleNode(srcNetworkNode, selected) && !isVisibleNode(destNetworkNode, selected)) {
 				continue;
+			}
 
 			NodeDraft src = nodes.get(message.getSourceIP());
 			if (src == null) {
@@ -86,6 +89,10 @@ public class GephiImporter implements SpigotImporter {
 			}
 		}
 		return true;
+	}
+
+	private boolean isVisibleNode(Node n, List<Node> selected) {
+		return (n != null && selected.contains(n));
 	}
 
 	@Override
