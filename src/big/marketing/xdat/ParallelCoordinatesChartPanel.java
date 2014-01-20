@@ -367,19 +367,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == 3) {
-			int x = e.getX();
-			int y = e.getY();
-
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				logger.info("MouseClick event: button 3, clicked on axis " + axis.getName());
-				(new ParallelCoordinatesContextMenu(axis, this)).show(this, x, y);
-			} catch (NoAxisFoundException e1) {
-				e1.printStackTrace();
-			}
-		}
-
 	}
 
 	/*
