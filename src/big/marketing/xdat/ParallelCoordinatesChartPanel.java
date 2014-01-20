@@ -137,7 +137,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		for (int designID = 0; designID < this.getDataSheet().getDesignCount(); designID++) // draw all designs
 		{
 			Design currentDesign = this.getDataSheet().getDesign(designID);
-			//			logger.info("drawDesigns: currentDesign.isInsideBounds(chart) = "+currentDesign.isInsideBounds(chart));
 			if (!currentDesign.isInsideBounds(chart)) // do not draw design if it is not inside bounds of the chart
 			{
 				logger.info("design not inside bounds, continue");
@@ -232,7 +231,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		Axis currentAxis;
 		int drawnAxisCount = 0;
 		for (int i = 0; i < chart.getAxisCount(); i++) {
-			//			logger.info("drawing axis "+chart.getAxis(i).getName());
 			if (chart.getAxis(i).isActive()) {
 				//axes
 				currentAxis = chart.getAxis(i);
@@ -275,7 +273,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				      lf.getXPos() + chart.getFilterWidth(), lf.getYPos() + chart.getFilterHeight());
 
 				g.setFont(new Font("SansSerif", Font.PLAIN, currentAxis.getTicLabelFontSize()));
-				//				logger.info("Font size: "+currentAxis.getTicLabelFontSize());
+
 				if ((uf == this.draggedFilter || lf == this.draggedFilter) && currentAxis.getParameter().isNumeric()) {
 					g.drawString(String.format(currentAxis.getTicLabelFormat(), this.draggedFilter.getValue()), this.draggedFilter.getXPos()
 					      + chart.getFilterWidth() + 4, this.draggedFilter.getYPos() - chart.getFilterHeight());
@@ -338,7 +336,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 						}
 					}
 				}
-
 				lastAxis = currentAxis;
 			}
 		}
