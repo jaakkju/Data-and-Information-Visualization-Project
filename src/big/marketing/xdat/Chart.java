@@ -34,6 +34,18 @@ import org.apache.log4j.Logger;
 public abstract class Chart {
 	static Logger logger = Logger.getLogger(Chart.class);
 
+	/** The top margin. */
+	private int marginTop = 20;
+
+	/** The bottom margin. */
+	private int marginBottom = 20;
+
+	/** The left margin. */
+	private int marginLeft = 60;
+
+	/** The right margin. */
+	private int marginRight = 20;
+
 	/** The size of this Chart. */
 	private Dimension dimensions;
 
@@ -87,12 +99,6 @@ public abstract class Chart {
 	public abstract Color getBackGroundColor();
 
 	/**
-	 * Sets the back ground color.
-	 * @param backGroundColor the new back ground color
-	 */
-	public abstract void setBackGroundColor(Color backGroundColor);
-
-	/**
 	 * Returns the size of the chart as a Dimension
 	 * @return size
 	 */
@@ -101,10 +107,34 @@ public abstract class Chart {
 	}
 
 	/**
-	 * Sets the size of the chart as Dimension
-	 * @param dimensions size
+	 * Gets the chart's top margin .
+	 * @return the top margin
 	 */
-	public void setDimensions(Dimension dimensions) {
-		this.dimensions = dimensions;
+	public int getMarginTop() {
+		return marginTop;
+	}
+
+	/**
+	 * Gets the chart's bottom margin .
+	 * @return the bottom margin
+	 */
+	public int getMarginBottom() {
+		return marginBottom;
+	}
+
+	/**
+	 * Gets the chart's left margin .
+	 * @return the left margin
+	 */
+	public int getMarginLeft() {
+		return marginLeft;
+	}
+
+	/**
+	 * Gets the chart's right margin .
+	 * @return the right margin
+	 */
+	public int getMarginRight() {
+		return marginRight;
 	}
 }

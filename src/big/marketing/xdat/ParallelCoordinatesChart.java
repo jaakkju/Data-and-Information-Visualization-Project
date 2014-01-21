@@ -172,6 +172,19 @@ public class ParallelCoordinatesChart extends Chart {
 		return width;
 	}
 
+	public int getAxisWidth() {
+		int width = 0;
+		int axisCount = 0;
+
+		// TODO Count more accurately taking in count the margins on the chart
+		for (int i = 0; i < this.getDataSheet().getParameterCount(); i++) {
+			axisCount++;
+		}
+
+		width = (int) (this.getDimensions().getWidth() / axisCount);
+		return width;
+	}
+
 	/**
 	 * Determines the height of this Chart.
 	 * @return the height of this Chart
@@ -468,14 +481,6 @@ public class ParallelCoordinatesChart extends Chart {
 	 */
 	public Color getBackGroundColor() {
 		return backGroundColor;
-	}
-
-	/**
-	 * Sets the back ground color.
-	 * @param backGroundColor the new back ground color
-	 */
-	public void setBackGroundColor(Color backGroundColor) {
-		this.backGroundColor = backGroundColor;
 	}
 
 	/**

@@ -39,18 +39,6 @@ public abstract class ChartPanel extends JPanel {
 	/** The data sheet. */
 	private DataSheet dataSheet;
 
-	/** The top margin. */
-	private int marginTop = 20;
-
-	/** The bottom margin. */
-	private int marginBottom = 20;
-
-	/** The left margin. */
-	private int marginLeft = 60;
-
-	/** The right margin. */
-	private int marginRight = 20;
-
 	/**
 	 * Instantiates a new chart panel.
 	 * @param dataSheet the data sheet
@@ -78,38 +66,6 @@ public abstract class ChartPanel extends JPanel {
 	public void drawPlotFieldBackground(Graphics g) {
 		g.setColor(this.chart.getBackGroundColor());
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
-	}
-
-	/**
-	 * Gets the chart's top margin .
-	 * @return the top margin
-	 */
-	public int getMarginTop() {
-		return marginTop;
-	}
-
-	/**
-	 * Gets the chart's bottom margin .
-	 * @return the bottom margin
-	 */
-	public int getMarginBottom() {
-		return marginBottom;
-	}
-
-	/**
-	 * Gets the chart's left margin .
-	 * @return the left margin
-	 */
-	public int getMarginLeft() {
-		return marginLeft;
-	}
-
-	/**
-	 * Gets the chart's right margin .
-	 * @return the right margin
-	 */
-	public int getMarginRight() {
-		return marginRight;
 	}
 
 	/**

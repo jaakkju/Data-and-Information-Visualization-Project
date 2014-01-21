@@ -154,6 +154,7 @@ public class Axis implements Serializable {
 		this.dataSheet = dataSheet;
 		this.chart = chart;
 		this.parameter = parameter;
+		this.width = chart.getAxisWidth();
 
 		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
 

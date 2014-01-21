@@ -43,7 +43,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	static final long serialVersionUID = 0003;
 
 	/** The chart . */
-	private ParallelCoordinatesChart parallelCoordinatesChart;
+	private ParallelCoordinatesChart chart;
 
 	/** The buffered image that is used to make redrawing the chart more efficient. */
 	private BufferedImage bufferedImage;
@@ -68,13 +68,12 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 
 	/**
 	 * Instantiates a new parallel coordinates chart panel.
-	 * 
 	 * @param mainWindow the main Window
 	 * @param chart the chart
 	 */
-	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart parallelCoordinatesChart, DataSheet dataSheet) {
-		super(dataSheet, parallelCoordinatesChart);
-		this.parallelCoordinatesChart = parallelCoordinatesChart;
+	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart chart, DataSheet dataSheet) {
+		super(dataSheet, chart);
+		this.chart = chart;
 
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -96,17 +95,16 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		} else {
 			g.drawImage(this.bufferedImage, 0, 0, this);
 			g.setColor(new Color(100, 100, 100));
-			int yPosition = parallelCoordinatesChart.getAxisTopPos();
+			int yPosition = chart.getAxisTopPos();
 			int xPosition = this.dragCurrentX;
-			g.drawLine(xPosition - 1, yPosition, xPosition - 1, yPosition + (parallelCoordinatesChart.getAxisHeight()));
-			g.drawLine(xPosition, yPosition, xPosition, yPosition + (parallelCoordinatesChart.getAxisHeight()));
-			g.drawLine(xPosition + 1, yPosition, xPosition + 1, yPosition + (parallelCoordinatesChart.getAxisHeight()));
+			g.drawLine(xPosition - 1, yPosition, xPosition - 1, yPosition + (chart.getAxisHeight()));
+			g.drawLine(xPosition, yPosition, xPosition, yPosition + (chart.getAxisHeight()));
+			g.drawLine(xPosition + 1, yPosition, xPosition + 1, yPosition + (chart.getAxisHeight()));
 		}
 	}
 
 	/**
 	 * Draws the lines representing the designs.
-	 * 
 	 * @param g the graphics object
 	 */
 	public void drawDesigns(Graphics g) {
@@ -162,7 +160,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				g.setColor(chart.getSelectedDesignColor());
 				lineThickness = chart.getSelectedDesignsLineThickness();
 
-				int xPositionCurrent = this.getMarginLeft();
+				int xPositionCurrent = this.chart.getMarginLeft();
 				int yPositionCurrent = axisTopPos;
 				int xPositionLast = xPositionCurrent;
 				int yPositionLast;
@@ -224,7 +222,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 */
 	public void drawAxes(Graphics g) {
 		ParallelCoordinatesChart chart = ((ParallelCoordinatesChart) this.getChart());
-		int xPosition = this.getMarginLeft();
+		int xPosition = this.chart.getMarginLeft();
 		int yPosition = chart.getAxisTopPos();
 		FontMetrics fm = g.getFontMetrics();
 		Axis lastAxis = null;
@@ -347,13 +345,12 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @return the found axis
 	 */
 	private Axis getAxisAtLocation(int x) throws NoAxisFoundException {
-		for (int i = 0; i < this.parallelCoordinatesChart.getAxisCount(); i++) {
-			Filter uf = this.parallelCoordinatesChart.getAxis(i).getUpperFilter();
+		for (int i = 0; i < this.chart.getAxisCount(); i++) {
+			Filter uf = this.chart.getAxis(i).getUpperFilter();
 			if // check if this axis was meant by the click
-			(this.parallelCoordinatesChart.getAxis(i).isActive()
-			      && x >= uf.getXPos() - 0.5 * this.parallelCoordinatesChart.getAxis(i).getWidth()
-			      && x < uf.getXPos() + 0.5 * this.parallelCoordinatesChart.getAxis(i).getWidth()) {
-				return this.parallelCoordinatesChart.getAxis(i);
+			(this.chart.getAxis(i).isActive() && x >= uf.getXPos() - 0.5 * this.chart.getAxis(i).getWidth()
+			      && x < uf.getXPos() + 0.5 * this.chart.getAxis(i).getWidth()) {
+				return this.chart.getAxis(i);
 			}
 		}
 		throw new NoAxisFoundException(x);
@@ -441,7 +438,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int modifier = e.getModifiers();
 		if (modifier == 0) {
-			this.parallelCoordinatesChart.incrementAxisWidth(-e.getUnitsToScroll());
+			this.chart.incrementAxisWidth(-e.getUnitsToScroll());
 		} else if (modifier == 2) {
 			int x = e.getX();
 			try {
