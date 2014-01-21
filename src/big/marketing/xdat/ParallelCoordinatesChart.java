@@ -86,7 +86,7 @@ public class ParallelCoordinatesChart extends Chart {
 	private int lineThickness = 1;
 
 	/** Specifies the line thickness for selected designs. */
-	private int selectedDesignsLineThickness = 2;
+	private int selectedDesignsLineThickness = 1;
 
 	/**
 	 * The active design color.
@@ -95,14 +95,14 @@ public class ParallelCoordinatesChart extends Chart {
 	 * @see data.Design
 	 * @see data.Cluster
 	 * */
-	private Color activeDesignColor = Color.BLUE;
+	private Color activeDesignColor = Color.GREEN;
 
 	/**
 	 * The selected design color.
 	 * All Designs that are selected in the data sheet table are displayed in this color, except if only selected designs
 	 * are displayed, in which case they are displayed in the color in which they would otherwise have been displayed in unselected state.
 	 * */
-	private Color selectedDesignColor = Color.GREEN;
+	private Color selectedDesignColor = Color.BLUE;
 
 	/**
 	 * The filtered design color.
@@ -372,36 +372,6 @@ public class ParallelCoordinatesChart extends Chart {
 	}
 
 	/**
-	 * Gets the design color.
-	 * @param design the design
-	 * @param designActive the design active
-	 * @return the design color
-	 */
-	public Color getDesignColor(Design design, boolean designActive) // design active is function argument to improve performance
-	{
-		if (designActive && design.getCluster() != null) {
-			return design.getCluster().getActiveDesignColor();
-		} else if (designActive) {
-			return activeDesignColor;
-		} else {
-			return filteredDesignColor;
-		}
-	}
-
-	/**
-	 * Gets the design line thickness.
-	 * @param design the design
-	 * @return the design color
-	 */
-	public int getDesignLineThickness(Design design) {
-		if (design.getCluster() != null) {
-			return design.getCluster().getLineThickness();
-		} else {
-			return this.lineThickness;
-		}
-	}
-
-	/**
 	 * Gets the selected design line thickness.
 	 * @return the design line thickness
 	 */
@@ -453,27 +423,11 @@ public class ParallelCoordinatesChart extends Chart {
 	}
 
 	/**
-	 * Sets the selected design color.
-	 * @param selectedDesignColor the new selected design color
-	 */
-	public void setSelectedDesignColor(Color selectedDesignColor) {
-		this.selectedDesignColor = selectedDesignColor;
-	}
-
-	/**
 	 * Checks if design IDs should be shown.
 	 * @return true, if design IDs should be shown.
 	 */
 	public boolean isShowDesignIDs() {
 		return showDesignIDs;
-	}
-
-	/**
-	 * Specifies whether design IDs should be shown.
-	 * @param showDesignIDs Specifies whether design IDs should be shown.
-	 */
-	public void setShowDesignIDs(boolean showDesignIDs) {
-		this.showDesignIDs = showDesignIDs;
 	}
 
 	/**
@@ -485,14 +439,6 @@ public class ParallelCoordinatesChart extends Chart {
 	}
 
 	/**
-	 * Specifies whether filtered designs should be shown.
-	 * @param showFilteredDesigns specifies whether filtered designs should be shown.
-	 */
-	public void setShowFilteredDesigns(boolean showFilteredDesigns) {
-		this.showFilteredDesigns = showFilteredDesigns;
-	}
-
-	/**
 	 * Checks whether only selected designs should be shown.
 	 * @return true, if only selected designs should be shown.
 	 */
@@ -501,27 +447,11 @@ public class ParallelCoordinatesChart extends Chart {
 	}
 
 	/**
-	 * Specifies whether only selected designs should be shown.
-	 * @param showOnlySelectedDesigns specifies whether only selected designs should be shown.
-	 */
-	public void setShowOnlySelectedDesigns(boolean showOnlySelectedDesigns) {
-		this.showOnlySelectedDesigns = showOnlySelectedDesigns;
-	}
-
-	/**
 	 * Gets the filter color.
 	 * @return the filter color
 	 */
 	public Color getFilterColor() {
 		return filterColor;
-	}
-
-	/**
-	 * Sets the filter color.
-	 * @param filterColor the new filter color
-	 */
-	public void setFilterColor(Color filterColor) {
-		this.filterColor = filterColor;
 	}
 
 	/**

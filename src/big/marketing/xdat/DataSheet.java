@@ -33,9 +33,6 @@ import big.marketing.data.HealthMessage;
 public class DataSheet {
 	static Logger logger = Logger.getLogger(DataSheet.class);
 
-	/** The cluster set. */
-	private ClusterSet clusterSet;
-
 	/** The Vector containing all Designs. */
 	private Vector<Design> data = new Vector<Design>(0, 1);
 
@@ -43,7 +40,6 @@ public class DataSheet {
 	private Vector<Parameter> parameters = new Vector<Parameter>(0, 1);
 
 	public DataSheet(List<HealthMessage> healthMessages) {
-		this.clusterSet = new ClusterSet(this);
 
 		// TODO It is probably possible to make more general solution for this
 		this.parameters.add(new Parameter(HealthMessage.FIELDS[0], this));
@@ -200,22 +196,6 @@ public class DataSheet {
 	 */
 	public int getDesignCount() {
 		return this.data.size();
-	}
-
-	/**
-	 * Gets the cluster set.
-	 * @return the cluster set
-	 */
-	public ClusterSet getClusterSet() {
-		return clusterSet;
-	}
-
-	/**
-	 * Sets the cluster set.
-	 * @param clusterSet the new cluster set
-	 */
-	public void setClusterSet(ClusterSet clusterSet) {
-		this.clusterSet = clusterSet;
 	}
 
 	/**

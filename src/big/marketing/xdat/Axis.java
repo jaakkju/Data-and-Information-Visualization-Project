@@ -151,7 +151,6 @@ public class Axis implements Serializable {
 	 * @param parameter the Parameter represented by this Axis
 	 */
 	public Axis(DataSheet dataSheet, ParallelCoordinatesChart chart, Parameter parameter) {
-
 		this.dataSheet = dataSheet;
 		this.chart = chart;
 		this.parameter = parameter;

@@ -152,18 +152,18 @@ public class HealthMessage implements DBWritable {
 	public String statusValToString() {
 		switch (statusVal) {
 		case STATUS_GOOD:
-			return "GOOD";
+			return "1 - GOOD";
 		case STATUS_WARNING:
-			return "WARNING";
+			return "2- WARNING";
 		case STATUS_PROBLEM:
-			return "PROBLEM";
+			return "3 - PROBLEM";
 		default:
-			return "EMPTY";
+			return "0 - EMPTY";
 		}
 	}
 
 	public String connMadeToString() {
-		return connMade > 0 ? "OK" : "NOK";
+		return connMade > 0 ? "1 - OK" : "0 - NOK";
 	}
 
 	public boolean fromAdministrator() {

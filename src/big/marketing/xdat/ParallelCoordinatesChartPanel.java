@@ -137,7 +137,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		for (int designID = 0; designID < this.getDataSheet().getDesignCount(); designID++) // draw all designs
 		{
 			Design currentDesign = this.getDataSheet().getDesign(designID);
-			//			logger.info("drawDesigns: currentDesign.isInsideBounds(chart) = "+currentDesign.isInsideBounds(chart));
 			if (!currentDesign.isInsideBounds(chart)) // do not draw design if it is not inside bounds of the chart
 			{
 				logger.info("design not inside bounds, continue");
@@ -145,11 +144,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			}
 			boolean firstAxisDrawn = false;
 			boolean currentDesignClusterActive = true;
-			if (currentDesign.getCluster() != null) // determine if design belongs to an active cluster
-			{
-				currentDesignClusterActive = currentDesign.getCluster().isActive();
-			}
-
 			boolean currentDesignActive = true;
 			currentDesignActive = currentDesign.isActive(chart); // determine if current design is active
 
@@ -165,13 +159,9 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			if (displayDesign) // only draw design if the cluster is active and the design is active (or inactive design drawing is active)
 			{
 				int lineThickness;
-				if (chart.isShowOnlySelectedDesigns() || !currentDesign.isSelected()) {
-					g.setColor(chart.getDesignColor(currentDesign, currentDesignActive));
-					lineThickness = chart.getDesignLineThickness(currentDesign);
-				} else {
-					g.setColor(chart.getSelectedDesignColor());
-					lineThickness = chart.getSelectedDesignsLineThickness();
-				}
+				g.setColor(chart.getSelectedDesignColor());
+				lineThickness = chart.getSelectedDesignsLineThickness();
+
 				int xPositionCurrent = this.getMarginLeft();
 				int yPositionCurrent = axisTopPos;
 				int xPositionLast = xPositionCurrent;
@@ -241,7 +231,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		Axis currentAxis;
 		int drawnAxisCount = 0;
 		for (int i = 0; i < chart.getAxisCount(); i++) {
-			//			logger.info("drawing axis "+chart.getAxis(i).getName());
 			if (chart.getAxis(i).isActive()) {
 				//axes
 				currentAxis = chart.getAxis(i);
@@ -284,7 +273,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				      lf.getXPos() + chart.getFilterWidth(), lf.getYPos() + chart.getFilterHeight());
 
 				g.setFont(new Font("SansSerif", Font.PLAIN, currentAxis.getTicLabelFontSize()));
-				//				logger.info("Font size: "+currentAxis.getTicLabelFontSize());
+
 				if ((uf == this.draggedFilter || lf == this.draggedFilter) && currentAxis.getParameter().isNumeric()) {
 					g.drawString(String.format(currentAxis.getTicLabelFormat(), this.draggedFilter.getValue()), this.draggedFilter.getXPos()
 					      + chart.getFilterWidth() + 4, this.draggedFilter.getYPos() - chart.getFilterHeight());
@@ -347,7 +336,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 						}
 					}
 				}
-
 				lastAxis = currentAxis;
 			}
 		}
@@ -376,19 +364,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e) {
-		if (e.getButton() == 3) {
-			int x = e.getX();
-			int y = e.getY();
-
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				logger.info("MouseClick event: button 3, clicked on axis " + axis.getName());
-				(new ParallelCoordinatesContextMenu(axis, this)).show(this, x, y);
-			} catch (NoAxisFoundException e1) {
-				e1.printStackTrace();
-			}
-		}
-
 	}
 
 	/*
