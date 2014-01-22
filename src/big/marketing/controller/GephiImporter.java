@@ -47,7 +47,6 @@ public class GephiImporter implements SpigotImporter {
 		for (Node n : selectedNodes) {
 			selected.add(n);
 		}
-		System.out.println(selected.size());
 		for (FlowMessage message : data.getFlowData()) {
 
 			// dont use nodes that are not selected

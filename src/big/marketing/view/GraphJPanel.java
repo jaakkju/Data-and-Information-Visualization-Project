@@ -30,7 +30,6 @@ public class GraphJPanel extends JPanel implements Observer {
 	private ProcessingTarget target;
 
 	public void setContent(ProcessingTarget target) {
-		logger.info("Init applet");
 		this.target = target;
 		applet = target.getApplet();
 		applet.init();

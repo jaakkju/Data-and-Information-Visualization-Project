@@ -72,7 +72,6 @@ public class GephiController extends Observable {
 				continue;
 			for (String terminationName : terminationTargets) {
 				if (thread.getName().equals(terminationName)) {
-					logger.info("Killing Thread " + thread.getName());
 					thread.stop();
 				}
 			}
