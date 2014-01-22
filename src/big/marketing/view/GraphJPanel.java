@@ -12,7 +12,7 @@ import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.preview.api.PreviewController;
-import org.gephi.preview.api.PreviewModel;
+import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.types.DependantOriginalColor;
@@ -54,7 +54,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		layout.initAlgo();
 		layout.resetPropertiesValues();
 		//		layout.setOptimalDistance(200f);
-		layout.setEdgeWeightInfluence(0.0);
+		layout.setEdgeWeightInfluence(0.1);
 		layout.setScalingRatio(50.0);
 		layout.setLinLogMode(false);
 
@@ -73,14 +73,16 @@ public class GraphJPanel extends JPanel implements Observer {
 			layoutGraph();
 
 			PreviewController previewController = (PreviewController) arg;
-			PreviewModel previewModel = previewController.getModel();
-			previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
-			previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
-			previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
-
+			PreviewProperties props = previewController.getModel().getProperties();
+			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
+			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
+			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
+			props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+			props.putValue(PreviewProperty.ARROW_SIZE, 1);
+			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
+			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
 			previewController.refreshPreview();
 
 			if (target != null) {

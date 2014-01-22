@@ -85,7 +85,11 @@ public class GephiImporter implements SpigotImporter {
 				EdgeDraft edge = fact.newEdgeDraft();
 				edge.setSource(src);
 				edge.setTarget(dst);
+				edge.setWeight(1);
 				loader.addEdge(edge);
+			} else {
+				EdgeDraft e = loader.getEdge(src, dst);
+				e.setWeight(e.getWeight() + 1);
 			}
 		}
 		return true;
