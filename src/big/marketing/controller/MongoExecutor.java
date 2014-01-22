@@ -98,6 +98,11 @@ public class MongoExecutor {
 				e.printStackTrace();
 			}
 			mongoProcess = null;
+			File lockFile = new File(DB_PATH, "mongod.lock");
+			if (lockFile.exists())
+				lockFile.delete();
+			logger.info("Removed mongo lock file");
+
 		}
 	}
 
