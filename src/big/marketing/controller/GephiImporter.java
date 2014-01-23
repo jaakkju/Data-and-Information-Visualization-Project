@@ -91,6 +91,17 @@ public class GephiImporter implements SpigotImporter {
 				e.setWeight(e.getWeight() + 1);
 			}
 		}
+		//		Lookup.getDefault().lookup(AttributeController.class).getModel().getNodeTable()
+		//		AttributeColumn ac = new  
+		//		for (IPSMessage m : data.getIPSData()) {
+		//			NodeDraft graphNode = nodes.get(m.getDestinationIP());
+		//			if (graphNode != null) {
+		//				// the node is visible and selected, otherwise graphNode would have been null
+		//				
+		//
+		//			}
+		//		}
+
 		return true;
 	}
 
