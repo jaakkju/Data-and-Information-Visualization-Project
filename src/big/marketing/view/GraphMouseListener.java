@@ -1,6 +1,8 @@
 package big.marketing.view;
 
+import org.apache.log4j.Logger;
 import org.gephi.preview.api.PreviewMouseEvent;
+import org.gephi.preview.api.PreviewMouseEvent.Button;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.spi.PreviewMouseListener;
 import org.gephi.project.api.Workspace;
@@ -21,35 +23,35 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = PreviewMouseListener.class)
 public class GraphMouseListener implements PreviewMouseListener {
 
+	static Logger logger = Logger.getLogger(GraphMouseListener.class);
+
 	@Override
 	public void mouseClicked(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
-		// TODO Auto-generated method stub
-
+		// Triggered when clicked an mouse was not moved
+		logger.info("CLICK!");
 	}
 
 	@Override
 	public void mouseDragged(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
-		// TODO Auto-generated method stub
+		logger.info("DRAG!");
 
 	}
 
 	@Override
 	public void mousePressed(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
-		// TODO Auto-generated method stub
+		// This is triggered
+		logger.info("PRESS!");
+
+		// only react on left mouse button clicks, other events are passed to other listeners
+		if (event.button == Button.LEFT) {
+			event.setConsumed(true);
+		}
 
 	}
 
 	@Override
 	public void mouseReleased(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		logger.info("RELEASE!");
 
 	}
 

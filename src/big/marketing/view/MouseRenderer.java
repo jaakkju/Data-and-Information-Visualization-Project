@@ -5,6 +5,7 @@ import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.RenderTarget;
+import org.gephi.preview.plugin.renderers.NodeRenderer;
 import org.gephi.preview.spi.ItemBuilder;
 import org.gephi.preview.spi.MouseResponsiveRenderer;
 import org.gephi.preview.spi.PreviewMouseListener;
@@ -24,7 +25,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 
 @ServiceProvider(service = Renderer.class)
-public class MouseRenderer implements Renderer, MouseResponsiveRenderer {
+public class MouseRenderer extends NodeRenderer implements Renderer, MouseResponsiveRenderer {
 
 	@Override
 	public boolean needsPreviewMouseListener(PreviewMouseListener previewMouseListener) {
@@ -40,31 +41,27 @@ public class MouseRenderer implements Renderer, MouseResponsiveRenderer {
 
 	@Override
 	public PreviewProperty[] getProperties() {
-		// TODO Auto-generated method stub
-		return new PreviewProperty[] {};
+		return super.getProperties();
 	}
 
 	@Override
 	public boolean isRendererForitem(Item item, PreviewProperties properties) {
-		// TODO Auto-generated method stub
-		return false;
+		return super.isRendererForitem(item, properties);
 	}
 
 	@Override
 	public boolean needsItemBuilder(ItemBuilder itemBuilder, PreviewProperties properties) {
-		// TODO Auto-generated method stub
-		return false;
+		return super.needsItemBuilder(itemBuilder, properties);
 	}
 
 	@Override
 	public void preProcess(PreviewModel previewModel) {
-		// TODO Auto-generated method stub
-
+		super.preProcess(previewModel);
 	}
 
 	@Override
 	public void render(Item item, RenderTarget target, PreviewProperties properties) {
-		// TODO Auto-generated method stub
+		super.render(item, target, properties);
 
 	}
 
