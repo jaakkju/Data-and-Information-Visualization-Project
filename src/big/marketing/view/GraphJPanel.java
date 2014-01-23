@@ -15,6 +15,8 @@ import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
+import org.gephi.preview.spi.PreviewMouseListener;
+import org.gephi.preview.spi.Renderer;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
@@ -91,6 +93,14 @@ public class GraphJPanel extends JPanel implements Observer {
 			rankingController.transform(degreeRanking, sizeTransformer);
 
 			PreviewController previewController = (PreviewController) arg;
+			for (Renderer r : previewController.getRegisteredRenderers()) {
+				if ("MouseRenderer".equals(r.getDisplayName())) {
+					logger.info("Mouse renderer is attached");
+				}
+			}
+			for (PreviewMouseListener l : previewController.getModel().getEnabledMouseListeners()) {
+				logger.info("Found MouseListener: " + l.getClass());
+			}
 			PreviewProperties props = previewController.getModel().getProperties();
 			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
 			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
