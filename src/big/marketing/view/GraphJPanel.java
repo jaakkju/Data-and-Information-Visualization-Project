@@ -16,6 +16,11 @@ import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.types.DependantOriginalColor;
+import org.gephi.ranking.api.Ranking;
+import org.gephi.ranking.api.RankingController;
+import org.gephi.ranking.api.Transformer;
+import org.gephi.ranking.plugin.transformer.AbstractColorTransformer;
+import org.gephi.ranking.plugin.transformer.AbstractSizeTransformer;
 import org.openide.util.Lookup;
 
 import processing.core.PApplet;
@@ -70,6 +75,20 @@ public class GraphJPanel extends JPanel implements Observer {
 		if (arg instanceof PreviewController) {
 
 			layoutGraph();
+
+			// Calculate ranking vor Nodes & Edges and color them 
+			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
+			Ranking degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
+			AbstractColorTransformer colorTransformer = (AbstractColorTransformer) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
+			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
+			colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
+			rankingController.transform(degreeRanking, colorTransformer);
+			AbstractSizeTransformer sizeTransformer = (AbstractSizeTransformer) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
+			sizeTransformer.setMinSize(5);
+			sizeTransformer.setMaxSize(20);
+			rankingController.transform(degreeRanking, sizeTransformer);
 
 			PreviewController previewController = (PreviewController) arg;
 			PreviewProperties props = previewController.getModel().getProperties();
