@@ -57,29 +57,9 @@ public class GephiImporter implements SpigotImporter {
 				continue;
 			}
 
-			NodeDraft src = nodes.get(message.getSourceIP());
-			if (src == null) {
-				src = fact.newNodeDraft();
-				Node networkNode = ipMap.get(message.getSourceIP());
-				String label = "extern";
-				if (networkNode != null)
-					label = networkNode.getHostName();
-				src.setLabel(label.substring(0, 1));
-				nodes.put(message.getSourceIP(), src);
-				loader.addNode(src);
-			}
+			NodeDraft src = createNode(message.getSourceIP(), loader);
+			NodeDraft dst = createNode(message.getDestinationIP(), loader);
 
-			NodeDraft dst = nodes.get(message.getDestinationIP());
-			if (dst == null) {
-				dst = fact.newNodeDraft();
-				Node networkNode = ipMap.get(message.getDestinationIP());
-				String label = "extern";
-				if (networkNode != null)
-					label = networkNode.getHostName();
-				dst.setLabel(label.substring(0, 1));
-				nodes.put(message.getDestinationIP(), dst);
-				loader.addNode(dst);
-			}
 			if (!loader.edgeExists(src, dst)) {
 				EdgeDraft edge = fact.newEdgeDraft();
 				edge.setSource(src);
@@ -91,18 +71,26 @@ public class GephiImporter implements SpigotImporter {
 				e.setWeight(e.getWeight() + 1);
 			}
 		}
-		//		Lookup.getDefault().lookup(AttributeController.class).getModel().getNodeTable()
-		//		AttributeColumn ac = new  
-		//		for (IPSMessage m : data.getIPSData()) {
-		//			NodeDraft graphNode = nodes.get(m.getDestinationIP());
-		//			if (graphNode != null) {
-		//				// the node is visible and selected, otherwise graphNode would have been null
-		//				
-		//
-		//			}
-		//		}
 
 		return true;
+	}
+
+	private NodeDraft createNode(String name, ContainerLoader loader) {
+		NodeDraft draft = nodes.get(name);
+		if (draft == null) {
+			draft = loader.factory().newNodeDraft();
+			draft.setFixed(false);
+			Node networkNode = ipMap.get(name);
+			String label = "extern";
+			if (networkNode != null)
+				label = networkNode.getHostName();
+			draft.setLabel(label.substring(0, 1));
+			nodes.put(name, draft);
+			loader.addNode(draft);
+		} else {
+			draft.setFixed(true);
+		}
+		return draft;
 	}
 
 	private boolean isVisibleNode(Node n, List<Node> selected) {
