@@ -3,14 +3,15 @@ package big.marketing.view;
 import org.gephi.preview.api.Item;
 import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperties;
-import org.gephi.preview.api.PreviewProperty;
-import org.gephi.preview.api.RenderTarget;
+import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.plugin.renderers.NodeRenderer;
-import org.gephi.preview.spi.ItemBuilder;
 import org.gephi.preview.spi.MouseResponsiveRenderer;
 import org.gephi.preview.spi.PreviewMouseListener;
 import org.gephi.preview.spi.Renderer;
 import org.openide.util.lookup.ServiceProvider;
+
+import processing.core.PApplet;
+import processing.core.PGraphics;
 
 /*
  * How to use ServiceProviders:
@@ -25,44 +26,53 @@ import org.openide.util.lookup.ServiceProvider;
  */
 
 @ServiceProvider(service = Renderer.class)
-public class MouseRenderer extends NodeRenderer implements Renderer, MouseResponsiveRenderer {
+public class MouseRenderer extends NodeRenderer implements MouseResponsiveRenderer {
+
+	boolean isDragging;
+	int x, y, w, h;
+
+	public void startDragging(int x, int y, int w, int h) {
+		this.isDragging = true;
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+	}
+
+	public void endDragging() {
+		isDragging = false;
+	}
 
 	@Override
 	public boolean needsPreviewMouseListener(PreviewMouseListener previewMouseListener) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public String getDisplayName() {
-		// TODO Auto-generated method stub
-		return "MouseRenderer";
-	}
-
-	@Override
-	public PreviewProperty[] getProperties() {
-		return super.getProperties();
-	}
-
-	@Override
-	public boolean isRendererForitem(Item item, PreviewProperties properties) {
-		return super.isRendererForitem(item, properties);
-	}
-
-	@Override
-	public boolean needsItemBuilder(ItemBuilder itemBuilder, PreviewProperties properties) {
-		return super.needsItemBuilder(itemBuilder, properties);
+		return previewMouseListener instanceof GraphMouseListener;
 	}
 
 	@Override
 	public void preProcess(PreviewModel previewModel) {
+		// TODO Auto-generated method stub
 		super.preProcess(previewModel);
 	}
 
 	@Override
-	public void render(Item item, RenderTarget target, PreviewProperties properties) {
-		super.render(item, target, properties);
+	public void renderProcessing(Item item, ProcessingTarget target, PreviewProperties properties) {
+		// TODO Auto-generated method stub
+		// draw rectangle
 
+		super.renderProcessing(item, target, properties);
+		if (isDragging) {
+			PGraphics g = target.getGraphics();
+			PApplet p = target.getApplet();
+			int width = w - x;
+			int height = h - y;
+			//			System.out.println("Width: " + width + " Height: " + height);
+			g.fill(128, 128, 128, 20);
+			g.rect(x + width / 2, y + height / 2, width, height);
+		}
 	}
 
+	@Override
+	public String getDisplayName() {
+		return "MouseRenderer";
+	}
 }
