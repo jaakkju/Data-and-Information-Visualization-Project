@@ -1,11 +1,6 @@
 package big.marketing.view;
 
-import java.awt.Dimension;
-import java.awt.Point;
-
 import org.apache.log4j.Logger;
-import org.gephi.preview.api.PreviewController;
-import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewMouseEvent;
 import org.gephi.preview.api.PreviewMouseEvent.Button;
 import org.gephi.preview.api.PreviewProperties;
@@ -13,6 +8,8 @@ import org.gephi.preview.spi.PreviewMouseListener;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+
+import big.marketing.controller.GephiController;
 
 /*
  * How to use ServiceProviders:
@@ -31,6 +28,7 @@ public class GraphMouseListener implements PreviewMouseListener {
 
 	static Logger logger = Logger.getLogger(GraphMouseListener.class);
 	private int startX, startY, endX, endY;
+	private GephiController gc;
 
 	// Match Event coordinates with nodes...
 	@Override
@@ -75,28 +73,19 @@ public class GraphMouseListener implements PreviewMouseListener {
 		if (startX != endX || startY != endY) {
 			logger.info("Dragged from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
 			Lookup.getDefault().lookup(MouseRenderer.class).endDragging();
+
+			gc.selectNodesFromCoords(startX, startY, endX, endY);
+
 		}
-		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
 
-		// These are only updated, if new workspace / data is loaded...
-		Point topLeft = pm.getTopLeftPosition();
-		Dimension d = pm.getDimensions();
-
-		logger.info("Corner: (" + topLeft.x + "," + topLeft.y + ") (" + d.width + "," + d.height + ")");
-		//		try {
-		//			GraphModel gm = Lookup.getDefault().lookup(GraphController.class).getModel();
-		//			Node n = gm.getGraph().getNodes().iterator().next();
-		//			Attributes a = n.getAttributes();
-		//
-		//			System.out.println(a);
-		//
-		//		} catch (Exception e) {
-		//			System.out.println(e);
-		//		}
 	}
 
 	private boolean isReactiveFor(PreviewMouseEvent event) {
 		return event.button == Button.LEFT;
+	}
+
+	public void setGephiController(GephiController gc) {
+		this.gc = gc;
 	}
 
 }

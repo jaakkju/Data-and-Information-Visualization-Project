@@ -1,12 +1,14 @@
 package big.marketing.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
+import org.gephi.graph.api.NodeData;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerFactory;
 import org.gephi.io.importer.api.ContainerLoader;
@@ -23,6 +25,7 @@ import big.marketing.data.FlowMessage;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
+import big.marketing.view.GraphMouseListener;
 
 public class GephiController extends Observable {
 	static Logger logger = Logger.getLogger(GephiController.class);
@@ -39,6 +42,8 @@ public class GephiController extends Observable {
 		projectController = Lookup.getDefault().lookup(ProjectController.class);
 		this.dc = dc;
 		ipMap = dc.getMongoController().getNetwork();
+		GraphMouseListener gml = Lookup.getDefault().lookup(GraphMouseListener.class);
+		gml.setGephiController(this);
 		// load an emtpy graph for initializing the RenderTarget and Applet(in GraphPanel)
 		loadEmptyContainer();
 
@@ -124,6 +129,35 @@ public class GephiController extends Observable {
 
 	public void render(ProcessingTarget target) {
 		previewController.render(target);
+	}
+
+	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
+		GraphModel gm = Lookup.getDefault().lookup(GraphController.class).getModel();
+		org.gephi.graph.api.Node[] nodes = gm.getGraph().getNodes().toArray();
+		List<org.gephi.graph.api.Node> selected = new ArrayList<>();
+
+		if (startX > endX) {
+			int tmp = endX;
+			endX = startX;
+			startX = tmp;
+		}
+		if (startY > endY) {
+			int tmp = endY;
+			endY = startY;
+			startY = tmp;
+		}
+
+		for (org.gephi.graph.api.Node n : nodes) {
+			NodeData nd = n.getNodeData();
+			if (nd.x() >= startX && nd.x() <= endX && nd.y() >= startY && nd.y() <= endY) {
+				selected.add(n);
+				String ip = (String) nd.getAttributes().getValue("ip");
+				logger.info("Selected node with ip: " + ip);
+			}
+
+		}
+		logger.info("Selected " + selected.size() + " Nodes...");
+
 	}
 
 }
