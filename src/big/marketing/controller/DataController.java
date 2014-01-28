@@ -204,6 +204,9 @@ public class DataController extends Observable implements Runnable {
 	public void setSelectedNode(Node[] selectedNode) {
 		this.selectedNodes = selectedNode;
 		setChanged();
+		notifyObservers(selectedNodes);
+		gc.load(currentQueryWindow, selectedNodes);
+
 	}
 
 	public Node[] getHighlightedNodes() {

@@ -134,7 +134,7 @@ public class GephiController extends Observable {
 	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
 		GraphModel gm = Lookup.getDefault().lookup(GraphController.class).getModel();
 		org.gephi.graph.api.Node[] nodes = gm.getGraph().getNodes().toArray();
-		List<org.gephi.graph.api.Node> selected = new ArrayList<>();
+		List<Node> selected = new ArrayList<>();
 
 		if (startX > endX) {
 			int tmp = endX;
@@ -146,17 +146,23 @@ public class GephiController extends Observable {
 			endY = startY;
 			startY = tmp;
 		}
-
+		int totalSelectedNodes = 0;
 		for (org.gephi.graph.api.Node n : nodes) {
 			NodeData nd = n.getNodeData();
 			if (nd.x() >= startX && nd.x() <= endX && nd.y() >= startY && nd.y() <= endY) {
-				selected.add(n);
+				totalSelectedNodes++;
 				String ip = (String) nd.getAttributes().getValue("ip");
-				logger.info("Selected node with ip: " + ip);
+				Node networkNode = ipMap.get(ip);
+				if (networkNode != null)
+					selected.add(networkNode);
 			}
 
 		}
-		logger.info("Selected " + selected.size() + " Nodes...");
+		logger.info("Selected " + selected.size() + " out of " + totalSelectedNodes + " Nodes...");
+		if (selected.size() > 0) {
+			Node[] selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
+			dc.setSelectedNode(selectedNodes);
+		}
 
 	}
 
