@@ -42,6 +42,13 @@ public class DataController extends Observable implements Runnable {
 		return instance;
 	}
 
+	/*
+	 * TODO I think we can clarify this code pretty much
+	 * maybe we could use Map<Node, boolean> to denote which Nodes are selected currently
+	 * or make getNetwork to return node[] and then convert it to Map<Node, boolean> network that works as a selected nodes
+	 * Question? What is the purpose of ipMap
+	 */
+
 	private DataController() {
 		loadSettings();
 		this.mc = MongoController.getInstance();
@@ -76,6 +83,10 @@ public class DataController extends Observable implements Runnable {
 		DataProcessor dp = new DataProcessor(this.mc, DataType.FLOW, DataType.IPS, DataType.HEALTH);
 		processingThread = new Thread(dp, "ProcessingThread");
 		processingThread.start();
+	}
+
+	public List<Node> getNetwork() {
+		return network;
 	}
 
 	public void setTime(int newTime) {
