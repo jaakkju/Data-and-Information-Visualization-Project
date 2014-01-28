@@ -2,6 +2,8 @@ package big.marketing.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -15,8 +17,6 @@ import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
-import org.gephi.preview.spi.PreviewMouseListener;
-import org.gephi.preview.spi.Renderer;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
@@ -47,6 +47,15 @@ public class GraphJPanel extends JPanel implements Observer {
 
 	public GraphJPanel(DataController controller) {
 		this.controller = controller;
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO: many events are fired, don't update everytime, very costly
+				// FIX: update only on last event... (or maybe find a setting to fire events only at the end of resizing...)
+				logger.debug("Resize event");
+				update(null, null);
+			}
+		});
 		setLayout(new BorderLayout());
 		this.controller.getGephiController().setGraphPanel(this);
 	}
@@ -93,15 +102,16 @@ public class GraphJPanel extends JPanel implements Observer {
 			rankingController.transform(degreeRanking, sizeTransformer);
 
 			PreviewController previewController = (PreviewController) arg;
-			for (Renderer r : previewController.getRegisteredRenderers()) {
-				if ("MouseRenderer".equals(r.getDisplayName())) {
-					logger.info("Mouse renderer is attached");
-				}
-			}
-			for (PreviewMouseListener l : previewController.getModel().getEnabledMouseListeners()) {
-				logger.info("Found MouseListener: " + l.getClass());
-			}
+
 			PreviewProperties props = previewController.getModel().getProperties();
+
+			// Dimensions are different every run... thats bad
+			// topleft & dimensions are only updated during refreshPreview...
+			// how to create a mapping from graph coordinates to screen coords???
+			// screen dimensions via previewapplet...
+			// initial graph dimensions via previewModel
+			// track changes (pan, zoom)
+
 			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
 			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
@@ -113,10 +123,11 @@ public class GraphJPanel extends JPanel implements Observer {
 			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
 			previewController.refreshPreview();
 
-			if (target != null) {
-				target.refresh();
-				target.resetZoom();
-			}
+		}
+
+		if (target != null) {
+			target.refresh();
+			target.resetZoom();
 		}
 	}
 
