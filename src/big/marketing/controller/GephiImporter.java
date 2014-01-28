@@ -65,23 +65,24 @@ public class GephiImporter implements SpigotImporter {
 			Node srcNetworkNode = ipMap.get(message.getSourceIP());
 			Node destNetworkNode = ipMap.get(message.getDestinationIP());
 
-			if (!isVisibleNode(srcNetworkNode, selected) && !isVisibleNode(destNetworkNode, selected)) {
-				continue;
+			if (isVisibleNode(srcNetworkNode, selected) || isVisibleNode(destNetworkNode, selected)) {
+
+				NodeDraft src = createNode(message.getSourceIP(), loader);
+				NodeDraft dst = createNode(message.getDestinationIP(), loader);
+
+				if (!loader.edgeExists(src, dst)) {
+					EdgeDraft edge = fact.newEdgeDraft();
+					edge.setSource(src);
+					edge.setTarget(dst);
+					edge.setWeight(1);
+					loader.addEdge(edge);
+				} else {
+					EdgeDraft e = loader.getEdge(src, dst);
+					e.setWeight(e.getWeight() + 1);
+				}
+
 			}
 
-			NodeDraft src = createNode(message.getSourceIP(), loader);
-			NodeDraft dst = createNode(message.getDestinationIP(), loader);
-
-			if (!loader.edgeExists(src, dst)) {
-				EdgeDraft edge = fact.newEdgeDraft();
-				edge.setSource(src);
-				edge.setTarget(dst);
-				edge.setWeight(1);
-				loader.addEdge(edge);
-			} else {
-				EdgeDraft e = loader.getEdge(src, dst);
-				e.setWeight(e.getWeight() + 1);
-			}
 		}
 
 		return true;
