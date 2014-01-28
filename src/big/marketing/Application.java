@@ -1,5 +1,10 @@
 package big.marketing;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -12,6 +17,8 @@ import big.marketing.view.WindowFrame;
 
 public class Application {
 	static Logger logger = Logger.getLogger(Application.class);
+	private static String logConfigFile = "config/log4j.properties";
+	private static String defaultLogConfigFile = logConfigFile + ".template";
 
 	/**
 	 * Application class implements main method and initializes the main parts of
@@ -19,7 +26,9 @@ public class Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		PropertyConfigurator.configure("config/log4j.properties");
+
+		PropertyConfigurator.configure(getLogSettings());
+
 		logger.info("Starting eyeNet application: initializing controller and views");
 
 		Settings.loadConfig();
@@ -47,5 +56,22 @@ public class Application {
 		MongoExecutor.killMongoProcess();
 		logger.info("Goodbye!");
 		System.exit(0);
+	}
+
+	private static Properties getLogSettings() {
+		Properties defaultProps = new Properties();
+		try {
+			defaultProps.load(new FileReader(defaultLogConfigFile));
+			if (new File(logConfigFile).exists()) {
+				Properties userProps = new Properties(defaultProps);
+				userProps.load(new FileReader(logConfigFile));
+				System.out.println("Read user log settings");
+				return userProps;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return defaultProps;
 	}
 }
