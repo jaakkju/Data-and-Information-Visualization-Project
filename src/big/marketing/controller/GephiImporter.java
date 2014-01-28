@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gephi.data.attributes.api.AttributeColumn;
+import org.gephi.data.attributes.api.AttributeModel;
+import org.gephi.data.attributes.api.AttributeTable;
+import org.gephi.data.attributes.api.AttributeType;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.EdgeDraft;
 import org.gephi.io.importer.api.NodeDraft;
@@ -23,6 +27,7 @@ public class GephiImporter implements SpigotImporter {
 	private Map<String, Node> ipMap;
 	Map<String, NodeDraft> nodes;
 	private Node[] selectedNodes;
+	private AttributeColumn ipColumn;
 
 	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap, Node[] selectedNodes) {
 		this.data = dataset;
@@ -47,6 +52,13 @@ public class GephiImporter implements SpigotImporter {
 		for (Node n : selectedNodes) {
 			selected.add(n);
 		}
+
+		AttributeModel am = container.getAttributeModel();
+		AttributeTable nt = am.getNodeTable();
+		ipColumn = nt.getColumn("ip");
+		if (ipColumn == null)
+			ipColumn = nt.addColumn("ip", AttributeType.STRING);
+
 		for (FlowMessage message : data.getFlowData()) {
 
 			// dont use nodes that are not selected
@@ -84,6 +96,7 @@ public class GephiImporter implements SpigotImporter {
 			String label = "extern";
 			if (networkNode != null)
 				label = networkNode.getHostName();
+			draft.addAttributeValue(ipColumn, name);
 			draft.setLabel(label.substring(0, 1));
 			nodes.put(name, draft);
 			loader.addNode(draft);
