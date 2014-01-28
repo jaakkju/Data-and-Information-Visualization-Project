@@ -32,7 +32,8 @@ public class Settings {
 		// this enables hierarchical properties:
 		// eyeNet.properties doesn't have to contain all settings, only the ones different from default
 		// settings not existing in eyeNet.properties are getting the default value
-		properties = new Properties(properties);
+		Properties defaults = properties;
+		properties = new Properties(defaults);
 
 		boolean userConfigOK = loadConfigFile(configFile);
 
@@ -44,7 +45,7 @@ public class Settings {
 			} else {
 				// no user config file existing, saving default config as user config
 				try {
-					properties.store(new FileWriter(configFile), "");
+					defaults.store(new FileWriter(configFile), "");
 				} catch (IOException e) {
 					logger.warn("Could not write config file to " + configFile);
 				}
