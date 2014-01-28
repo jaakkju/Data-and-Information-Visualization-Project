@@ -116,24 +116,19 @@ public class Node implements DBWritable {
 		if (!(obj instanceof Node))
 			return false;
 		Node other = (Node) obj;
+
+		// Comparing only hostname and address
 		if (address == null) {
 			if (other.address != null)
 				return false;
 		} else if (!address.equals(other.address))
 			return false;
-		if (comment == null) {
-			if (other.comment != null)
-				return false;
-		} else if (!comment.equals(other.comment))
-			return false;
+
 		if (hostName == null) {
 			if (other.hostName != null)
 				return false;
 		} else if (!hostName.equals(other.hostName))
 			return false;
-		if (type != other.type)
-			return false;
 		return true;
 	}
-
 }

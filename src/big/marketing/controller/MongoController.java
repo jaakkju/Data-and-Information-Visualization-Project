@@ -270,12 +270,10 @@ public class MongoController implements Runnable {
 	}
 
 	public Map<String, Node> getNetwork() {
-		List<Node> result = new ArrayList<Node>();
 		Map<String, Node> ipNodeMap = new HashMap<String, Node>();
 		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
 		for (DBObject obj : names.find()) {
 			Node n = (Node) convert(DataType.DESCRIPTION, obj);
-			result.add(n);
 			ipNodeMap.put(n.getAddress(), n);
 		}
 		return ipNodeMap;
