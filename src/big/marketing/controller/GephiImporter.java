@@ -47,7 +47,6 @@ public class GephiImporter implements SpigotImporter {
 		for (Node n : selectedNodes) {
 			selected.add(n);
 		}
-		System.out.println(selected.size());
 		for (FlowMessage message : data.getFlowData()) {
 
 			// dont use nodes that are not selected
@@ -85,9 +84,24 @@ public class GephiImporter implements SpigotImporter {
 				EdgeDraft edge = fact.newEdgeDraft();
 				edge.setSource(src);
 				edge.setTarget(dst);
+				edge.setWeight(1);
 				loader.addEdge(edge);
+			} else {
+				EdgeDraft e = loader.getEdge(src, dst);
+				e.setWeight(e.getWeight() + 1);
 			}
 		}
+		//		Lookup.getDefault().lookup(AttributeController.class).getModel().getNodeTable()
+		//		AttributeColumn ac = new  
+		//		for (IPSMessage m : data.getIPSData()) {
+		//			NodeDraft graphNode = nodes.get(m.getDestinationIP());
+		//			if (graphNode != null) {
+		//				// the node is visible and selected, otherwise graphNode would have been null
+		//				
+		//
+		//			}
+		//		}
+
 		return true;
 	}
 

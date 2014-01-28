@@ -12,10 +12,17 @@ import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.preview.api.PreviewController;
-import org.gephi.preview.api.PreviewModel;
+import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
+import org.gephi.preview.spi.PreviewMouseListener;
+import org.gephi.preview.spi.Renderer;
 import org.gephi.preview.types.DependantOriginalColor;
+import org.gephi.ranking.api.Ranking;
+import org.gephi.ranking.api.RankingController;
+import org.gephi.ranking.api.Transformer;
+import org.gephi.ranking.plugin.transformer.AbstractColorTransformer;
+import org.gephi.ranking.plugin.transformer.AbstractSizeTransformer;
 import org.openide.util.Lookup;
 
 import processing.core.PApplet;
@@ -30,7 +37,6 @@ public class GraphJPanel extends JPanel implements Observer {
 	private ProcessingTarget target;
 
 	public void setContent(ProcessingTarget target) {
-		logger.info("Init applet");
 		this.target = target;
 		applet = target.getApplet();
 		applet.init();
@@ -54,7 +60,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		layout.initAlgo();
 		layout.resetPropertiesValues();
 		//		layout.setOptimalDistance(200f);
-		layout.setEdgeWeightInfluence(0.0);
+		layout.setEdgeWeightInfluence(0.1);
 		layout.setScalingRatio(50.0);
 		layout.setLinLogMode(false);
 
@@ -72,15 +78,39 @@ public class GraphJPanel extends JPanel implements Observer {
 
 			layoutGraph();
 
-			PreviewController previewController = (PreviewController) arg;
-			PreviewModel previewModel = previewController.getModel();
-			previewModel.getProperties().putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
-			previewModel.getProperties().putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_CURVED, Boolean.FALSE);
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_OPACITY, 50);
-			previewModel.getProperties().putValue(PreviewProperty.EDGE_RADIUS, 10f);
-			previewModel.getProperties().putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+			// Calculate ranking vor Nodes & Edges and color them 
+			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
+			Ranking degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
+			AbstractColorTransformer colorTransformer = (AbstractColorTransformer) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
+			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
+			colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
+			rankingController.transform(degreeRanking, colorTransformer);
+			AbstractSizeTransformer sizeTransformer = (AbstractSizeTransformer) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
+			sizeTransformer.setMinSize(5);
+			sizeTransformer.setMaxSize(20);
+			rankingController.transform(degreeRanking, sizeTransformer);
 
+			PreviewController previewController = (PreviewController) arg;
+			for (Renderer r : previewController.getRegisteredRenderers()) {
+				if ("MouseRenderer".equals(r.getDisplayName())) {
+					logger.info("Mouse renderer is attached");
+				}
+			}
+			for (PreviewMouseListener l : previewController.getModel().getEnabledMouseListeners()) {
+				logger.info("Found MouseListener: " + l.getClass());
+			}
+			PreviewProperties props = previewController.getModel().getProperties();
+			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
+			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
+			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
+			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
+			props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+			props.putValue(PreviewProperty.ARROW_SIZE, 1);
+			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
+			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
 			previewController.refreshPreview();
 
 			if (target != null) {
