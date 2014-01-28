@@ -1,6 +1,7 @@
 package big.marketing;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import big.marketing.controller.DataController;
 import big.marketing.controller.MongoExecutor;
@@ -18,6 +19,7 @@ public class Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		PropertyConfigurator.configure("config/log4j.properties");
 		logger.info("Starting eyeNet application: initializing controller and views");
 
 		Settings.loadConfig();

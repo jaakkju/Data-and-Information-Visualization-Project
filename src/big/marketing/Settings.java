@@ -11,8 +11,8 @@ public class Settings {
 	static Logger logger = Logger.getLogger(Settings.class);
 
 	private static Properties properties = new Properties();
-	private static final String configFile = "eyeNet.properties";
-	private static final String defaultConfigFile = "eyeNet.properties.template";
+	private static final String configFile = "config/eyeNet.properties";
+	private static final String defaultConfigFile = "config/eyeNet.properties.template";
 
 	public static String get(String key) {
 		return properties.getProperty(key);
