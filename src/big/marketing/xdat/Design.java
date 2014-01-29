@@ -172,18 +172,14 @@ public class Design implements Serializable {
 	 * @return true, if is inside filters
 	 */
 	private boolean isInsideBounds(Axis axis) {
-		if (axis.getParameter().isNumeric()) {
-			double lower = axis.getLowerFilter().getValue();
-			double upper = axis.getUpperFilter().getValue();
-			double value = this.getDoubleValue(axis.getParameter());
+		double lower = axis.getLowerFilter().getValue();
+		double upper = axis.getUpperFilter().getValue();
+		double value = this.getDoubleValue(axis.getParameter());
 
-			if (lower <= value && value <= upper) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
+		if (lower <= value && value <= upper) {
 			return true;
+		} else {
+			return false;
 		}
 	}
 

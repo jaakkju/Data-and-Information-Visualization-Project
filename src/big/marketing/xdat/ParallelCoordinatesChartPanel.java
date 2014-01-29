@@ -97,7 +97,8 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	 * @param selectedNodes
 	 */
 	public void updateSelectedNodes(Node[] selectedNodes) {
-		logger.info("Number of selected nodes is " + selectedNodes.length);
+		// TODO create code for selection from graph to Pcoords 
+		// logger.info("Number of selected nodes is " + selectedNodes.length);
 	}
 
 	/**
