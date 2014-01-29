@@ -43,6 +43,8 @@ import org.jfree.ui.RectangleInsets;
 import big.marketing.Settings;
 import big.marketing.controller.DataController;
 import big.marketing.data.DataType;
+import big.marketing.data.Node;
+import big.marketing.data.QueryWindowData;
 
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
@@ -56,6 +58,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private JCheckBox adminBox, serverBox, workstationBox;
 	private JComboBox<DataType> typeCombo;
 	private Map<DataType, XYDataset> datasetCache;
+	private JLabel nodeCountJLabel;
 
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
@@ -129,6 +132,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 			}
 		});
 		buttonPanel.add(typeCombo);
+		nodeCountJLabel = new JLabel(" Displaying: All nodes");
+		buttonPanel.add(nodeCountJLabel);
 
 		TimeSeriesCollection data = controller.getMongoController().getHistogramTCollection(DataType.FLOW);
 		datasetCache.put(DataType.FLOW, data);
@@ -178,6 +183,11 @@ public class ControlsJPanel extends JPanel implements Observer {
 			setCurrentTime(newTime);
 		} else if ("PlayStateChanged".equals(arg)) {
 			switchPlayButtonName();
+		} else if (arg instanceof Node[]) {
+			Node[] selectedNodes = (Node[]) arg;
+			nodeCountJLabel.setText(" Displaying: " + selectedNodes.length + " nodes");
+		} else if (arg instanceof QueryWindowData) {
+			nodeCountJLabel.setText(" Displaying: All nodes");
 		}
 	}
 
