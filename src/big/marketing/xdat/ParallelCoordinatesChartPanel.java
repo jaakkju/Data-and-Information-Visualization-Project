@@ -27,8 +27,6 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.TreeSet;
@@ -41,7 +39,7 @@ import big.marketing.data.Node;
 /**
  * Panel that is used to display a {@link chart.ParallelCoordinatesChart}.
  */
-public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
+public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMotionListener, MouseListener {
 	static Logger logger = Logger.getLogger(ParallelCoordinatesChartPanel.class);
 
 	/** The version tracking unique identifier for Serialization. */
@@ -71,7 +69,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	/** Reference to an axis that is currently being dragged by the user. */
 	private Axis draggedAxis;
 
-	// TODO pass changes in selections to controller
 	private DataController controller;
 
 	/**
@@ -89,16 +86,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		this.addMouseMotionListener(this);
 
 		paint(getGraphics());
-		this.addMouseWheelListener(this);
-	}
-
-	/**
-	 * Updates parallerCoordinates view based no Node[] selectedNodes
-	 * @param selectedNodes
-	 */
-	public void updateSelectedNodes(Node[] selectedNodes) {
-		// TODO create code for selection from graph to Pcoords 
-		// logger.info("Number of selected nodes is " + selectedNodes.length);
 	}
 
 	/**
@@ -472,29 +459,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 			      this.draggedFilter.getHighestPos()));
 			repaint();
 		}
-	}
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		int modifier = e.getModifiers();
-		if (modifier == 0) {
-			this.chart.incrementAxisWidth(-e.getUnitsToScroll());
-		} else if (modifier == 2) {
-			int x = e.getX();
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				axis.setWidth(Math.max(0, axis.getWidth() - e.getUnitsToScroll()));
-			} catch (NoAxisFoundException e1) {
-			}
-		} else if (modifier == 8) {
-			int x = e.getX();
-			try {
-				Axis axis = this.getAxisAtLocation(x);
-				axis.setTicCount(Math.max(2, axis.getTicCount() - e.getWheelRotation()));
-			} catch (NoAxisFoundException e1) {
-			}
-		}
-		this.repaint();
 	}
 
 	/**

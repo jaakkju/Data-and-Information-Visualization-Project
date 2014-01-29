@@ -3,6 +3,7 @@ package big.marketing.view;
 import java.awt.BorderLayout;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -43,20 +44,34 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object obj) {
 		if (obj instanceof QueryWindowData) {
-			QueryWindowData newData = (QueryWindowData) obj;
-			List<HealthMessage> healthMessages = newData.getHealthData();
-
-			// Do refreshing of the parallel coordinates here
-			removeAll();
-			DataSheet dataSheet = new DataSheet(healthMessages);
-			ParallelCoordinatesChart chart = new ParallelCoordinatesChart(dataSheet, this.getSize());
-			panel = new ParallelCoordinatesChartPanel(chart, dataSheet, controller);
-			add(panel);
-			revalidate();
+			QueryWindowData qWindow = (QueryWindowData) obj;
+			List<HealthMessage> healthMessages = qWindow.getHealthData();
+			updateParallelCoordinatesPanel(healthMessages);
 
 		} else if (obj instanceof Node[]) {
 			Node[] selectedNodes = (Node[]) obj;
-			panel.updateSelectedNodes(selectedNodes);
+			List<HealthMessage> healthMessages = controller.getCurrentQueryWindow().getHealthData();
+
+			ArrayList<HealthMessage> selection = new ArrayList<>();
+			for (Node node : selectedNodes) {
+				for (HealthMessage healthMessage : healthMessages) {
+					if (node.getHostName().equalsIgnoreCase(healthMessage.getHostname())) {
+						selection.add(healthMessage);
+					}
+				}
+			}
+			updateParallelCoordinatesPanel(selection);
 		}
+	}
+
+	private void updateParallelCoordinatesPanel(List<HealthMessage> healthMessages) {
+		// Do refreshing of the parallel coordinates here
+
+		removeAll();
+		DataSheet dataSheet = new DataSheet(healthMessages);
+		ParallelCoordinatesChart chart = new ParallelCoordinatesChart(dataSheet, this.getSize());
+		panel = new ParallelCoordinatesChartPanel(chart, dataSheet, controller);
+		add(panel);
+		revalidate();
 	}
 }

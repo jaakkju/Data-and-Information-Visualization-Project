@@ -33,6 +33,11 @@ public class DataController extends Observable implements Runnable {
 
 	private Thread readingThread, processingThread;
 	private Player player;
+	private int nodeCount;
+
+	public int getNodeCount() {
+		return nodeCount;
+	}
 
 	private static DataController instance;
 
@@ -68,7 +73,7 @@ public class DataController extends Observable implements Runnable {
 				selected.add(n);
 		}
 		selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
-		logger.info("Selected " + selectedNodes.length + " Nodes");
+		nodeCount = selectedNodes.length;
 		setChanged();
 		notifyObservers(selectedNodes);
 		gc.load(currentQueryWindow, selectedNodes);
