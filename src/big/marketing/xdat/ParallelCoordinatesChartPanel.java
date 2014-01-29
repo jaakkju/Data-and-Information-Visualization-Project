@@ -30,8 +30,13 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
+
+import big.marketing.controller.DataController;
+import big.marketing.data.Node;
 
 /**
  * Panel that is used to display a {@link chart.ParallelCoordinatesChart}.
@@ -66,20 +71,58 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	/** Reference to an axis that is currently being dragged by the user. */
 	private Axis draggedAxis;
 
+	// TODO pass changes in selections to controller
+	private DataController controller;
+
 	/**
 	 * Instantiates a new parallel coordinates chart panel.
 	 * @param mainWindow the main Window
 	 * @param chart the chart
+	 * @param controller
 	 */
-	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart chart, DataSheet dataSheet) {
+	public ParallelCoordinatesChartPanel(ParallelCoordinatesChart chart, DataSheet dataSheet, DataController controller) {
 		super(dataSheet, chart);
 		this.chart = chart;
+		this.controller = controller;
 
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 
 		paint(getGraphics());
 		this.addMouseWheelListener(this);
+	}
+
+	/**
+	 * Updates parallerCoordinates view based no Node[] selectedNodes
+	 * @param selectedNodes
+	 */
+	public void updateSelectedNodes(Node[] selectedNodes) {
+		logger.info("Number of selected nodes is " + selectedNodes.length);
+	}
+
+	/**
+	 * Updates selected nodes based on current filter selection and passes selection to controller
+	 * 
+	 * Just a remark, this code is freaking ugly
+	 */
+	private void updateFilterSelection() {
+		TreeSet<Node> selectedNodes = new TreeSet<>();
+
+		for (int i = 0; i < getDataSheet().getDesignCount(); i++) {
+			Design design = getDataSheet().getDesign(i);
+			if (design.isInsideBounds(chart)) {
+
+				for (Iterator<Node> iterator = controller.getNetwork().iterator(); iterator.hasNext();) {
+					Node node = (Node) iterator.next();
+
+					if (node.getHostName().toLowerCase().equals(design.getStringValue(getDataSheet().getParameter(0)))) {
+						selectedNodes.add(node);
+					}
+				}
+
+			}
+		}
+		controller.setSelectedNode((Node[]) selectedNodes.toArray(new Node[selectedNodes.size()]));
 	}
 
 	/**
@@ -135,11 +178,6 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		for (int designID = 0; designID < this.getDataSheet().getDesignCount(); designID++) // draw all designs
 		{
 			Design currentDesign = this.getDataSheet().getDesign(designID);
-			if (!currentDesign.isInsideBounds(chart)) // do not draw design if it is not inside bounds of the chart
-			{
-				logger.info("design not inside bounds, continue");
-				continue;
-			}
 			boolean firstAxisDrawn = false;
 			boolean currentDesignClusterActive = true;
 			boolean currentDesignActive = true;
@@ -410,6 +448,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 		if (this.draggedFilter != null) {
 			this.draggedFilter = null;
 			repaint();
+			updateFilterSelection();
 		}
 	}
 

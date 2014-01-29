@@ -156,8 +156,6 @@ public class Axis implements Serializable {
 		this.parameter = parameter;
 		this.width = chart.getAxisWidth();
 
-		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
-
 		if (this.autoFit) {
 			autofit();
 		} else {
@@ -179,7 +177,6 @@ public class Axis implements Serializable {
 	public void autofit() {
 		this.max = this.dataSheet.getMaxValueOf(this.parameter);
 		this.min = this.dataSheet.getMinValueOf(this.parameter);
-		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
 	}
 
 	/**
@@ -243,7 +240,6 @@ public class Axis implements Serializable {
 	 */
 	public void setMax(double max) {
 		this.max = max;
-		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
 	}
 
 	/**
@@ -263,7 +259,6 @@ public class Axis implements Serializable {
 	 */
 	public void setMin(double min) {
 		this.min = min;
-		this.dataSheet.evaluateBoundsForAllDesigns(this.chart);
 	}
 
 	/**

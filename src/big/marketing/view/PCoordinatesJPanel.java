@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import big.marketing.controller.DataController;
 import big.marketing.data.HealthMessage;
+import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.xdat.DataSheet;
 import big.marketing.xdat.ParallelCoordinatesChart;
@@ -21,6 +22,7 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(PCoordinatesJPanel.class);
 
 	private final DataController controller;
+	private ParallelCoordinatesChartPanel panel;
 
 	public PCoordinatesJPanel(DataController controller) {
 		this.setLayout(new BorderLayout());
@@ -37,9 +39,13 @@ public class PCoordinatesJPanel extends JPanel implements Observer {
 			removeAll();
 			DataSheet dataSheet = new DataSheet(healthMessages);
 			ParallelCoordinatesChart chart = new ParallelCoordinatesChart(dataSheet, this.getSize());
-			ParallelCoordinatesChartPanel panel = new ParallelCoordinatesChartPanel(chart, dataSheet);
+			panel = new ParallelCoordinatesChartPanel(chart, dataSheet, controller);
 			add(panel);
 			revalidate();
+
+		} else if (obj instanceof Node[]) {
+			Node[] selectedNodes = (Node[]) obj;
+			panel.updateSelectedNodes(selectedNodes);
 		}
 	}
 }

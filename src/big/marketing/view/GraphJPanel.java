@@ -27,6 +27,7 @@ import org.openide.util.Lookup;
 
 import processing.core.PApplet;
 import big.marketing.controller.DataController;
+import big.marketing.data.Node;
 
 public class GraphJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(GraphJPanel.class);
@@ -72,9 +73,9 @@ public class GraphJPanel extends JPanel implements Observer {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public void update(Observable o, Object obj) {
 
-		if (arg instanceof PreviewController) {
+		if (obj instanceof PreviewController) {
 
 			layoutGraph();
 
@@ -92,7 +93,7 @@ public class GraphJPanel extends JPanel implements Observer {
 			sizeTransformer.setMaxSize(20);
 			rankingController.transform(degreeRanking, sizeTransformer);
 
-			PreviewController previewController = (PreviewController) arg;
+			PreviewController previewController = (PreviewController) obj;
 			for (Renderer r : previewController.getRegisteredRenderers()) {
 				if ("MouseRenderer".equals(r.getDisplayName())) {
 					logger.info("Mouse renderer is attached");
@@ -117,6 +118,11 @@ public class GraphJPanel extends JPanel implements Observer {
 				target.refresh();
 				target.resetZoom();
 			}
+		} else if (obj instanceof Node[]) {
+			Node[] selectedNodes = (Node[]) obj;
+
+			// TODO DELETE logger and fill with proper code 
+			logger.info("Number of selected nodes is " + selectedNodes.length);
 		}
 	}
 

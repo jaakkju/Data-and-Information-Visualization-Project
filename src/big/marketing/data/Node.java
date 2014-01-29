@@ -10,7 +10,7 @@ import com.mongodb.DBObject;
  *         user workstations. "Administrator" is the administrator workstation.
  *         Others are servers. #Column 3 (Optional): Comments
  */
-public class Node implements DBWritable {
+public class Node implements DBWritable, Comparable<Node> {
 
 	public static final int TYPE_WORKSTATION = 0;
 	public static final int TYPE_ADMINISTRATOR = 1;
@@ -116,19 +116,16 @@ public class Node implements DBWritable {
 		if (!(obj instanceof Node))
 			return false;
 		Node other = (Node) obj;
-
-		// Comparing only hostname and address
-		if (address == null) {
-			if (other.address != null)
-				return false;
-		} else if (!address.equals(other.address))
-			return false;
-
 		if (hostName == null) {
 			if (other.hostName != null)
 				return false;
 		} else if (!hostName.equals(other.hostName))
 			return false;
 		return true;
+	}
+
+	@Override
+	public int compareTo(Node node) {
+		return this.getHostName().compareTo(node.getHostName());
 	}
 }

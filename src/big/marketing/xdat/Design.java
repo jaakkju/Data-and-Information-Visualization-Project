@@ -54,14 +54,6 @@ public class Design implements Serializable {
 	private Hashtable<Filter, Boolean> activationMap = new Hashtable<Filter, Boolean>(0, 1);
 
 	/**
-	 * is used to store the information whether the design is within the bounds of all axes.
-	 * If it is not is will not be displayed.
-	 * This information could be evaluated every time it is needed, but storing it and only
-	 * updating it when axis bound change is more efficient.
-	 */
-	private boolean insideBounds;
-
-	/**
 	 * is used to store the information whether the design is selected in the data sheet.
 	 * This information could be evaluated every time it is needed, but storing it and only
 	 * updating it when selection changes is more convenient.
@@ -171,39 +163,27 @@ public class Design implements Serializable {
 	 * @param active the active
 	 */
 	public void setActive(Filter filter, boolean active) {
-		//		logger.info("setting activation of filter to " + active);
 		this.activationMap.put(filter, active);
 	}
 
 	/**
-	 * Checks whether the design is within the bounds of all axes of the given Chart and updates the boolean
-	 * field insideBounds accordingly.
-	 * Makes use of isInsideBounds for each Axis and returns false if isInsideBounds returns false for any Axis.
-	 * @param chart the chart
-	 */
-	public void evaluateBounds(ParallelCoordinatesChart chart) {
-		this.insideBounds = true;
-		for (int i = 0; i < chart.getAxisCount(); i++) {
-			if (!isInsideBounds(chart.getAxis(i))) {
-				this.insideBounds = false;
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Checks if the design is inside the bounds for a given Axis.
+	 * Checks if the design is inside the filters for a given Axis.
 	 * @param axis the axis
-	 * @return true, if is inside bounds
+	 * @return true, if is inside filters
 	 */
 	private boolean isInsideBounds(Axis axis) {
-		double value = this.getDoubleValue(axis.getParameter());
-		double max = axis.getMax();
-		double min = axis.getMin();
-		if (min <= value && value <= max) {
-			return true;
+		if (axis.getParameter().isNumeric()) {
+			double lower = axis.getLowerFilter().getValue();
+			double upper = axis.getUpperFilter().getValue();
+			double value = this.getDoubleValue(axis.getParameter());
+
+			if (lower <= value && value <= upper) {
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			return true;
 		}
 	}
 
@@ -213,7 +193,12 @@ public class Design implements Serializable {
 	 * @return true, if the design is inside all axis bounds on the given chart.
 	 */
 	public boolean isInsideBounds(ParallelCoordinatesChart chart) {
-		return this.insideBounds;
+		for (int i = 0; i < chart.getAxisCount(); i++) {
+			if (!isInsideBounds(chart.getAxis(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

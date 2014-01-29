@@ -26,7 +26,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 
 import big.marketing.data.HealthMessage;
-import big.marketing.data.Node;
 
 /**
  * A representation of the data imported from a text file.
@@ -66,30 +65,6 @@ public class DataSheet {
 			design.setStringValue(parameters.get(7), healthMessage.connMadeToString());
 
 			data.add(design);
-		}
-	}
-
-	/**
-	 * Gets currently selected nodes
-	 * @return array of nodes
-	 */
-	public Node[] getSelectedNodes() {
-		return null;
-	}
-
-	/**
-	 * Sets currently selected nodes
-	 * @param selectedNodes array of nodes
-	 */
-	public void setSelectedNodes(Node[] selectedNodes) {
-		for (Design design : data) {
-			logger.info(design.getDoubleValue(parameters.get(0)));
-			//			if (node.getHostName().equals(design.getDoubleValue(parameters.get(0)))) {
-			//				
-			//			}
-		}
-		for (Node node : selectedNodes) {
-
 		}
 	}
 
@@ -221,17 +196,6 @@ public class DataSheet {
 	 */
 	public int getDesignCount() {
 		return this.data.size();
-	}
-
-	/**
-	 * Evaluate each Design to check whether it is within all axis bounds.
-	 * @param chart the chart
-	 * @see Design
-	 */
-	public void evaluateBoundsForAllDesigns(ParallelCoordinatesChart chart) {
-		for (int i = 0; i < this.getDesignCount(); i++) {
-			this.data.get(i).evaluateBounds(chart);
-		}
 	}
 
 	/**

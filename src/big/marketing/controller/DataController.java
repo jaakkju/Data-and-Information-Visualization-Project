@@ -201,16 +201,18 @@ public class DataController extends Observable implements Runnable {
 		setChanged();
 	}
 
-	public void setSelectedNode(Node[] selectedNode) {
-		this.selectedNodes = selectedNode;
+	public void setSelectedNode(Node[] selected) {
+		this.selectedNodes = selected;
+
 		setChanged();
+		notifyObservers(selectedNodes);
 	}
 
 	public Node[] getHighlightedNodes() {
 		return highlightedNodes;
 	}
 
-	public Node[] getSelectedNode() {
+	public Node[] getSelectedNodes() {
 		return selectedNodes;
 	}
 

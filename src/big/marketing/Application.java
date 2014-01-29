@@ -33,6 +33,7 @@ public class Application {
 		// DataController implements observer pattern and pushes changes in data and selections to JPanels
 		controller.getGephiController().addObserver(graphPanel);
 		controller.addObserver(pCoordinatesPanel);
+		controller.addObserver(graphPanel);
 		controller.addObserver(controlsPanel);
 
 		@SuppressWarnings("unused")
