@@ -217,6 +217,10 @@ public class DataController extends Observable implements Runnable {
 		return selectedNodes;
 	}
 
+	public QueryWindowData getCurrentQueryWindow() {
+		return currentQueryWindow;
+	}
+
 	public MongoController getMongoController() {
 		return mc;
 	}
