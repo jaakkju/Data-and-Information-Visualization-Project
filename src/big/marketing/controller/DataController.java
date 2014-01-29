@@ -206,6 +206,7 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(selectedNodes);
+		gc.load(currentQueryWindow, selectedNodes);
 	}
 
 	public Node[] getHighlightedNodes() {

@@ -2,6 +2,8 @@ package big.marketing.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -15,8 +17,6 @@ import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
-import org.gephi.preview.spi.PreviewMouseListener;
-import org.gephi.preview.spi.Renderer;
 import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
@@ -27,7 +27,6 @@ import org.openide.util.Lookup;
 
 import processing.core.PApplet;
 import big.marketing.controller.DataController;
-import big.marketing.data.Node;
 
 public class GraphJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(GraphJPanel.class);
@@ -48,6 +47,14 @@ public class GraphJPanel extends JPanel implements Observer {
 
 	public GraphJPanel(DataController controller) {
 		this.controller = controller;
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO: many events are fired, don't update everytime, very costly
+				// FIX: update only on last event... (or maybe find a setting to fire events only at the end of resizing...)
+				update(null, null);
+			}
+		});
 		setLayout(new BorderLayout());
 		this.controller.getGephiController().setGraphPanel(this);
 	}
@@ -73,9 +80,9 @@ public class GraphJPanel extends JPanel implements Observer {
 	}
 
 	@Override
-	public void update(Observable o, Object obj) {
+	public void update(Observable o, Object arg) {
 
-		if (obj instanceof PreviewController) {
+		if (arg instanceof PreviewController) {
 
 			layoutGraph();
 
@@ -93,16 +100,16 @@ public class GraphJPanel extends JPanel implements Observer {
 			sizeTransformer.setMaxSize(20);
 			rankingController.transform(degreeRanking, sizeTransformer);
 
-			PreviewController previewController = (PreviewController) obj;
-			for (Renderer r : previewController.getRegisteredRenderers()) {
-				if ("MouseRenderer".equals(r.getDisplayName())) {
-					logger.info("Mouse renderer is attached");
-				}
-			}
-			for (PreviewMouseListener l : previewController.getModel().getEnabledMouseListeners()) {
-				logger.info("Found MouseListener: " + l.getClass());
-			}
+			PreviewController previewController = (PreviewController) arg;
 			PreviewProperties props = previewController.getModel().getProperties();
+
+			// Dimensions are different every run... thats bad
+			// topleft & dimensions are only updated during refreshPreview...
+			// how to create a mapping from graph coordinates to screen coords???
+			// screen dimensions via previewapplet...
+			// initial graph dimensions via previewModel
+			// track changes (pan, zoom)
+
 			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
 			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
@@ -113,16 +120,11 @@ public class GraphJPanel extends JPanel implements Observer {
 			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
 			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
 			previewController.refreshPreview();
+		}
 
-			if (target != null) {
-				target.refresh();
-				target.resetZoom();
-			}
-		} else if (obj instanceof Node[]) {
-			Node[] selectedNodes = (Node[]) obj;
-
-			// TODO DELETE logger and fill with proper code 
-			logger.info("Number of selected nodes is " + selectedNodes.length);
+		if (target != null) {
+			target.refresh();
+			target.resetZoom();
 		}
 	}
 
