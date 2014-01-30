@@ -17,7 +17,6 @@ import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
-import org.gephi.preview.types.DependantOriginalColor;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
 import org.gephi.ranking.api.Transformer;
@@ -112,8 +111,8 @@ public class GraphJPanel extends JPanel implements Observer {
 			// initial graph dimensions via previewModel
 			// track changes (pan, zoom)
 
-			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.TRUE);
-			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
+			//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
 			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
 			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
 			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
