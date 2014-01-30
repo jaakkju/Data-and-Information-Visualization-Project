@@ -58,9 +58,10 @@ public class DataController extends Observable implements Runnable {
 		loadSettings();
 		this.mc = MongoController.getInstance();
 		this.gc = new GephiController(this);
+		this.addObserver(gc);
 		ipMap = mc.getNetwork();
 		network = new ArrayList<>(ipMap.values());
-		selectedNodes = (Node[]) network.toArray(new Node[network.size()]);
+		setSelectedNode((Node[]) network.toArray(new Node[network.size()]));
 		if (network.isEmpty()) {
 			logger.warn("Loading Nodes from database failed!");
 		}
@@ -76,7 +77,6 @@ public class DataController extends Observable implements Runnable {
 		nodeCount = selectedNodes.length;
 		setChanged();
 		notifyObservers(selectedNodes);
-		gc.load(currentQueryWindow, selectedNodes);
 	}
 
 	public void readData() {
@@ -148,8 +148,6 @@ public class DataController extends Observable implements Runnable {
 
 		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 60, time + 60));
 
-		gc.load(currentQueryWindow, selectedNodes);
-
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " sec, Flow: " + currentQueryWindow.getFlowData().size() + " objects, Health: "
 		      + currentQueryWindow.getHealthData().size() + " objects, IPS: " + currentQueryWindow.getIPSData().size() + " objects");
@@ -175,7 +173,6 @@ public class DataController extends Observable implements Runnable {
 		switch (t) {
 		case FLOW:
 			currentQueryWindow.setFlow(newEntries);
-			gc.load(currentQueryWindow, selectedNodes);
 			break;
 
 		case HEALTH:
@@ -211,7 +208,6 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(selectedNodes);
-		gc.load(currentQueryWindow, selectedNodes);
 	}
 
 	public Node[] getHighlightedNodes() {

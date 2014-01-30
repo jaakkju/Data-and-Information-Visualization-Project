@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Observer;
 
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
@@ -27,12 +28,14 @@ import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.GraphMouseListener;
 
-public class GephiController extends Observable {
+public class GephiController extends Observable implements Observer {
 	static Logger logger = Logger.getLogger(GephiController.class);
 
 	private ImportController importController;
 	private PreviewController previewController;
 	private ProjectController projectController;
+	private QueryWindowData currentQueryWindow;
+	private Node[] selectedNodes;
 
 	private DataController dc;
 	private Workspace workspace;
@@ -84,8 +87,22 @@ public class GephiController extends Observable {
 	}
 
 	public void load(QueryWindowData newDataset, Node[] selectedNodes) {
-		if (selectedNodes == null)
-			selectedNodes = new Node[0];
+		if (selectedNodes == null) {
+			if (this.selectedNodes == null)
+				this.selectedNodes = new Node[0];
+		} else
+			this.selectedNodes = selectedNodes;
+		if (newDataset == null) {
+			if (currentQueryWindow == null)
+				logger.info("No QueryWindow to display");
+		} else
+			currentQueryWindow = newDataset;
+
+		if (this.selectedNodes == null || this.currentQueryWindow == null) {
+			logger.info("Not all data yet, not displaying graph");
+			return;
+		}
+
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 		if (graphModel != null) {
 			graphModel.clear();
@@ -107,7 +124,7 @@ public class GephiController extends Observable {
 
 		// import to container
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
-		GephiImporter gImporter = new GephiImporter(newDataset, ipMap, selectedNodes);
+		GephiImporter gImporter = new GephiImporter(currentQueryWindow, ipMap, this.selectedNodes);
 		ContainerLoader loader = container.getLoader();
 		gImporter.execute(loader);
 
@@ -166,4 +183,13 @@ public class GephiController extends Observable {
 
 	}
 
+	@Override
+	public void update(Observable o, Object arg) {
+		if (arg instanceof QueryWindowData) {
+			load((QueryWindowData) arg, null);
+		} else if (arg instanceof Node[]) {
+			load(null, (Node[]) arg);
+		}
+
+	}
 }

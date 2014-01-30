@@ -89,6 +89,8 @@ public class GraphJPanel extends JPanel implements Observer {
 			// Calculate ranking vor Nodes & Edges and color them 
 			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
 			Ranking degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
+			if (degreeRanking == null)
+				return;
 			AbstractColorTransformer colorTransformer = (AbstractColorTransformer) rankingController.getModel().getTransformer(
 			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
 			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
