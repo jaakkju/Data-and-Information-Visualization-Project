@@ -56,7 +56,7 @@ public class WindowFrame extends JFrame {
 		add(splitter, BorderLayout.CENTER);
 		add(controlsPanel, BorderLayout.SOUTH);
 
-		setJMenuBar(createMenuBar());
+		//		setJMenuBar(createMenuBar());
 		this.pack();
 		splitter.setDividerLocation(0.5);
 		this.pack();
