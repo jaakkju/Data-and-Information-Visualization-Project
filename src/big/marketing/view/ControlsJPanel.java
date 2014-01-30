@@ -44,14 +44,13 @@ import big.marketing.Settings;
 import big.marketing.controller.DataController;
 import big.marketing.data.DataType;
 import big.marketing.data.Node;
-import big.marketing.data.QueryWindowData;
 
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
 	private final DataController controller;
 	private JSlider qWindowSlider;
 	private JPanel buttonPanel;
-	private JButton playPauseButton;
+	private JButton playPauseButton, resetButton;
 	private ChartPanel chartPanel;
 	private JLabel currentTimeLabel;
 	private JSpinner playSpeedSpinner;
@@ -132,6 +131,16 @@ public class ControlsJPanel extends JPanel implements Observer {
 			}
 		});
 		buttonPanel.add(typeCombo);
+		resetButton = new JButton("Reset selection");
+		resetButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.resetSelectedNodes();
+
+			}
+		});
+		buttonPanel.add(resetButton);
 		nodeCountJLabel = new JLabel(" Displaying: All nodes");
 		buttonPanel.add(nodeCountJLabel);
 
@@ -186,11 +195,11 @@ public class ControlsJPanel extends JPanel implements Observer {
 		} else if (arg instanceof Node[]) {
 			Node[] selectedNodes = (Node[]) arg;
 			nodeCountJLabel.setText(" Displaying: " + selectedNodes.length + " nodes");
-		} else if (arg instanceof QueryWindowData) {
+		} else if ("ResetSelection".equals(arg)) {
+			logger.info("Received reset selection");
 			adminBox.setSelected(true);
 			serverBox.setSelected(true);
 			workstationBox.setSelected(true);
-			nodeCountJLabel.setText(" Displaying: All nodes");
 		}
 	}
 

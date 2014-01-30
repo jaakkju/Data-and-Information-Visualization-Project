@@ -110,7 +110,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 
 			}
 		}
-		controller.setSelectedNode((Node[]) selectedNodes.toArray(new Node[selectedNodes.size()]));
+		controller.setSelectedNodes((Node[]) selectedNodes.toArray(new Node[selectedNodes.size()]));
 	}
 
 	/**

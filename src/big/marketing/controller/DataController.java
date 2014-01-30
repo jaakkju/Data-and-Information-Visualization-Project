@@ -207,6 +207,8 @@ public class DataController extends Observable implements Runnable {
 
 	public void resetSelectedNodes() {
 		setSelectedNodes((Node[]) network.toArray(new Node[network.size()]));
+		logger.info("Reset");
+		notifyObservers("ResetSelection");
 	}
 
 	public void setSelectedNodes(Node[] selected) {
