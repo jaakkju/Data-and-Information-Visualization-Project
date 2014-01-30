@@ -27,7 +27,7 @@ public class GephiImporter implements SpigotImporter {
 	private Map<String, Node> ipMap;
 	Map<String, NodeDraft> nodes;
 	private Node[] selectedNodes;
-	private AttributeColumn ipColumn;
+	private AttributeColumn ipColumn, typeColumn;
 
 	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap, Node[] selectedNodes) {
 		this.data = dataset;
@@ -58,6 +58,10 @@ public class GephiImporter implements SpigotImporter {
 		ipColumn = nt.getColumn("ip");
 		if (ipColumn == null)
 			ipColumn = nt.addColumn("ip", AttributeType.STRING);
+		typeColumn = nt.getColumn("hostType");
+		if (typeColumn == null) {
+			typeColumn = nt.addColumn("hostType", AttributeType.SHORT);
+		}
 
 		for (FlowMessage message : data.getFlowData()) {
 
@@ -67,8 +71,8 @@ public class GephiImporter implements SpigotImporter {
 
 			if (isVisibleNode(srcNetworkNode, selected) || isVisibleNode(destNetworkNode, selected)) {
 
-				NodeDraft src = createNode(message.getSourceIP(), loader);
-				NodeDraft dst = createNode(message.getDestinationIP(), loader);
+				NodeDraft src = createNode(message.getSourceIP(), srcNetworkNode, loader);
+				NodeDraft dst = createNode(message.getDestinationIP(), destNetworkNode, loader);
 
 				if (!loader.edgeExists(src, dst)) {
 					EdgeDraft edge = fact.newEdgeDraft();
@@ -88,7 +92,7 @@ public class GephiImporter implements SpigotImporter {
 		return true;
 	}
 
-	private NodeDraft createNode(String name, ContainerLoader loader) {
+	private NodeDraft createNode(String name, Node node, ContainerLoader loader) {
 		NodeDraft draft = nodes.get(name);
 		if (draft == null) {
 			draft = loader.factory().newNodeDraft();
@@ -98,6 +102,9 @@ public class GephiImporter implements SpigotImporter {
 			if (networkNode != null)
 				label = networkNode.getHostName();
 			draft.addAttributeValue(ipColumn, name);
+			if (node != null) {
+				draft.addAttributeValue(typeColumn, node.getType());
+			}
 			draft.setLabel(label.substring(0, 1));
 			nodes.put(name, draft);
 			loader.addNode(draft);
