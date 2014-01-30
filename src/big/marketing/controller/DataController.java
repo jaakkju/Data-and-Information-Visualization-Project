@@ -61,7 +61,7 @@ public class DataController extends Observable implements Runnable {
 		this.addObserver(gc);
 		ipMap = mc.getNetwork();
 		network = new ArrayList<>(ipMap.values());
-		setSelectedNode((Node[]) network.toArray(new Node[network.size()]));
+		setSelectedNodes((Node[]) network.toArray(new Node[network.size()]));
 		if (network.isEmpty()) {
 			logger.warn("Loading Nodes from database failed!");
 		}
@@ -140,6 +140,7 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time) {
+		resetSelectedNodes();
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
 		currentQueryWindow = new QueryWindowData(null, null, null, network);
@@ -166,6 +167,7 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time, DataType t) {
+		resetSelectedNodes();
 		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
@@ -203,7 +205,11 @@ public class DataController extends Observable implements Runnable {
 		setChanged();
 	}
 
-	public void setSelectedNode(Node[] selected) {
+	public void resetSelectedNodes() {
+		setSelectedNodes((Node[]) network.toArray(new Node[network.size()]));
+	}
+
+	public void setSelectedNodes(Node[] selected) {
 		this.selectedNodes = selected;
 
 		setChanged();

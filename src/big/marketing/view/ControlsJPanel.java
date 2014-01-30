@@ -187,6 +187,9 @@ public class ControlsJPanel extends JPanel implements Observer {
 			Node[] selectedNodes = (Node[]) arg;
 			nodeCountJLabel.setText(" Displaying: " + selectedNodes.length + " nodes");
 		} else if (arg instanceof QueryWindowData) {
+			adminBox.setSelected(true);
+			serverBox.setSelected(true);
+			workstationBox.setSelected(true);
 			nodeCountJLabel.setText(" Displaying: All nodes");
 		}
 	}

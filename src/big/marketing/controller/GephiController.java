@@ -178,7 +178,7 @@ public class GephiController extends Observable implements Observer {
 		logger.info("Selected " + selected.size() + " out of " + totalSelectedNodes + " Nodes...");
 		if (selected.size() > 0) {
 			Node[] selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
-			dc.setSelectedNode(selectedNodes);
+			dc.setSelectedNodes(selectedNodes);
 		}
 
 	}
