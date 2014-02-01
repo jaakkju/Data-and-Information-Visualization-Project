@@ -191,6 +191,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
+		logger.info("Updatihnng Controls panel");
 		if (arg instanceof IntervalXYDataset) {
 			showChart((IntervalXYDataset) arg);
 		} else if (arg instanceof Integer) {
@@ -202,7 +203,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 			Node[] selectedNodes = (Node[]) arg;
 			nodeCountJLabel.setText(" Displaying: " + selectedNodes.length + " nodes");
 		} else if ("ResetSelection".equals(arg)) {
-			logger.info("Received reset selection");
 			adminBox.setSelected(true);
 			serverBox.setSelected(true);
 			workstationBox.setSelected(true);
