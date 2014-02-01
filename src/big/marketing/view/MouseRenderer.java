@@ -38,6 +38,8 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 	boolean isDragging;
 	int x, y, w, h;
 
+	public static final float SQRT_OF_12 = (float) (1 / Math.sqrt(12));
+
 	public void startDragging(int x, int y, int w, int h) {
 		this.isDragging = true;
 		this.x = x;
@@ -99,9 +101,10 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 		}
 		graphics.fill(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 
+		// x and y describe the center 
 		switch (type) {
 		case Node.TYPE_SERVER:
-			graphics.triangle(x - size / 2, y + size / 2, x + size / 2, y + size / 2, x, y - size / 2);
+			graphics.triangle(x + size / 2, y + size * SQRT_OF_12, x - size / 2, y + size * SQRT_OF_12, x, y - 2 * size * SQRT_OF_12);
 			break;
 		case Node.TYPE_WORKSTATION:
 			graphics.rect(x, y, size, size);
