@@ -114,7 +114,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		workstationBox.addActionListener(selectionListener);
 		buttonPanel.add(workstationBox);
 
-		typeCombo = new JComboBox<DataType>(DataType.values());
+		typeCombo = new JComboBox<DataType>(new DataType[] { DataType.FLOW, DataType.IPS });
 		typeCombo.setEditable(true);
 		typeCombo.addActionListener(new ActionListener() {
 
