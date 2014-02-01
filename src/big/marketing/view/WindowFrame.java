@@ -61,7 +61,6 @@ public class WindowFrame extends JFrame {
 		splitter.setDividerLocation(0.5);
 		this.pack();
 		this.setVisible(true);
-		((ControlsJPanel) controlsPanel).setCurrentTime(0);
 	}
 
 	private void loadSettings() {
