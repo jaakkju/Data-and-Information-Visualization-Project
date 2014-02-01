@@ -17,6 +17,10 @@ reader.files.flow=VAST2013MC3_NetworkFlow.zip
 reader.files.week2=week2data_fixed.zip
 reader.maxrows=500000
 controller.querywindow.size=3600
+
+# set to 1 for speeding up startup
+# then the slider background is not loaded and the slider starts in a position with low flow 
+controller.startup.fast=0
 qwindow.data.min=1364802600
 qwindow.data.max=1366020000
 view.frame.width=1200

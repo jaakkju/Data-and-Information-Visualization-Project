@@ -62,6 +62,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private static SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM HH:mm", Locale.ENGLISH);
 	static Logger logger = Logger.getLogger(ControlsJPanel.class);
 	public static int QW_MIN = 0, QW_MAX = 1217384;
+	public static boolean FAST_START = false;
 
 	public ControlsJPanel(final DataController controller) {
 		loadSettings();
@@ -144,7 +145,9 @@ public class ControlsJPanel extends JPanel implements Observer {
 		nodeCountJLabel = new JLabel(" Displaying: All nodes");
 		buttonPanel.add(nodeCountJLabel);
 
-		TimeSeriesCollection data = controller.getMongoController().getHistogramTCollection(DataType.FLOW);
+		TimeSeriesCollection data = new TimeSeriesCollection();
+		if (!FAST_START)
+			data = controller.getMongoController().getHistogramTCollection(DataType.FLOW);
 		datasetCache.put(DataType.FLOW, data);
 		chartPanel = new ChartPanel(showChart(data), WindowFrame.FRAME_WIDTH, 420, 300, 200, 1920, 600, false, false, false, false, false,
 		      false);
@@ -170,7 +173,10 @@ public class ControlsJPanel extends JPanel implements Observer {
 		add(chartPanel);
 		//		chartPanel.setBorder(null);
 		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
-		qWindowSlider.setValue(QW_MIN);
+		if (FAST_START)
+			qWindowSlider.setValue(1365629513);
+		else
+			qWindowSlider.setValue(QW_MIN);
 	}
 
 	public void setCurrentTime(int i) {
@@ -235,6 +241,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private void loadSettings() {
 		QW_MIN = Settings.getInt("qwindow.data.min");
 		QW_MAX = Settings.getInt("qwindow.data.max");
+		FAST_START = Settings.getInt("controller.startup.fast") == 1;
 	}
 
 }
