@@ -9,13 +9,14 @@ import java.util.Observer;
 import org.apache.log4j.Logger;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
-import org.gephi.graph.api.NodeData;
 import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerFactory;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
 import org.gephi.io.processor.plugin.DefaultProcessor;
+import org.gephi.preview.api.Item;
 import org.gephi.preview.api.PreviewController;
+import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.api.RenderTarget;
 import org.gephi.project.api.ProjectController;
@@ -149,10 +150,11 @@ public class GephiController extends Observable implements Observer {
 	}
 
 	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
-		GraphModel gm = Lookup.getDefault().lookup(GraphController.class).getModel();
-		org.gephi.graph.api.Node[] nodes = gm.getGraph().getNodes().toArray();
+
+		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
 		List<Node> selected = new ArrayList<>();
 
+		// normalize dragged square
 		if (startX > endX) {
 			int tmp = endX;
 			endX = startX;
@@ -163,23 +165,28 @@ public class GephiController extends Observable implements Observer {
 			endY = startY;
 			startY = tmp;
 		}
-		int totalSelectedNodes = 0;
-		for (org.gephi.graph.api.Node n : nodes) {
-			NodeData nd = n.getNodeData();
-			if (nd.x() >= startX && nd.x() <= endX && nd.y() >= startY && nd.y() <= endY) {
-				totalSelectedNodes++;
-				String ip = (String) nd.getAttributes().getValue("ip");
+
+		int selectedExternalNodes = 0;
+		for (Item item : pm.getItems(Item.NODE)) {
+			float x = item.getData("x");
+			float y = item.getData("y");
+			if (x >= startX && x <= endX && y >= startY && y <= endY) {
+				org.gephi.graph.api.Node n = (org.gephi.graph.api.Node) item.getSource();
+				String ip = (String) n.getNodeData().getAttributes().getValue("ip");
 				Node networkNode = ipMap.get(ip);
 				if (networkNode != null)
 					selected.add(networkNode);
+				else
+					selectedExternalNodes++;
 			}
-
 		}
-		logger.info("Selected " + selected.size() + " out of " + totalSelectedNodes + " Nodes...");
+
+		logger.info("Selection contained " + selected.size() + " internal and " + selectedExternalNodes + " external nodes");
 		if (selected.size() > 0) {
 			Node[] selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
 			dc.setSelectedNodes(selectedNodes);
-		}
+		} else
+			logger.info("No internal nodes selected, not changing the selection");
 
 	}
 
