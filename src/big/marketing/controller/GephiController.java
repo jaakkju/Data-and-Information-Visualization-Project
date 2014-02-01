@@ -28,6 +28,7 @@ import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.GraphMouseListener;
+import big.marketing.view.gephi.MyProcessingApplet;
 
 public class GephiController extends Observable implements Observer {
 	static Logger logger = Logger.getLogger(GephiController.class);
@@ -141,53 +142,133 @@ public class GephiController extends Observable implements Observer {
 		addObserver(graphPanel);
 		// now we know the Panel where to draw, so create and set the RenderTarget
 		RenderTarget rt = previewController.getRenderTarget(RenderTarget.PROCESSING_TARGET);
-		graphPanel.setContent((ProcessingTarget) rt);
+		ProcessingTarget pt = (ProcessingTarget) rt;
+		graphPanel.setContent(pt);
 
 	}
+
+	MyProcessingApplet applet;
 
 	public void render(ProcessingTarget target) {
 		previewController.render(target);
+		applet = (MyProcessingApplet) target.getApplet();
 	}
 
-	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
+	Item lastItem = null;
 
+	public void showNodeInfo(float x, float y) {
+		Item newItem = getSingleNode(x, y);
+		String ip = getIp(newItem);
+
+		if (newItem == null) {
+			if (lastItem != null)
+				logger.info("No hover");
+		} else if (!newItem.equals(lastItem)) {
+			logger.info("Hover node with IP " + ip);
+		}
+		lastItem = newItem;
+	}
+
+	public Item getSingleNode(final float x, final float y) {
+
+		Item ii = null;
 		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
-		List<Node> selected = new ArrayList<>();
+
+		for (Item i : pm.getItems(Item.NODE)) {
+			float size = i.getData("size");
+			float ix = i.getData("x");
+			float iy = i.getData("y");
+			size /= 2;
+			if (x >= ix - size && x <= ix + size && y >= iy - size && y <= iy + size) {
+				ii = i;
+				// assuming non-overlapping nodes, so we can stop here
+				break;
+			}
+		}
+
+		//		This code is a bit faster but less precise and does not consider displayed size of node
+		//
+		//		float threshold = 50;
+		//		List<Item> selected = getAllNodes(x - threshold, y - threshold, x + threshold, y + threshold);
+		//		if (selected.size() > 0) {
+		//			ii = selected.get(0);
+		//			if (selected2.size() > 1) {
+		//				double minDistance = Float.MAX_VALUE;
+		//				for (Item it : selected2) {
+		//					float xx = it.getData("x");
+		//					float yy = it.getData("y");
+		//					double d = distance(xx, x, yy, y);
+		//					if (d < minDistance) {
+		//						ii = it;
+		//						minDistance = d;
+		//					}
+		//				}
+		//			}
+		//		}
+		return ii;
+	}
+
+	private double distance(float x1, float x2, float y1, float y2) {
+		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
+
+	private List<Item> getAllNodes(float startX, float startY, float endX, float endY) {
+		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
+		List<Item> selected = new ArrayList<>();
 
 		// normalize dragged square
 		if (startX > endX) {
-			int tmp = endX;
+			float tmp = endX;
 			endX = startX;
 			startX = tmp;
 		}
 		if (startY > endY) {
-			int tmp = endY;
+			float tmp = endY;
 			endY = startY;
 			startY = tmp;
 		}
-
-		int selectedExternalNodes = 0;
 		for (Item item : pm.getItems(Item.NODE)) {
 			float x = item.getData("x");
 			float y = item.getData("y");
 			if (x >= startX && x <= endX && y >= startY && y <= endY) {
-				org.gephi.graph.api.Node n = (org.gephi.graph.api.Node) item.getSource();
-				String ip = (String) n.getNodeData().getAttributes().getValue("ip");
-				Node networkNode = ipMap.get(ip);
-				if (networkNode != null)
-					selected.add(networkNode);
-				else
-					selectedExternalNodes++;
+				selected.add(item);
 			}
 		}
+		return selected;
 
-		logger.info("Selection contained " + selected.size() + " internal and " + selectedExternalNodes + " external nodes");
+	}
+
+	private String getIp(Item item) {
+		if (item == null)
+			return null;
+		org.gephi.graph.api.Node n = (org.gephi.graph.api.Node) item.getSource();
+		String ip = (String) n.getNodeData().getAttributes().getValue("ip");
+		return ip;
+	}
+
+	private Node item2Node(Item item) {
+		return ipMap.get(getIp(item));
+	}
+
+	private List<Node> items2Nodes(List<Item> items) {
+		List<Node> out = new ArrayList<>();
+		for (Item item : items) {
+			Node networkNode = item2Node(item);
+			if (networkNode != null)
+				out.add(networkNode);
+		}
+		return out;
+	}
+
+	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
+		List<Item> selected = getAllNodes(startX, startY, endX, endY);
 		if (selected.size() > 0) {
-			Node[] selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
+			List<Node> tmp = items2Nodes(selected);
+			Node[] selectedNodes = (Node[]) tmp.toArray(new Node[tmp.size()]);
 			dc.setSelectedNodes(selectedNodes);
-		} else
+		} else {
 			logger.info("No internal nodes selected, not changing the selection");
-
+		}
 	}
 
 	@Override

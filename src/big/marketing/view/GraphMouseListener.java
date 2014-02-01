@@ -76,6 +76,10 @@ public class GraphMouseListener implements PreviewMouseListener {
 
 			gc.selectNodesFromCoords(startX, startY, endX, endY);
 
+		} else {
+			logger.info("Clicked on node");
+			gc.showNodeInfo(startX, startY);
+
 		}
 
 	}
@@ -86,6 +90,12 @@ public class GraphMouseListener implements PreviewMouseListener {
 
 	public void setGephiController(GephiController gc) {
 		this.gc = gc;
+	}
+
+	public void mouseMoved(float x, float y) {
+
+		gc.showNodeInfo(x, y);
+
 	}
 
 }
