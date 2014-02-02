@@ -313,22 +313,23 @@ public class MongoController implements Runnable {
 
 	public TimeSeriesCollection getHistogramTCollection(DataType t) {
 		TimeSeriesCollection tSeriesCollection = new TimeSeriesCollection();
+		String legendName = "";
 
 		switch (t) {
 		case FLOW:
 			BasicDBObject groupFieldsFlow = new BasicDBObject("_id", "$time");
 			groupFieldsFlow.append("y", new BasicDBObject("$sum", "$packetCount"));
 			DBObject groupOpFlow = new BasicDBObject("$group", groupFieldsFlow);
-
-			tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", DataType.FLOW.toString(), true));
+			legendName = "total network traffic";
+			tSeriesCollection.addSeries(getTimeSerie(DataType.FLOW, groupOpFlow, "_id", "y", legendName, true));
 			return tSeriesCollection;
 
 		case IPS:
 			BasicDBObject groupFieldsIPS = new BasicDBObject("_id", "$time");
 			groupFieldsIPS.append("y", new BasicDBObject("$sum", 1));
 			DBObject groupOpIPS = new BasicDBObject("$group", groupFieldsIPS);
-
-			tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", DataType.IPS.toString(), false));
+			legendName = "amount of blocked connections";
+			tSeriesCollection.addSeries(getTimeSerie(DataType.IPS, groupOpIPS, "_id", "y", legendName, false));
 			return tSeriesCollection;
 
 		case HEALTH:
@@ -369,7 +370,7 @@ public class MongoController implements Runnable {
 		}
 
 		if (useMovingAverage) {
-			timeserie = MovingAverage.createMovingAverage(timeserie, "", 50, 100);
+			timeserie = MovingAverage.createMovingAverage(timeserie, cName, 50, 100);
 		}
 
 		logger.info("Fetched slider backgroud data, DataType:" + t.toString() + ", query took " + (new Date().getTime() - begin) + " ms");
