@@ -24,9 +24,9 @@ import org.openide.util.Lookup;
 import big.marketing.controller.DataController;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
+import big.marketing.view.gephi.CustomApplet;
 import big.marketing.view.gephi.GraphMouseListener;
 import big.marketing.view.gephi.MouseRenderer;
-import big.marketing.view.gephi.CustomApplet;
 
 public class GephiController extends Observable implements Observer {
 	static Logger logger = Logger.getLogger(GephiController.class);
@@ -92,11 +92,15 @@ public class GephiController extends Observable implements Observer {
 
 		if (newDataset != null)
 			currentQueryWindow = newDataset;
-
+		if (skip) {
+			skip = false;
+			return;
+		}
 		if (this.selectedNodes == null || this.currentQueryWindow == null) {
 			logger.info("Not all data yet, not displaying graph");
 			return;
 		}
+		long start = System.nanoTime();
 
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 
@@ -124,6 +128,7 @@ public class GephiController extends Observable implements Observer {
 		// update view
 		setChanged();
 		notifyObservers();
+		logger.info(String.format("graph update took %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
 	public void showNodeInfo(float x, float y) {
@@ -244,9 +249,14 @@ public class GephiController extends Observable implements Observer {
 		}
 	}
 
+	boolean skip = false;
+
 	@Override
 	public void update(Observable o, Object arg) {
-		if (arg instanceof QueryWindowData) {
+
+		if ("SkipNextNotify".equals(arg)) {
+			skip = true;
+		} else if (arg instanceof QueryWindowData) {
 			load((QueryWindowData) arg, null);
 		} else if (arg instanceof Node[]) {
 			load(null, (Node[]) arg);

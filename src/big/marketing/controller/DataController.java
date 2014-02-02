@@ -124,6 +124,8 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time) {
+		setChanged();
+		notifyObservers("SkipNextNotify");
 		resetSelectedNodes();
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
@@ -150,6 +152,8 @@ public class DataController extends Observable implements Runnable {
 	 * @return true if data was stored into queryWindow variables otherwise false
 	 */
 	public boolean moveQueryWindow(int time, DataType t) {
+		setChanged();
+		notifyObservers("SkipNextNotify");
 		resetSelectedNodes();
 		logger.info("Moving qWindow to " + time);
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
