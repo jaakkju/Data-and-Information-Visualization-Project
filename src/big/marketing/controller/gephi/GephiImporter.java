@@ -1,8 +1,6 @@
 package big.marketing.controller.gephi;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.gephi.data.attributes.api.AttributeColumn;
@@ -25,15 +23,18 @@ public class GephiImporter implements SpigotImporter {
 	private Report report;
 	private QueryWindowData data;
 	private Map<String, Node> ipMap;
+	private Map<Node, Boolean> selectionMap;
 	Map<String, NodeDraft> nodes;
-	private Node[] selectedNodes;
 	private AttributeColumn ipColumn, typeColumn;
 
 	public GephiImporter(QueryWindowData dataset, Map<String, Node> ipMap, Node[] selectedNodes) {
 		this.data = dataset;
-		nodes = new HashMap<String, NodeDraft>();
 		this.ipMap = ipMap;
-		this.selectedNodes = selectedNodes;
+		nodes = new HashMap<String, NodeDraft>();
+		selectionMap = new HashMap<>();
+		for (Node n : selectedNodes) {
+			selectionMap.put(n, true);
+		}
 	}
 
 	/**
@@ -48,10 +49,6 @@ public class GephiImporter implements SpigotImporter {
 		ContainerLoader.DraftFactory fact = loader.factory();
 		// import...
 		// convert flow messages to gephi internal graph structure
-		List<Node> selected = new ArrayList<Node>();
-		for (Node n : selectedNodes) {
-			selected.add(n);
-		}
 
 		AttributeModel am = container.getAttributeModel();
 		AttributeTable nt = am.getNodeTable();
@@ -69,22 +66,18 @@ public class GephiImporter implements SpigotImporter {
 			Node srcNetworkNode = ipMap.get(message.getSourceIP());
 			Node destNetworkNode = ipMap.get(message.getDestinationIP());
 
-			if (isVisibleNode(srcNetworkNode, selected) || isVisibleNode(destNetworkNode, selected)) {
+			NodeDraft src = createNode(message.getSourceIP(), srcNetworkNode, loader);
+			NodeDraft dst = createNode(message.getDestinationIP(), destNetworkNode, loader);
 
-				NodeDraft src = createNode(message.getSourceIP(), srcNetworkNode, loader);
-				NodeDraft dst = createNode(message.getDestinationIP(), destNetworkNode, loader);
-
-				if (!loader.edgeExists(src, dst)) {
-					EdgeDraft edge = fact.newEdgeDraft();
-					edge.setSource(src);
-					edge.setTarget(dst);
-					edge.setWeight(1);
-					loader.addEdge(edge);
-				} else {
-					EdgeDraft e = loader.getEdge(src, dst);
-					e.setWeight(e.getWeight() + 1);
-				}
-
+			if (!loader.edgeExists(src, dst)) {
+				EdgeDraft edge = fact.newEdgeDraft();
+				edge.setSource(src);
+				edge.setTarget(dst);
+				edge.setWeight(1);
+				loader.addEdge(edge);
+			} else {
+				EdgeDraft e = loader.getEdge(src, dst);
+				e.setWeight(e.getWeight() + 1);
 			}
 
 		}
@@ -96,26 +89,17 @@ public class GephiImporter implements SpigotImporter {
 		NodeDraft draft = nodes.get(name);
 		if (draft == null) {
 			draft = loader.factory().newNodeDraft();
-			draft.setFixed(false);
-			Node networkNode = ipMap.get(name);
 			String label = "extern";
-			if (networkNode != null)
-				label = networkNode.getHostName();
 			draft.addAttributeValue(ipColumn, name);
 			if (node != null) {
+				label = node.getHostName();
 				draft.addAttributeValue(typeColumn, node.getType());
 			}
-			draft.setLabel(label.substring(0, 1));
+			draft.setLabel(label);
 			nodes.put(name, draft);
 			loader.addNode(draft);
-		} else {
-			draft.setFixed(true);
 		}
 		return draft;
-	}
-
-	private boolean isVisibleNode(Node n, List<Node> selected) {
-		return (n != null && selected.contains(n));
 	}
 
 	@Override

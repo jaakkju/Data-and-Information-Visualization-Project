@@ -10,8 +10,11 @@ import java.util.Observer;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
+import org.gephi.filters.api.FilterController;
+import org.gephi.filters.api.Query;
 import org.gephi.graph.api.GraphController;
 import org.gephi.graph.api.GraphModel;
+import org.gephi.graph.api.GraphView;
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
@@ -27,6 +30,7 @@ import org.openide.util.Lookup;
 
 import processing.core.PApplet;
 import big.marketing.controller.DataController;
+import big.marketing.view.gephi.SelectionFilter;
 
 public class GraphJPanel extends JPanel implements Observer {
 	static Logger logger = Logger.getLogger(GraphJPanel.class);
@@ -58,6 +62,18 @@ public class GraphJPanel extends JPanel implements Observer {
 
 	}
 
+	private void filterGraph() {
+		FilterController filterController = Lookup.getDefault().lookup(FilterController.class);
+		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+
+		SelectionFilter degreeFilter = new SelectionFilter(controller.getSelectedNodes());
+		Query query = filterController.createQuery(degreeFilter);
+
+		GraphView view = filterController.filter(query);
+		graphModel.setVisibleView(view);
+
+	}
+
 	public void layoutGraph() {
 
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
@@ -82,39 +98,47 @@ public class GraphJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		layoutGraph();
+		if ("SelectionOnly".equals(arg))
+			logger.info("Short update");
 
-		// Calculate ranking vor Nodes & Edges and color them 
-		RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
-		Ranking<?> degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
-		if (degreeRanking == null)
-			return;
-		AbstractColorTransformer<?> colorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
-		      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
-		colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
-		colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
-		rankingController.transform(degreeRanking, colorTransformer);
-		AbstractSizeTransformer<?> sizeTransformer = (AbstractSizeTransformer<?>) rankingController.getModel().getTransformer(
-		      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
-		sizeTransformer.setMinSize(5);
-		sizeTransformer.setMaxSize(20);
-		rankingController.transform(degreeRanking, sizeTransformer);
+		filterGraph();
 
-		PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
-		PreviewProperties props = previewController.getModel().getProperties();
+		if (!"SelectionOnly".equals(arg)) {
+			// time changed, do full redraw
+			layoutGraph();
+			// Calculate ranking vor Nodes & Edges and color them 
+			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
+			rankingController.setUseLocalScale(true);
+			Ranking<?> degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
 
-		props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
-		//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
-		props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
-		props.putValue(PreviewProperty.EDGE_OPACITY, 50);
-		props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
-		props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
-		props.putValue(PreviewProperty.ARROW_SIZE, 1);
-		props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
-		props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
-		previewController.refreshPreview();
+			AbstractColorTransformer<?> colorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
 
-		target.refresh();
-		target.resetZoom();
+			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
+			colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
+			rankingController.transform(degreeRanking, colorTransformer);
+
+			AbstractSizeTransformer<?> sizeTransformer = (AbstractSizeTransformer<?>) rankingController.getModel().getTransformer(
+			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
+			sizeTransformer.setMinSize(5);
+			sizeTransformer.setMaxSize(20);
+			rankingController.transform(degreeRanking, sizeTransformer);
+
+			PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
+			PreviewProperties props = previewController.getModel().getProperties();
+			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
+			//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
+			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
+			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
+			props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+			props.putValue(PreviewProperty.ARROW_SIZE, 1);
+			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
+			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
+			previewController.refreshPreview();
+			target.refresh();
+			target.resetZoom();
+		}
+
 	}
 }

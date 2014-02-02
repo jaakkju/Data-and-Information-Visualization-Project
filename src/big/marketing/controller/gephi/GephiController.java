@@ -42,6 +42,8 @@ public class GephiController extends Observable implements Observer {
 
 	CustomApplet applet;
 
+	boolean skip = false;
+
 	public GephiController(DataController dc) {
 		ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
 		workspace = projectController.getCurrentWorkspace();
@@ -85,13 +87,39 @@ public class GephiController extends Observable implements Observer {
 		}
 	}
 
-	public void load(QueryWindowData newDataset, Node[] selectedNodes) {
+	@Override
+	public void update(Observable o, Object arg) {
 
+		if ("SkipNextNotify".equals(arg)) {
+			skip = true;
+		} else if (arg instanceof QueryWindowData) {
+			load((QueryWindowData) arg);
+		} else if (arg instanceof Node[]) {
+			loadSelection((Node[]) arg);
+		}
+
+	}
+
+	public void loadSelection(Node[] selectedNodes) {
 		if (selectedNodes != null)
 			this.selectedNodes = selectedNodes;
+		if (skip) {
+			skip = false;
+			return;
+		}
+		if (currentQueryWindow != null) {
+			// only update if there has been data loaded earlier
+			setChanged();
+			notifyObservers("SelectionOnly");
+		}
+	}
 
-		if (newDataset != null)
-			currentQueryWindow = newDataset;
+	public void load(QueryWindowData newDataset) {
+		if (newDataset == null)
+			return;
+
+		currentQueryWindow = newDataset;
+
 		if (skip) {
 			skip = false;
 			return;
@@ -100,7 +128,6 @@ public class GephiController extends Observable implements Observer {
 			logger.info("Not all data yet, not displaying graph");
 			return;
 		}
-		long start = System.nanoTime();
 
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 
@@ -128,19 +155,17 @@ public class GephiController extends Observable implements Observer {
 		// update view
 		setChanged();
 		notifyObservers();
-		logger.info(String.format("graph update took %d ms", (System.nanoTime() - start) / 1000000));
 	}
 
 	public void showNodeInfo(float x, float y) {
 		Item newItem = getSingleItem(x, y);
-		String toolTipText = createTooltipText(newItem);
-		MouseRenderer mouseRenderer = Lookup.getDefault().lookup(MouseRenderer.class);
 
 		if (newItem != lastItem) {
+			MouseRenderer mouseRenderer = Lookup.getDefault().lookup(MouseRenderer.class);
 			if (newItem == null)
 				mouseRenderer.hideTooltip();
 			else
-				mouseRenderer.showTooltip(toolTipText, x, y);
+				mouseRenderer.showTooltip(createTooltipText(newItem), x, y);
 		}
 
 		lastItem = newItem;
@@ -247,20 +272,5 @@ public class GephiController extends Observable implements Observer {
 		} else {
 			logger.info("No internal nodes selected, not changing the selection");
 		}
-	}
-
-	boolean skip = false;
-
-	@Override
-	public void update(Observable o, Object arg) {
-
-		if ("SkipNextNotify".equals(arg)) {
-			skip = true;
-		} else if (arg instanceof QueryWindowData) {
-			load((QueryWindowData) arg, null);
-		} else if (arg instanceof Node[]) {
-			load(null, (Node[]) arg);
-		}
-
 	}
 }
