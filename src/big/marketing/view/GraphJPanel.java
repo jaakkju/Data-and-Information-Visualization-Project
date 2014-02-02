@@ -98,12 +98,11 @@ public class GraphJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		if ("SelectionOnly".equals(arg))
-			logger.info("Short update");
-
 		filterGraph();
 
-		if (!"SelectionOnly".equals(arg)) {
+		if ("SelectionOnly".equals(arg)) {
+			logger.info("Short update");
+		} else {
 			// time changed, do full redraw
 			layoutGraph();
 			// Calculate ranking vor Nodes & Edges and color them 
@@ -136,9 +135,10 @@ public class GraphJPanel extends JPanel implements Observer {
 			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
 			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
 			previewController.refreshPreview();
-			target.refresh();
 			target.resetZoom();
 		}
 
+		Lookup.getDefault().lookup(PreviewController.class).refreshPreview();
+		target.refresh();
 	}
 }
