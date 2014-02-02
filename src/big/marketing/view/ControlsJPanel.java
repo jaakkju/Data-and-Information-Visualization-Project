@@ -53,7 +53,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 	private ChartPanel chartPanel;
 	private JLabel currentTimeLabel;
 	private JSpinner playSpeedSpinner;
-	private JCheckBox adminBox, serverBox, workstationBox;
+	private JCheckBox adminBox, serverBox, workstationBox, layoutBox;
 	private JComboBox<DataType> typeCombo;
 	private Map<DataType, XYDataset> datasetCache;
 	private JLabel nodeCountJLabel;
@@ -140,6 +140,17 @@ public class ControlsJPanel extends JPanel implements Observer {
 			}
 		});
 		buttonPanel.add(resetButton);
+
+		layoutBox = new JCheckBox("Keep node layout");
+		layoutBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.setKeepLayout(layoutBox.isSelected());
+			}
+		});
+		buttonPanel.add(layoutBox);
+
 		nodeCountJLabel = new JLabel(" Displaying: All nodes");
 		buttonPanel.add(nodeCountJLabel);
 

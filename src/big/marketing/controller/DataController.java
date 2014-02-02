@@ -187,6 +187,11 @@ public class DataController extends Observable implements Runnable {
 		QUERYWINDOW_SIZE = Settings.getInt("controller.querywindow.size");
 	}
 
+	public void setKeepLayout(boolean keepLayout) {
+		setChanged();
+		notifyObservers(keepLayout);
+	}
+
 	public void resetSelectedNodes() {
 		setSelectedNodes((Node[]) network.toArray(new Node[network.size()]));
 		logger.info("Reset selection");

@@ -13,7 +13,6 @@ import org.gephi.io.importer.api.Container;
 import org.gephi.io.importer.api.ContainerFactory;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.ImportController;
-import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.preview.api.Item;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
@@ -25,6 +24,7 @@ import big.marketing.controller.DataController;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.view.gephi.CustomApplet;
+import big.marketing.view.gephi.CustomProcessor;
 import big.marketing.view.gephi.GraphMouseListener;
 import big.marketing.view.gephi.MouseRenderer;
 
@@ -42,7 +42,7 @@ public class GephiController extends Observable implements Observer {
 
 	CustomApplet applet;
 
-	boolean skip = false;
+	boolean skip = false, keep = false;
 
 	public GephiController(DataController dc) {
 		ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
@@ -89,8 +89,9 @@ public class GephiController extends Observable implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-
-		if ("SkipNextNotify".equals(arg)) {
+		if (arg instanceof Boolean) {
+			keep = (Boolean) arg;
+		} else if ("SkipNextNotify".equals(arg)) {
 			skip = true;
 		} else if (arg instanceof QueryWindowData) {
 			load((QueryWindowData) arg);
@@ -132,7 +133,11 @@ public class GephiController extends Observable implements Observer {
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
 
 		if (graphModel != null) {
-			graphModel.getGraph().clear();
+			if (!keep)
+				graphModel.getGraph().clear();
+			else
+				graphModel.getGraph().clearEdges();
+
 			ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
 			projectController.cleanWorkspace(workspace);
 
@@ -150,7 +155,7 @@ public class GephiController extends Observable implements Observer {
 
 		// process data from container into internal graph structure
 		ImportController importController = Lookup.getDefault().lookup(ImportController.class);
-		importController.process(container, new DefaultProcessor(), workspace);
+		importController.process(container, new CustomProcessor(), workspace);
 
 		// update view
 		setChanged();
