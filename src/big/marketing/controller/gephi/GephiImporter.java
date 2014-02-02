@@ -1,4 +1,4 @@
-package big.marketing.controller;
+package big.marketing.controller.gephi;
 
 import java.util.ArrayList;
 import java.util.HashMap;

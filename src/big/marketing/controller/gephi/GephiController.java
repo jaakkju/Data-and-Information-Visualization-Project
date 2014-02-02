@@ -1,4 +1,4 @@
-package big.marketing.controller;
+package big.marketing.controller.gephi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +21,12 @@ import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
+import big.marketing.controller.DataController;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
-import big.marketing.view.GraphMouseListener;
-import big.marketing.view.MouseRenderer;
-import big.marketing.view.gephi.MyProcessingApplet;
+import big.marketing.view.gephi.GraphMouseListener;
+import big.marketing.view.gephi.MouseRenderer;
+import big.marketing.view.gephi.CustomApplet;
 
 public class GephiController extends Observable implements Observer {
 	static Logger logger = Logger.getLogger(GephiController.class);
@@ -39,7 +40,7 @@ public class GephiController extends Observable implements Observer {
 
 	Item lastItem = null;
 
-	MyProcessingApplet applet;
+	CustomApplet applet;
 
 	public GephiController(DataController dc) {
 		ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);

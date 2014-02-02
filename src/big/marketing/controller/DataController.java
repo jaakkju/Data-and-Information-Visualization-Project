@@ -7,6 +7,7 @@ import java.util.Observable;
 import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
+import big.marketing.controller.gephi.GephiController;
 import big.marketing.data.DataType;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;

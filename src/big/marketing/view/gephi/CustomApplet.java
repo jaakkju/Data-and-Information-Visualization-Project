@@ -23,15 +23,14 @@ import org.openide.util.Lookup;
 
 import processing.core.PApplet;
 import processing.core.PVector;
-import big.marketing.view.GraphMouseListener;
 
-public class MyProcessingApplet extends PApplet implements MouseWheelListener {
+public class CustomApplet extends PApplet implements MouseWheelListener {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -511805493507982019L;
 
-	static Logger logger = Logger.getLogger(MyProcessingApplet.class);
+	static Logger logger = Logger.getLogger(CustomApplet.class);
 
 	//Const
 	private static final int WHEEL_TIMER = 500;

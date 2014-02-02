@@ -60,8 +60,8 @@ import processing.core.PGraphics;
  * @author Mathieu Bastian
  */
 @ServiceProvider(service = RenderTargetBuilder.class)
-public class MyProcessingRenderTargetBuilder implements RenderTargetBuilder {
-	static Logger logger = Logger.getLogger(MyProcessingRenderTargetBuilder.class);
+public class CustomRenderTargetBuilder implements RenderTargetBuilder {
+	static Logger logger = Logger.getLogger(CustomRenderTargetBuilder.class);
 
 	@Override
 	public RenderTarget buildRenderTarget(PreviewModel previewModel) {
@@ -72,10 +72,10 @@ public class MyProcessingRenderTargetBuilder implements RenderTargetBuilder {
 			//Headless  mode
 			width = Math.max(1, width);
 			height = Math.max(1, height);
-			return new MyProcessingTargetImpl(width, height);
+			return new CustomRenderTargetImpl(width, height);
 		} else {
 			//Applet mode
-			return new MyProcessingTargetImpl();
+			return new CustomRenderTargetImpl();
 		}
 	}
 
@@ -84,19 +84,19 @@ public class MyProcessingRenderTargetBuilder implements RenderTargetBuilder {
 		return RenderTarget.PROCESSING_TARGET;
 	}
 
-	public static class MyProcessingTargetImpl extends AbstractRenderTarget implements ProcessingTarget {
+	public static class CustomRenderTargetImpl extends AbstractRenderTarget implements ProcessingTarget {
 
 		private final PreviewController previewController;
-		private final MyProcessingApplet applet;
+		private final CustomApplet applet;
 		private final ProcessingGraphics graphics;
 
-		public MyProcessingTargetImpl() {
-			applet = new MyProcessingApplet();
+		public CustomRenderTargetImpl() {
+			applet = new CustomApplet();
 			graphics = null;
 			previewController = Lookup.getDefault().lookup(PreviewController.class);
 		}
 
-		public MyProcessingTargetImpl(int width, int height) {
+		public CustomRenderTargetImpl(int width, int height) {
 			graphics = new ProcessingGraphics(width, height);
 			applet = null;
 			previewController = Lookup.getDefault().lookup(PreviewController.class);

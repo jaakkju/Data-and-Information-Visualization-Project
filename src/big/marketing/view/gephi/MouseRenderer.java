@@ -1,4 +1,4 @@
-package big.marketing.view;
+package big.marketing.view.gephi;
 
 import java.awt.Color;
 
@@ -17,7 +17,6 @@ import org.openide.util.lookup.ServiceProvider;
 
 import processing.core.PGraphics;
 import big.marketing.data.Node;
-import big.marketing.view.gephi.MyProcessingApplet;
 
 /*
  * How to use ServiceProviders:
@@ -36,7 +35,7 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 
 	boolean isDragging;
 	int startX, startY, endX, endY;
-	private MyProcessingApplet applet;
+	private CustomApplet applet;
 
 	public static final float SQRT_OF_12 = (float) (1 / Math.sqrt(12));
 
@@ -137,7 +136,7 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 
 	@Override
 	public void renderProcessing(Item item, ProcessingTarget target, PreviewProperties properties) {
-		applet = (MyProcessingApplet) target.getApplet();
+		applet = (CustomApplet) target.getApplet();
 		// draw rectangle
 		super.renderProcessing(item, target, properties);
 		PGraphics graphics = target.getGraphics();

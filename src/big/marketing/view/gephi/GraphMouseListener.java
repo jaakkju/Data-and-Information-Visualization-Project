@@ -1,4 +1,4 @@
-package big.marketing.view;
+package big.marketing.view.gephi;
 
 import org.apache.log4j.Logger;
 import org.gephi.preview.api.PreviewMouseEvent;
@@ -9,7 +9,7 @@ import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
-import big.marketing.controller.GephiController;
+import big.marketing.controller.gephi.GephiController;
 
 /*
  * How to use ServiceProviders:
