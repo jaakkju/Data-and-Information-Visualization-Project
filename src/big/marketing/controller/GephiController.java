@@ -28,6 +28,7 @@ import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
 import big.marketing.view.GraphJPanel;
 import big.marketing.view.GraphMouseListener;
+import big.marketing.view.MouseRenderer;
 import big.marketing.view.gephi.MyProcessingApplet;
 
 public class GephiController extends Observable implements Observer {
@@ -158,15 +159,40 @@ public class GephiController extends Observable implements Observer {
 
 	public void showNodeInfo(float x, float y) {
 		Item newItem = getSingleNode(x, y);
-		String ip = getIp(newItem);
+		String toolTipText = createTooltipText(newItem);
+		MouseRenderer mr = Lookup.getDefault().lookup(MouseRenderer.class);
 
-		if (newItem == null) {
-			if (lastItem != null)
-				logger.info("No hover");
-		} else if (!newItem.equals(lastItem)) {
-			logger.info("Hover node with IP " + ip);
+		if (newItem != lastItem) {
+			if (newItem == null)
+				mr.hideTooltip();
+			else
+				mr.showTooltip(toolTipText, x, y);
 		}
+
 		lastItem = newItem;
+	}
+
+	public String createTooltipText(Item i) {
+		StringBuilder sb = new StringBuilder();
+		Node n = item2Node(i);
+		if (n != null) {
+			addLine(sb, "IP", n.getAddress());
+			addLine(sb, "Name", n.getHostName());
+			if (n.getComment() != null)
+				addLine(sb, "Comment", n.getComment());
+		} else {
+			addLine(sb, "IP", getIp(i));
+			addLine(sb, "Type", "external");
+		}
+		return sb.toString();
+	}
+
+	private void addLine(StringBuilder sb, String one, String two) {
+		sb.append(one);
+		sb.append(":\t");
+		sb.append(two);
+		sb.append("\n");
+
 	}
 
 	public Item getSingleNode(final float x, final float y) {

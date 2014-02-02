@@ -3,6 +3,8 @@ package big.marketing.view.gephi;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Label;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -10,6 +12,8 @@ import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import javax.swing.BoxLayout;
 
 import org.apache.log4j.Logger;
 import org.gephi.preview.api.PreviewController;
@@ -81,7 +85,31 @@ public class MyProcessingApplet extends PApplet implements MouseWheelListener {
 		smooth();
 		noLoop(); // the preview is drawn once and then redrawn when necessary
 		addMouseWheelListener(this);
+
+		toolPanel = new Panel();
+		toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
+		add(toolPanel);
+		toolPanel.setVisible(false);
 	}
+
+	public void showTooltip(String t) {
+		toolPanel.removeAll();
+		for (String line : t.split("\\n")) {
+			if (line.length() > 0)
+				toolPanel.add(new Label(line));
+		}
+		toolPanel.doLayout();
+		Dimension d = toolPanel.getPreferredSize();
+		toolPanel.setBounds(mouseX, mouseY, d.width + 10, d.height + 10);
+		toolPanel.doLayout();
+		toolPanel.setVisible(true);
+	}
+
+	public void hideTooltip() {
+		toolPanel.setVisible(false);
+	}
+
+	Panel toolPanel;
 
 	@Override
 	public void draw() {

@@ -16,9 +16,9 @@ import org.gephi.preview.spi.Renderer;
 import org.gephi.preview.types.DependantColor;
 import org.openide.util.lookup.ServiceProvider;
 
-import processing.core.PApplet;
 import processing.core.PGraphics;
 import big.marketing.data.Node;
+import big.marketing.view.gephi.MyProcessingApplet;
 
 /*
  * How to use ServiceProviders:
@@ -36,16 +36,28 @@ import big.marketing.data.Node;
 public class MouseRenderer extends NodeRenderer implements MouseResponsiveRenderer {
 
 	boolean isDragging;
-	int x, y, w, h;
+	int startX, startY, endX, endY;
+	private MyProcessingApplet applet;
 
 	public static final float SQRT_OF_12 = (float) (1 / Math.sqrt(12));
 
-	public void startDragging(int x, int y, int w, int h) {
+	public void showTooltip(String ttext, float x, float y) {
+		if (applet != null) {
+			applet.showTooltip(ttext);
+		}
+	}
+
+	public void hideTooltip() {
+		if (applet != null)
+			applet.hideTooltip();
+	}
+
+	public void startDragging(int startX, int startY, int endX, int endY) {
 		this.isDragging = true;
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
+		this.startX = startX;
+		this.startY = startY;
+		this.endX = endX;
+		this.endY = endY;
 	}
 
 	public void endDragging() {
@@ -129,18 +141,19 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 
 	@Override
 	public void renderProcessing(Item item, ProcessingTarget target, PreviewProperties properties) {
-
+		applet = (MyProcessingApplet) target.getApplet();
 		// draw rectangle
 		super.renderProcessing(item, target, properties);
+		PGraphics g = target.getGraphics();
+		MyProcessingApplet p = (MyProcessingApplet) target.getApplet();
 		if (isDragging) {
-			PGraphics g = target.getGraphics();
-			PApplet p = target.getApplet();
-			int width = w - x;
-			int height = h - y;
+			int width = endX - startX;
+			int height = endY - startY;
 			//			System.out.println("Width: " + width + " Height: " + height);
 			g.fill(128, 128, 128, 20);
-			g.rect(x + width / 2, y + height / 2, width, height);
+			g.rect(startX + width / 2, startY + height / 2, width, height);
 		}
+
 	}
 
 	@Override
