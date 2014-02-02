@@ -141,7 +141,7 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(currentQueryWindow);
-
+		System.gc();
 		return !currentQueryWindow.isEmpty();
 	}
 
@@ -180,6 +180,7 @@ public class DataController extends Observable implements Runnable {
 		      + QUERYWINDOW_SIZE + " sec, " + t.name() + ": " + newEntries.size() + " objects");
 		setChanged();
 		notifyObservers(currentQueryWindow);
+		System.gc();
 		return !currentQueryWindow.isEmpty();
 	}
 
