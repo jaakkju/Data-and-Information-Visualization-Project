@@ -86,7 +86,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		layout.setEdgeWeightInfluence(0.1);
 		layout.setScalingRatio(50.0);
 		layout.setLinLogMode(false);
-		int maxSteps = graphModel.getGraph().getNodeCount() / 3;
+		int maxSteps = 100;
 
 		for (int i = 0; i < maxSteps && layout.canAlgo(); i++) {
 			layout.goAlgo();
