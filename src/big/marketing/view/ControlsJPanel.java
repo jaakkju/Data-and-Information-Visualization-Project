@@ -47,7 +47,6 @@ import big.marketing.data.Node;
 
 public class ControlsJPanel extends JPanel implements Observer {
 	private static final long serialVersionUID = 7478563340170330453L;
-	private final DataController controller;
 	private JSlider qWindowSlider;
 	private JPanel buttonPanel;
 	private JButton playPauseButton, resetButton;
@@ -66,7 +65,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	public ControlsJPanel(final DataController controller) {
 		loadSettings();
-		this.controller = controller;
 		this.setLayout(new BorderLayout());
 		datasetCache = new HashMap<DataType, XYDataset>();
 		playPauseButton = new JButton("Play");
@@ -79,7 +77,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 			}
 		});
 		buttonPanel = new JPanel();
-		//		BoxLayout bl = new BoxLayout(buttonPanel, BoxLayout.Y_AXIS);
 		buttonPanel.setLayout(new FlowLayout());
 		currentTimeLabel = new JLabel(" ");
 		playSpeedSpinner = new JSpinner(new SpinnerNumberModel(3600, 60, Integer.MAX_VALUE, 100));
@@ -118,6 +115,7 @@ public class ControlsJPanel extends JPanel implements Observer {
 		typeCombo.setEditable(true);
 		typeCombo.addActionListener(new ActionListener() {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JComboBox<DataType> source = (JComboBox<DataType>) arg0.getSource();
@@ -171,7 +169,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 		});
 		chartPanel.add(qWindowSlider, BorderLayout.CENTER);
 		add(chartPanel);
-		//		chartPanel.setBorder(null);
 		setPreferredSize(new Dimension(WindowFrame.FRAME_WIDTH, (int) (WindowFrame.FRAME_HEIGHT * 0.3)));
 		if (FAST_START)
 			qWindowSlider.setValue(1365629513);
@@ -191,7 +188,6 @@ public class ControlsJPanel extends JPanel implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		logger.info("Updatihnng Controls panel");
 		if (arg instanceof IntervalXYDataset) {
 			showChart((IntervalXYDataset) arg);
 		} else if (arg instanceof Integer) {
@@ -228,10 +224,8 @@ public class ControlsJPanel extends JPanel implements Observer {
 		DateAxis dAxis = new DateAxis();
 		dAxis.setRange((long) ControlsJPanel.QW_MIN * 1000L, (long) ControlsJPanel.QW_MAX * 1000L);
 		plot.setDomainAxis(dAxis);
-		//		domainAxis.setVisible(false);
+
 		plot.setRenderer(new XYAreaRenderer());
-		//		int length = (int) (qWindowSlider.getWidth() * DataController.QUERYWINDOW_SIZE / (QW_MAX - QW_MIN));
-		//		plot.setAxisOffset(new RectangleInsets(0, length / 4, 0, length / 4));
 		plot.setAxisOffset(new RectangleInsets(0, 0, 0, 0));
 		chart.setPadding(new RectangleInsets(0, 0, 0, 0));
 

@@ -17,6 +17,7 @@ import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
+import org.gephi.preview.api.RenderTarget;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
 import org.gephi.ranking.api.Transformer;
@@ -35,17 +36,9 @@ public class GraphJPanel extends JPanel implements Observer {
 	private PApplet applet;
 	private ProcessingTarget target;
 
-	public void setContent(ProcessingTarget target) {
-		this.target = target;
-		applet = target.getApplet();
-		applet.init();
-		//		removeAll();
-		add(applet, BorderLayout.CENTER);
-		controller.getGephiController().render(target);
-	}
-
 	public GraphJPanel(DataController controller) {
 		this.controller = controller;
+		this.controller.getGephiController().addObserver(this);
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -55,7 +48,14 @@ public class GraphJPanel extends JPanel implements Observer {
 			}
 		});
 		setLayout(new BorderLayout());
-		this.controller.getGephiController().setGraphPanel(this);
+		PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
+		RenderTarget rt = previewController.getRenderTarget(RenderTarget.PROCESSING_TARGET);
+		target = (ProcessingTarget) rt;
+		applet = target.getApplet();
+		applet.init();
+		add(applet, BorderLayout.CENTER);
+		previewController.render(target);
+
 	}
 
 	public void layoutGraph() {
@@ -70,7 +70,7 @@ public class GraphJPanel extends JPanel implements Observer {
 		layout.setEdgeWeightInfluence(0.1);
 		layout.setScalingRatio(50.0);
 		layout.setLinLogMode(false);
-		int maxSteps = graphModel.getGraph().getNodeCount() / 2;
+		int maxSteps = graphModel.getGraph().getNodeCount() / 3;
 
 		for (int i = 0; i < maxSteps && layout.canAlgo(); i++) {
 			layout.goAlgo();
@@ -82,52 +82,39 @@ public class GraphJPanel extends JPanel implements Observer {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		if (arg instanceof PreviewController) {
+		layoutGraph();
 
-			layoutGraph();
+		// Calculate ranking vor Nodes & Edges and color them 
+		RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
+		Ranking<?> degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
+		if (degreeRanking == null)
+			return;
+		AbstractColorTransformer<?> colorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
+		      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
+		colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
+		colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
+		rankingController.transform(degreeRanking, colorTransformer);
+		AbstractSizeTransformer<?> sizeTransformer = (AbstractSizeTransformer<?>) rankingController.getModel().getTransformer(
+		      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
+		sizeTransformer.setMinSize(5);
+		sizeTransformer.setMaxSize(20);
+		rankingController.transform(degreeRanking, sizeTransformer);
 
-			// Calculate ranking vor Nodes & Edges and color them 
-			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
-			Ranking degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
-			if (degreeRanking == null)
-				return;
-			AbstractColorTransformer colorTransformer = (AbstractColorTransformer) rankingController.getModel().getTransformer(
-			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
-			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
-			colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
-			rankingController.transform(degreeRanking, colorTransformer);
-			AbstractSizeTransformer sizeTransformer = (AbstractSizeTransformer) rankingController.getModel().getTransformer(
-			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
-			sizeTransformer.setMinSize(5);
-			sizeTransformer.setMaxSize(20);
-			rankingController.transform(degreeRanking, sizeTransformer);
+		PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
+		PreviewProperties props = previewController.getModel().getProperties();
 
-			PreviewController previewController = (PreviewController) arg;
-			PreviewProperties props = previewController.getModel().getProperties();
+		props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
+		//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+		props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
+		props.putValue(PreviewProperty.EDGE_OPACITY, 50);
+		props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
+		props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
+		props.putValue(PreviewProperty.ARROW_SIZE, 1);
+		props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
+		props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
+		previewController.refreshPreview();
 
-			// Dimensions are different every run... thats bad
-			// topleft & dimensions are only updated during refreshPreview...
-			// how to create a mapping from graph coordinates to screen coords???
-			// screen dimensions via previewapplet...
-			// initial graph dimensions via previewModel
-			// track changes (pan, zoom)
-
-			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
-			//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
-			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
-			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
-			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
-			props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
-			props.putValue(PreviewProperty.ARROW_SIZE, 1);
-			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
-			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
-			previewController.refreshPreview();
-		}
-
-		if (target != null) {
-			target.refresh();
-			target.resetZoom();
-		}
+		target.refresh();
+		target.resetZoom();
 	}
-
 }

@@ -30,24 +30,22 @@ public class GraphMouseListener implements PreviewMouseListener {
 	private int startX, startY, endX, endY;
 	private GephiController gc;
 
-	// Match Event coordinates with nodes...
 	@Override
 	public void mouseClicked(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
-		if (!isReactiveFor(event))
-			return;
-
-		// Triggered when clicked an mouse was not moved
-		//		logger.info("CLICK!");
+		return;
 	}
 
 	@Override
 	public void mouseDragged(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
 		if (!isReactiveFor(event))
 			return;
-		//		logger.info("DRAG!");
+		if (startX == endX && startY == endY) {
+			Lookup.getDefault().lookup(MouseRenderer.class).startDragging(startX, startY);
+		}
 		endX = event.x;
 		endY = event.y;
-		Lookup.getDefault().lookup(MouseRenderer.class).startDragging(startX, startY, endX, endY);
+		Lookup.getDefault().lookup(MouseRenderer.class).dragStep(endX, endY);
+
 		event.setConsumed(true);
 
 	}
@@ -58,9 +56,7 @@ public class GraphMouseListener implements PreviewMouseListener {
 			return;
 		startX = endX = event.x;
 		startY = endY = event.y;
-		//		logger.info("PRESS!");
 
-		// only react on left mouse button clicks, other events are passed to other listeners
 		event.setConsumed(true);
 
 	}
@@ -69,7 +65,7 @@ public class GraphMouseListener implements PreviewMouseListener {
 	public void mouseReleased(PreviewMouseEvent event, PreviewProperties properties, Workspace workspace) {
 		if (!isReactiveFor(event))
 			return;
-		//		logger.info("RELEASE!");
+
 		if (startX != endX || startY != endY) {
 			logger.info("Dragged from (" + startX + "," + startY + ") to (" + endX + "," + endY + ")");
 			Lookup.getDefault().lookup(MouseRenderer.class).endDragging();
@@ -77,9 +73,7 @@ public class GraphMouseListener implements PreviewMouseListener {
 			gc.selectNodesFromCoords(startX, startY, endX, endY);
 
 		} else {
-			logger.info("Clicked on node");
 			gc.showNodeInfo(startX, startY);
-
 		}
 
 	}

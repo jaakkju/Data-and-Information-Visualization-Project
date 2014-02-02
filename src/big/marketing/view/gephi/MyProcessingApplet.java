@@ -2,14 +2,12 @@ package big.marketing.view.gephi;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -24,7 +22,6 @@ import org.gephi.preview.api.RenderTarget;
 import org.openide.util.Lookup;
 
 import processing.core.PApplet;
-import processing.core.PFont;
 import processing.core.PVector;
 import big.marketing.view.GraphMouseListener;
 
@@ -38,7 +35,6 @@ public class MyProcessingApplet extends PApplet implements MouseWheelListener {
 
 	//Const
 	private static final int WHEEL_TIMER = 500;
-	private final static float MARGIN = 10f;
 	//States
 	private final PVector ref = new PVector();
 	private final PVector trans = new PVector();
@@ -50,14 +46,11 @@ public class MyProcessingApplet extends PApplet implements MouseWheelListener {
 	private final PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
 	private PreviewModel model;
 	private RenderTarget target;
-	//Caching
-	private final HashMap<String, PFont> fontMap = new HashMap<String, PFont>();
 
 	/**
 	 * Refreshes the preview using the current graph from the preview controller.
 	 */
 	public void refresh(PreviewModel model, RenderTarget target) {
-		logger.info("Refreshing extended applet");
 		this.model = model;
 		this.target = target;
 		// updates fonts
@@ -221,7 +214,6 @@ public class MyProcessingApplet extends PApplet implements MouseWheelListener {
 
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
-		// TODO Auto-generated method stub
 		super.mouseMoved(arg0);
 
 		PVector modelPosition = getMouseModelPosition();
@@ -339,32 +331,5 @@ public class MyProcessingApplet extends PApplet implements MouseWheelListener {
 
 			}
 		}
-	}
-
-	/**
-	 * Creates a Processing font from a classic font.
-	 * 
-	 * @param font a font to transform
-	 * @return a Processing font
-	 */
-	private PFont createFont(Font font) {
-		return createFont(font.getName(), 1);
-	}
-
-	/**
-	 * Returns the Processing font related to the given classic font.
-	 * 
-	 * @param font a classic font
-	 * @return the related Processing font
-	 */
-	private PFont getPFont(Font font) {
-		String fontName = font.getName();
-		if (fontMap.containsKey(fontName)) {
-			return fontMap.get(fontName);
-		}
-
-		PFont pFont = createFont(font);
-		fontMap.put(fontName, pFont);
-		return pFont;
 	}
 }

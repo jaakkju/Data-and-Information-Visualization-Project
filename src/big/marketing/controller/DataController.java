@@ -2,7 +2,6 @@ package big.marketing.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 
 import org.apache.log4j.Logger;
@@ -27,25 +26,11 @@ public class DataController extends Observable implements Runnable {
 	// currentQueryWindow stores the data returned from mongo
 	private QueryWindowData currentQueryWindow;
 	private List<Node> network;
-	private Map<String, Node> ipMap;
-	private Node[] highlightedNodes = null;
+
 	private Node[] selectedNodes = null;
 
 	private Thread readingThread, processingThread;
 	private Player player;
-	private int nodeCount;
-
-	public int getNodeCount() {
-		return nodeCount;
-	}
-
-	private static DataController instance;
-
-	public static DataController getInstance() {
-		if (instance == null)
-			instance = new DataController();
-		return instance;
-	}
 
 	/*
 	 * TODO I think we can clarify this code pretty much
@@ -54,17 +39,16 @@ public class DataController extends Observable implements Runnable {
 	 * Question? What is the purpose of ipMap
 	 */
 
-	private DataController() {
+	public DataController() {
 		loadSettings();
-		this.mc = MongoController.getInstance();
+		this.mc = new MongoController();
 		this.gc = new GephiController(this);
-		this.addObserver(gc);
-		ipMap = mc.getNetwork();
-		network = new ArrayList<>(ipMap.values());
+		network = mc.getNetwork();
 		setSelectedNodes((Node[]) network.toArray(new Node[network.size()]));
 		if (network.isEmpty()) {
 			logger.warn("Loading Nodes from database failed!");
 		}
+		this.addObserver(gc);
 	}
 
 	public void selectNodesOfType(boolean selectAdmin, boolean selectServer, boolean selectWorkstations) {
@@ -74,7 +58,6 @@ public class DataController extends Observable implements Runnable {
 				selected.add(n);
 		}
 		selectedNodes = (Node[]) selected.toArray(new Node[selected.size()]);
-		nodeCount = selectedNodes.length;
 		setChanged();
 		notifyObservers(selectedNodes);
 	}
@@ -143,10 +126,10 @@ public class DataController extends Observable implements Runnable {
 		resetSelectedNodes();
 		int start = time - QUERYWINDOW_SIZE / 2, end = time + QUERYWINDOW_SIZE / 2;
 		long startTime = System.currentTimeMillis();
+
 		currentQueryWindow = new QueryWindowData(null, null, null, network);
 		currentQueryWindow.setFlow(mc.getConstrainedEntries(DataType.FLOW, "time", start, end));
 		currentQueryWindow.setIps(mc.getConstrainedEntries(DataType.IPS, "time", start, end));
-
 		currentQueryWindow.setHealth(mc.getConstrainedEntries(DataType.HEALTH, "time", time - 60, time + 60));
 
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
@@ -155,7 +138,6 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(currentQueryWindow);
-		System.gc();
 
 		return !currentQueryWindow.isEmpty();
 	}
@@ -189,20 +171,15 @@ public class DataController extends Observable implements Runnable {
 			return false;
 		}
 
-		setChanged();
 		logger.info("Moved qWindow to " + time + ", Query took " + (System.currentTimeMillis() - startTime) + " ms,  Window size: "
 		      + QUERYWINDOW_SIZE + " sec, " + t.name() + ": " + newEntries.size() + " objects");
+		setChanged();
 		notifyObservers(currentQueryWindow);
 		return !currentQueryWindow.isEmpty();
 	}
 
 	private void loadSettings() {
 		QUERYWINDOW_SIZE = Settings.getInt("controller.querywindow.size");
-	}
-
-	public void setHighlightedNodes(Node[] highlightedNodes) {
-		this.highlightedNodes = highlightedNodes;
-		setChanged();
 	}
 
 	public void resetSelectedNodes() {
@@ -217,10 +194,6 @@ public class DataController extends Observable implements Runnable {
 
 		setChanged();
 		notifyObservers(selectedNodes);
-	}
-
-	public Node[] getHighlightedNodes() {
-		return highlightedNodes;
 	}
 
 	public Node[] getSelectedNodes() {

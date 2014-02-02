@@ -52,7 +52,6 @@ public class MongoController implements Runnable {
 
 	EnumMap<DataType, CollectionHandler> collections;
 
-	private static MongoController instance;
 	private static MongoClient mongo;
 	private static DB database;
 
@@ -61,13 +60,7 @@ public class MongoController implements Runnable {
 	public static int BUFFER_SIZE = 1000;
 	public static int MAX_TRIES = 3;
 
-	public static MongoController getInstance() {
-		if (instance == null)
-			instance = new MongoController();
-		return instance;
-	}
-
-	private MongoController() {
+	public MongoController() {
 		loadSettings();
 
 		boolean isConnected = connectToDatabase();
@@ -269,14 +262,22 @@ public class MongoController implements Runnable {
 		return database;
 	}
 
-	public Map<String, Node> getNetwork() {
+	public Map<String, Node> getIpToNodeMap() {
 		Map<String, Node> ipNodeMap = new HashMap<String, Node>();
-		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
-		for (DBObject obj : names.find()) {
-			Node n = (Node) convert(DataType.DESCRIPTION, obj);
-			ipNodeMap.put(n.getAddress(), n);
+		for (Node node : getNetwork()) {
+			ipNodeMap.put(node.getAddress(), node);
 		}
 		return ipNodeMap;
+	}
+
+	public List<Node> getNetwork() {
+		List<Node> network = new ArrayList<>();
+		DBCollection names = database.getCollection(DESCRIPTION_COLLECTION_NAME);
+		for (DBObject obj : names.find()) {
+			Node node = (Node) convert(DataType.DESCRIPTION, obj);
+			network.add(node);
+		}
+		return network;
 	}
 
 	public void storeEntry(DataType t, DBObject object) {

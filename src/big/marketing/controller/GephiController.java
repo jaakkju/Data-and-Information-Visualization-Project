@@ -17,16 +17,12 @@ import org.gephi.io.processor.plugin.DefaultProcessor;
 import org.gephi.preview.api.Item;
 import org.gephi.preview.api.PreviewController;
 import org.gephi.preview.api.PreviewModel;
-import org.gephi.preview.api.ProcessingTarget;
-import org.gephi.preview.api.RenderTarget;
 import org.gephi.project.api.ProjectController;
 import org.gephi.project.api.Workspace;
 import org.openide.util.Lookup;
 
-import big.marketing.data.FlowMessage;
 import big.marketing.data.Node;
 import big.marketing.data.QueryWindowData;
-import big.marketing.view.GraphJPanel;
 import big.marketing.view.GraphMouseListener;
 import big.marketing.view.MouseRenderer;
 import big.marketing.view.gephi.MyProcessingApplet;
@@ -34,31 +30,29 @@ import big.marketing.view.gephi.MyProcessingApplet;
 public class GephiController extends Observable implements Observer {
 	static Logger logger = Logger.getLogger(GephiController.class);
 
-	private ImportController importController;
-	private PreviewController previewController;
-	private ProjectController projectController;
 	private QueryWindowData currentQueryWindow;
 	private Node[] selectedNodes;
 
-	private DataController dc;
+	private DataController dataController;
 	private Workspace workspace;
 	private Map<String, Node> ipMap;
 
+	Item lastItem = null;
+
+	MyProcessingApplet applet;
+
 	public GephiController(DataController dc) {
-		projectController = Lookup.getDefault().lookup(ProjectController.class);
-		this.dc = dc;
-		ipMap = dc.getMongoController().getNetwork();
+		ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
+		workspace = projectController.getCurrentWorkspace();
+		projectController.newProject();
+
+		this.dataController = dc;
+		ipMap = dc.getMongoController().getIpToNodeMap();
 		GraphMouseListener gml = Lookup.getDefault().lookup(GraphMouseListener.class);
 		gml.setGephiController(this);
-		// load an emtpy graph for initializing the RenderTarget and Applet(in GraphPanel)
-		loadEmptyContainer();
 
 		// By now the JPanel on which to draw on is not known, so we cannot set up the RenderTarget.
 		// This is done in setGraphPanel(...)
-	}
-
-	public void loadEmptyContainer() {
-		load(new QueryWindowData(new ArrayList<FlowMessage>(), null, null, null), null);
 	}
 
 	/**
@@ -67,6 +61,7 @@ public class GephiController extends Observable implements Observer {
 	 * <b>WARNING:</b>Be careful, no security checks are done, can break the VM.
 	 * @param terminationTargets
 	 */
+	@SuppressWarnings("deprecation")
 	private void terminateThreads(String... terminationTargets) {
 		// All Threads are organized in a tree structure, so get the root of the tree
 		ThreadGroup tg = Thread.currentThread().getThreadGroup();
@@ -90,15 +85,11 @@ public class GephiController extends Observable implements Observer {
 	}
 
 	public void load(QueryWindowData newDataset, Node[] selectedNodes) {
-		if (selectedNodes == null) {
-			if (this.selectedNodes == null)
-				this.selectedNodes = new Node[0];
-		} else
+
+		if (selectedNodes != null)
 			this.selectedNodes = selectedNodes;
-		if (newDataset == null) {
-			if (currentQueryWindow == null)
-				logger.info("No QueryWindow to display");
-		} else
+
+		if (newDataset != null)
 			currentQueryWindow = newDataset;
 
 		if (this.selectedNodes == null || this.currentQueryWindow == null) {
@@ -107,23 +98,17 @@ public class GephiController extends Observable implements Observer {
 		}
 
 		GraphModel graphModel = Lookup.getDefault().lookup(GraphController.class).getModel();
+
 		if (graphModel != null) {
-			graphModel.clear();
-			projectController.cleanWorkspace(projectController.getCurrentWorkspace());
-			//			projectController.closeCurrentWorkspace();
+			graphModel.getGraph().clear();
+			ProjectController projectController = Lookup.getDefault().lookup(ProjectController.class);
+			projectController.cleanWorkspace(workspace);
 
-			// REALLY DIRTY HACK !!!
+			// Gephi doesn't terminate these Threads. Since many of these threads lead to OutOfMemory Errors,
+			// kill all left-over threads manually.
 			terminateThreads("DHNS View Destructor");
-			// END REALLY DIRTY HACK!!!!
 
-		} else {
-			projectController.newProject();
 		}
-
-		// init
-		importController = Lookup.getDefault().lookup(ImportController.class);
-		previewController = Lookup.getDefault().lookup(PreviewController.class);
-		workspace = projectController.getCurrentWorkspace();
 
 		// import to container
 		Container container = Lookup.getDefault().lookup(ContainerFactory.class).newContainer();
@@ -132,41 +117,24 @@ public class GephiController extends Observable implements Observer {
 		gImporter.execute(loader);
 
 		// process data from container into internal graph structure
+		ImportController importController = Lookup.getDefault().lookup(ImportController.class);
 		importController.process(container, new DefaultProcessor(), workspace);
 
 		// update view
 		setChanged();
-		notifyObservers(previewController);
+		notifyObservers();
 	}
-
-	public void setGraphPanel(GraphJPanel graphPanel) {
-		addObserver(graphPanel);
-		// now we know the Panel where to draw, so create and set the RenderTarget
-		RenderTarget rt = previewController.getRenderTarget(RenderTarget.PROCESSING_TARGET);
-		ProcessingTarget pt = (ProcessingTarget) rt;
-		graphPanel.setContent(pt);
-
-	}
-
-	MyProcessingApplet applet;
-
-	public void render(ProcessingTarget target) {
-		previewController.render(target);
-		applet = (MyProcessingApplet) target.getApplet();
-	}
-
-	Item lastItem = null;
 
 	public void showNodeInfo(float x, float y) {
-		Item newItem = getSingleNode(x, y);
+		Item newItem = getSingleItem(x, y);
 		String toolTipText = createTooltipText(newItem);
-		MouseRenderer mr = Lookup.getDefault().lookup(MouseRenderer.class);
+		MouseRenderer mouseRenderer = Lookup.getDefault().lookup(MouseRenderer.class);
 
 		if (newItem != lastItem) {
 			if (newItem == null)
-				mr.hideTooltip();
+				mouseRenderer.hideTooltip();
 			else
-				mr.showTooltip(toolTipText, x, y);
+				mouseRenderer.showTooltip(toolTipText, x, y);
 		}
 
 		lastItem = newItem;
@@ -174,12 +142,12 @@ public class GephiController extends Observable implements Observer {
 
 	public String createTooltipText(Item i) {
 		StringBuilder sb = new StringBuilder();
-		Node n = item2Node(i);
-		if (n != null) {
-			addLine(sb, "IP", n.getAddress());
-			addLine(sb, "Name", n.getHostName());
-			if (n.getComment() != null)
-				addLine(sb, "Comment", n.getComment());
+		Node node = getNodeForItem(i);
+		if (node != null) {
+			addLine(sb, "IP", node.getAddress());
+			addLine(sb, "Name", node.getHostName());
+			if (node.getComment() != null)
+				addLine(sb, "Comment", node.getComment());
 		} else {
 			addLine(sb, "IP", getIp(i));
 			addLine(sb, "Type", "external");
@@ -195,52 +163,29 @@ public class GephiController extends Observable implements Observer {
 
 	}
 
-	public Item getSingleNode(final float x, final float y) {
+	public Item getSingleItem(float x, float y) {
 
-		Item ii = null;
-		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
+		Item resultItem = null;
+		PreviewModel previewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
 
-		for (Item i : pm.getItems(Item.NODE)) {
-			float size = i.getData("size");
-			float ix = i.getData("x");
-			float iy = i.getData("y");
-			size /= 2;
-			if (x >= ix - size && x <= ix + size && y >= iy - size && y <= iy + size) {
-				ii = i;
+		for (Item currentItem : previewModel.getItems(Item.NODE)) {
+			float itemSize = currentItem.getData("size");
+			float itemX = currentItem.getData("x");
+			float itemY = currentItem.getData("y");
+			itemSize /= 2;
+			if (x >= itemX - itemSize && x <= itemX + itemSize && y >= itemY - itemSize && y <= itemY + itemSize) {
+				resultItem = currentItem;
 				// assuming non-overlapping nodes, so we can stop here
 				break;
 			}
 		}
 
-		//		This code is a bit faster but less precise and does not consider displayed size of node
-		//
-		//		float threshold = 50;
-		//		List<Item> selected = getAllNodes(x - threshold, y - threshold, x + threshold, y + threshold);
-		//		if (selected.size() > 0) {
-		//			ii = selected.get(0);
-		//			if (selected2.size() > 1) {
-		//				double minDistance = Float.MAX_VALUE;
-		//				for (Item it : selected2) {
-		//					float xx = it.getData("x");
-		//					float yy = it.getData("y");
-		//					double d = distance(xx, x, yy, y);
-		//					if (d < minDistance) {
-		//						ii = it;
-		//						minDistance = d;
-		//					}
-		//				}
-		//			}
-		//		}
-		return ii;
+		return resultItem;
 	}
 
-	private double distance(float x1, float x2, float y1, float y2) {
-		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-	}
-
-	private List<Item> getAllNodes(float startX, float startY, float endX, float endY) {
-		PreviewModel pm = Lookup.getDefault().lookup(PreviewController.class).getModel();
-		List<Item> selected = new ArrayList<>();
+	private List<Item> getAllItemsInRectangle(float startX, float startY, float endX, float endY) {
+		PreviewModel previewModel = Lookup.getDefault().lookup(PreviewController.class).getModel();
+		List<Item> selectedItems = new ArrayList<>();
 
 		// normalize dragged square
 		if (startX > endX) {
@@ -253,14 +198,15 @@ public class GephiController extends Observable implements Observer {
 			endY = startY;
 			startY = tmp;
 		}
-		for (Item item : pm.getItems(Item.NODE)) {
-			float x = item.getData("x");
-			float y = item.getData("y");
-			if (x >= startX && x <= endX && y >= startY && y <= endY) {
-				selected.add(item);
+
+		for (Item currentItem : previewModel.getItems(Item.NODE)) {
+			float itemX = currentItem.getData("x");
+			float itemY = currentItem.getData("y");
+			if (itemX >= startX && itemX <= endX && itemY >= startY && itemY <= endY) {
+				selectedItems.add(currentItem);
 			}
 		}
-		return selected;
+		return selectedItems;
 
 	}
 
@@ -272,26 +218,26 @@ public class GephiController extends Observable implements Observer {
 		return ip;
 	}
 
-	private Node item2Node(Item item) {
+	private Node getNodeForItem(Item item) {
 		return ipMap.get(getIp(item));
 	}
 
-	private List<Node> items2Nodes(List<Item> items) {
-		List<Node> out = new ArrayList<>();
-		for (Item item : items) {
-			Node networkNode = item2Node(item);
+	private List<Node> getNodesForItems(List<Item> items) {
+		List<Node> nodes = new ArrayList<>();
+		for (Item currentItem : items) {
+			Node networkNode = getNodeForItem(currentItem);
 			if (networkNode != null)
-				out.add(networkNode);
+				nodes.add(networkNode);
 		}
-		return out;
+		return nodes;
 	}
 
 	public void selectNodesFromCoords(int startX, int startY, int endX, int endY) {
-		List<Item> selected = getAllNodes(startX, startY, endX, endY);
+		List<Item> selected = getAllItemsInRectangle(startX, startY, endX, endY);
 		if (selected.size() > 0) {
-			List<Node> tmp = items2Nodes(selected);
+			List<Node> tmp = getNodesForItems(selected);
 			Node[] selectedNodes = (Node[]) tmp.toArray(new Node[tmp.size()]);
-			dc.setSelectedNodes(selectedNodes);
+			dataController.setSelectedNodes(selectedNodes);
 		} else {
 			logger.info("No internal nodes selected, not changing the selection");
 		}

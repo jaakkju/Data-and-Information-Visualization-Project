@@ -14,9 +14,6 @@ public class Settings {
 	private static final String configFile = "config/eyeNet.properties";
 	private static final String defaultConfigFile = configFile + ".template";
 
-	private static final String logConfigFile = "config/log4j.properties";
-	private static final String defaultLogConfigFile = logConfigFile + ".template";
-
 	public static String get(String key) {
 		return properties.getProperty(key);
 	}

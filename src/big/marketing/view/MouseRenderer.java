@@ -3,7 +3,6 @@ package big.marketing.view;
 import java.awt.Color;
 
 import org.gephi.preview.api.Item;
-import org.gephi.preview.api.PreviewModel;
 import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
@@ -52,10 +51,13 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 			applet.hideTooltip();
 	}
 
-	public void startDragging(int startX, int startY, int endX, int endY) {
+	public void startDragging(int startX, int startY) {
 		this.isDragging = true;
 		this.startX = startX;
 		this.startY = startY;
+	}
+
+	public void dragStep(int endX, int endY) {
 		this.endX = endX;
 		this.endY = endY;
 	}
@@ -67,12 +69,6 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 	@Override
 	public boolean needsPreviewMouseListener(PreviewMouseListener previewMouseListener) {
 		return previewMouseListener instanceof GraphMouseListener;
-	}
-
-	@Override
-	public void preProcess(PreviewModel previewModel) {
-		// TODO Auto-generated method stub
-		super.preProcess(previewModel);
 	}
 
 	@Override
@@ -144,14 +140,13 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 		applet = (MyProcessingApplet) target.getApplet();
 		// draw rectangle
 		super.renderProcessing(item, target, properties);
-		PGraphics g = target.getGraphics();
-		MyProcessingApplet p = (MyProcessingApplet) target.getApplet();
+		PGraphics graphics = target.getGraphics();
 		if (isDragging) {
 			int width = endX - startX;
 			int height = endY - startY;
-			//			System.out.println("Width: " + width + " Height: " + height);
-			g.fill(128, 128, 128, 20);
-			g.rect(startX + width / 2, startY + height / 2, width, height);
+
+			graphics.fill(128, 128, 128, 20);
+			graphics.rect(startX + width / 2, startY + height / 2, width, height);
 		}
 
 	}
