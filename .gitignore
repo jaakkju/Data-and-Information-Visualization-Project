@@ -5,3 +5,4 @@
 
 # Settings
 *.properties
+/build

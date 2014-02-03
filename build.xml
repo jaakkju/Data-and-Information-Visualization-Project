@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project Data-and-Information-Visualization-Project with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <delete dir="${basedir}/build"/>
+        <mkdir dir="${basedir}/build"/>
+        <jar destfile="${basedir}/build/eyeNet.jar">
+            <manifest>
+                <attribute name="Main-Class" value="big.marketing.Application"/>
+                <attribute name="Class-Path" value=". lib/opencsv-2.3.jar lib/gephi-toolkit.jar lib/mongo-java-driver-2.11.3.jar lib/log4j-1.2.17.jar"/>
+            </manifest>
+            <fileset dir="${basedir}/bin"/>
+        </jar>
+        <copy file="${basedir}/lib/opencsv-2.3.jar" todir="${basedir}/build/lib"/>
+        <copy file="${basedir}/lib/gephi-toolkit.jar" todir="${basedir}/build/lib"/>
+        <copy file="${basedir}/lib/mongo-java-driver-2.11.3.jar" todir="${basedir}/build/lib"/>
+    	 <copy file="${basedir}/lib/log4j-1.2.17.jar" todir="${basedir}/build/lib"/>
+    	    	
+		<copy file="${basedir}/config/eyeNet.properties.template" todir="${basedir}/build/config"/>
+   	 	<copy file="${basedir}/config/log4j.properties.template" todir="${basedir}/build/config"/>
+    	    	
+    	<copy file="${basedir}/README.md" todir="${basedir}/build"/>
+    	<copy file="${basedir}/LICENSE" todir="${basedir}/build"/>
+
+    	<!--<copy file="${basedir}/data/data.zip" todir="${basedir}/build/data"/>-->
+        <mkdir dir="${basedir}/build/data/db"/>
+    	                 
+    	
+    	
+    </target>
+</project>
