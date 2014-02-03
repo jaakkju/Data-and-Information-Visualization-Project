@@ -52,6 +52,15 @@ public class Settings {
 
 	}
 
+	public static void setAndSave(String key, String value) {
+		properties.setProperty(key, value);
+		try {
+			properties.store(new FileWriter(configFile), "");
+		} catch (IOException e) {
+			logger.error("Could not write config file");
+		}
+	}
+
 	private static boolean loadConfigFile(String fileName) {
 		try {
 			properties.load(new FileReader(fileName));

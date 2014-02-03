@@ -3,6 +3,9 @@ package big.marketing.controller;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+
 import org.apache.log4j.Logger;
 
 import big.marketing.Settings;
@@ -23,9 +26,46 @@ public class MongoExecutor {
 
 	private static void loadSettings() {
 		MONGOD_PATH = Settings.get("mongo.exe.path");
+		MONGOD_PATH = checkPath(MONGOD_PATH, "MongoDB executable not found, select folder containing it", "mongo.exe.path");
+
 		DB_PATH = Settings.get("mongo.exe.dbpath");
+		DB_PATH = checkPath(DB_PATH, "Database path not found, select folder containing it", "mongo.exe.dbpath");
+
 		MONGO_LOG_FILE = Settings.get("mongo.exe.log");
 		MONGO_OPTIONS = Settings.get("mongo.exe.options");
+		Settings.setAndSave("mongo.exe.path", MONGOD_PATH);
+	}
+
+	public static File askForDir(String title) {
+
+		JFileChooser fc = new JFileChooser();
+		fc.setDialogTitle(title);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		int returntype = fc.showOpenDialog(new JFrame());
+		if (returntype == JFileChooser.APPROVE_OPTION)
+			return fc.getSelectedFile();
+		else
+			return null;
+	}
+
+	private static String checkPath(String path, String title, String storeName) {
+		File pathFile = new File(path);
+		if (!pathFile.exists() || !pathFile.isDirectory()) {
+			File dir = askForDir(title);
+			if (dir != null) {
+				try {
+					String canPath = dir.getCanonicalPath();
+					Settings.setAndSave(storeName, canPath);
+					return canPath;
+				} catch (IOException e) {
+					logger.error("Error converting path: " + dir.getAbsolutePath());
+					return dir.getAbsolutePath();
+				}
+			}
+			return "";
+		}
+		return path;
+
 	}
 
 	public static void startMongoProcess() {
