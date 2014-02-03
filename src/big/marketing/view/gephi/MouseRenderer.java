@@ -97,40 +97,42 @@ public class MouseRenderer extends NodeRenderer implements MouseResponsiveRender
 		if (alpha > 255) {
 			alpha = 255;
 		}
+		if (target != null) {
+			PGraphics graphics = target.getGraphics();
 
-		PGraphics graphics = target.getGraphics();
-
-		if (borderSize > 0) {
-			graphics.stroke(borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue(), alpha);
-			graphics.strokeWeight(borderSize);
-		} else {
-			graphics.noStroke();
-		}
-		graphics.fill(color.getRed(), color.getGreen(), color.getBlue(), alpha);
-
-		// x and y describe the center 
-		switch (type) {
-		case Node.TYPE_SERVER:
-			graphics.triangle(x + size / 2, y + size * SQRT_OF_12, x - size / 2, y + size * SQRT_OF_12, x, y - 2 * size * SQRT_OF_12);
-			break;
-		case Node.TYPE_WORKSTATION:
-			graphics.rect(x, y, size, size);
-			break;
-		case Node.TYPE_ADMINISTRATOR:
-			x -= size / 2;
-			y -= size / 2;
-			graphics.beginShape();
-			{
-				graphics.vertex(x, y + size / 2);
-				graphics.vertex(x + size / 3, y + size);
-				graphics.vertex(x + size / 3 * 2, y + size);
-				graphics.vertex(x + size, y + size / 2);
-				graphics.vertex(x + size / 3 * 2, y);
-				graphics.vertex(x + size / 3, y);
+			if (borderSize > 0) {
+				graphics.stroke(borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue(), alpha);
+				graphics.strokeWeight(borderSize);
+			} else {
+				graphics.noStroke();
 			}
-			graphics.endShape();
-			break;
-		default:
+			graphics.fill(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+
+			// x and y describe the center 
+			switch (type) {
+			case Node.TYPE_SERVER:
+				graphics.triangle(x + size / 2, y + size * SQRT_OF_12, x - size / 2, y + size * SQRT_OF_12, x, y - 2 * size * SQRT_OF_12);
+				break;
+			case Node.TYPE_WORKSTATION:
+				graphics.rect(x, y, size, size);
+				break;
+			case Node.TYPE_ADMINISTRATOR:
+				x -= size / 2;
+				y -= size / 2;
+				graphics.beginShape();
+				{
+					graphics.vertex(x, y + size / 2);
+					graphics.vertex(x + size / 3, y + size);
+					graphics.vertex(x + size / 3 * 2, y + size);
+					graphics.vertex(x + size, y + size / 2);
+					graphics.vertex(x + size / 3 * 2, y);
+					graphics.vertex(x + size / 3, y);
+				}
+				graphics.endShape();
+				break;
+			default:
+			}
+
 		}
 	}
 
