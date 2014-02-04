@@ -21,6 +21,7 @@ import org.gephi.preview.api.PreviewProperties;
 import org.gephi.preview.api.PreviewProperty;
 import org.gephi.preview.api.ProcessingTarget;
 import org.gephi.preview.api.RenderTarget;
+import org.gephi.preview.types.EdgeColor;
 import org.gephi.ranking.api.Ranking;
 import org.gephi.ranking.api.RankingController;
 import org.gephi.ranking.api.Transformer;
@@ -99,7 +100,6 @@ public class GraphJPanel extends JPanel implements Observer {
 	public void update(Observable o, Object arg) {
 
 		filterGraph();
-
 		if ("SelectionOnly".equals(arg)) {
 			logger.info("Short update");
 		} else {
@@ -107,36 +107,52 @@ public class GraphJPanel extends JPanel implements Observer {
 			layoutGraph();
 			// Calculate ranking vor Nodes & Edges and color them 
 			RankingController rankingController = Lookup.getDefault().lookup(RankingController.class);
-			rankingController.setUseLocalScale(true);
+			rankingController.setUseLocalScale(false);
 			Ranking<?> degreeRanking = rankingController.getModel().getRanking(Ranking.NODE_ELEMENT, Ranking.INDEGREE_RANKING);
 
+			// NODE COLOR
 			AbstractColorTransformer<?> colorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
 			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_COLOR);
-
 			colorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
-			colorTransformer.setColors(new Color[] { new Color(0x00FF00), new Color(0xFFFF00), new Color(0xFF0000) });
+			colorTransformer.setColors(new Color[] { Color.GREEN, Color.YELLOW, Color.RED });
 			rankingController.transform(degreeRanking, colorTransformer);
 
+			// NODE SIZE
 			AbstractSizeTransformer<?> sizeTransformer = (AbstractSizeTransformer<?>) rankingController.getModel().getTransformer(
 			      Ranking.NODE_ELEMENT, Transformer.RENDERABLE_SIZE);
 			sizeTransformer.setMinSize(5);
 			sizeTransformer.setMaxSize(20);
 			rankingController.transform(degreeRanking, sizeTransformer);
 
+			// EDGE COLOR
+			AbstractColorTransformer<?> edgeColorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
+			      Ranking.EDGE_ELEMENT, Transformer.RENDERABLE_COLOR);
+			edgeColorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
+			edgeColorTransformer.setColors(new Color[] { Color.blue, Color.cyan, Color.magenta });
+
+			Ranking<?> weightRanking = rankingController.getModel().getRanking(Ranking.EDGE_ELEMENT, "weight");
+			rankingController.transform(weightRanking, edgeColorTransformer);
+			// EDGE_ELEMENT has Transformers: RenderableColorTransformer, LabelColorTransformer, LabelSizeTransformer
+
 			PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
 			PreviewProperties props = previewController.getModel().getProperties();
 			props.putValue(PreviewProperty.SHOW_NODE_LABELS, Boolean.FALSE);
 			//			props.putValue(PreviewProperty.NODE_LABEL_COLOR, new DependantOriginalColor(Color.WHITE));
+			//			props.putValue(PreviewProperty.NODE_BORDER_COLOR, new DependantColor(Color.white));
+
 			props.putValue(PreviewProperty.EDGE_CURVED, Boolean.TRUE);
+			props.putValue(PreviewProperty.EDGE_COLOR, new EdgeColor(EdgeColor.Mode.ORIGINAL));
 			props.putValue(PreviewProperty.EDGE_OPACITY, 50);
-			props.putValue(PreviewProperty.EDGE_RADIUS, 0f);
+			props.putValue(PreviewProperty.EDGE_RADIUS, 10f);
 			props.putValue(PreviewProperty.BACKGROUND_COLOR, Color.BLACK);
-			props.putValue(PreviewProperty.ARROW_SIZE, 1);
+			//			props.putValue(PreviewProperty.ARROW_SIZE, 50);
 			props.putValue(PreviewProperty.EDGE_THICKNESS, 20);
 			props.putValue(PreviewProperty.EDGE_RESCALE_WEIGHT, Boolean.TRUE);
-			previewController.refreshPreview();
+
 			target.resetZoom();
 		}
+		PreviewController previewController = Lookup.getDefault().lookup(PreviewController.class);
+		previewController.refreshPreview();
 
 		Lookup.getDefault().lookup(PreviewController.class).refreshPreview();
 		target.refresh();
