@@ -45,6 +45,8 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 	/** The version tracking unique identifier for Serialization. */
 	static final long serialVersionUID = 0003;
 
+	private static final int TICK_LIMIT = 40;
+
 	/** The chart . */
 	private ParallelCoordinatesChart chart;
 
@@ -263,6 +265,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				}
 
 				String axisLabel = currentAxis.getName();
+
 				int slenX = fm.stringWidth(axisLabel);
 				g.setFont(new Font("SansSerif", Font.PLAIN, currentAxis.getAxisLabelFontSize()));
 
@@ -320,66 +323,57 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				double axisRange = currentAxis.getRange();
 				double ticValueDifference = axisRange / ((double) (ticCount - 1));
 				for (int ticID = 0; ticID < ticCount; ticID++) {
-					int currentTicYPos;
-					if (currentAxis.isAxisInverted())
-						currentTicYPos = yPosition + chart.getAxisHeight() - (int) (ticID * ticSpacing);
-					else
-						currentTicYPos = yPosition + (int) (ticID * ticSpacing);
-					g.setColor(currentAxis.getAxisColor());
-					if (ticCount > 1)
-						g.drawLine(xPosition, currentTicYPos, xPosition + ticSize, currentTicYPos);
-					else
-						g.drawLine(xPosition, yPosition + (int) (chart.getAxisHeight() / 2), xPosition + ticSize,
-						      yPosition + (int) (chart.getAxisHeight() / 2));
+					if (ticCount < TICK_LIMIT) {
 
-					g.setColor(currentAxis.getAxisTicLabelFontColor());
+						int currentTicYPos;
 
-					String ticLabel;
-					g.setFont(new Font("SansSerif", Font.PLAIN, currentAxis.getTicLabelFontSize()));
-					if (currentAxis.getParameter().isNumeric()) {
-						Double ticValue;
-						if (ticCount > 1) {
-							ticValue = currentAxis.getMax() - ticValueDifference * ticID;
-							ticLabel = String.format(currentAxis.getTicLabelFormat(), ticValue);
-							g.drawString(ticLabel, xPosition + ticSize + 7, currentTicYPos + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+						if (currentAxis.isAxisInverted()) {
+							currentTicYPos = yPosition + chart.getAxisHeight() - (int) (ticID * ticSpacing);
 						} else {
-							ticValue = currentAxis.getMax();
-							ticLabel = String.format(currentAxis.getTicLabelFormat(), ticValue);
-							g.drawString(ticLabel, xPosition + 2 * ticSize, yPosition + ((int) (chart.getAxisHeight() / 2))
-							      + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							currentTicYPos = yPosition + (int) (ticID * ticSpacing);
+							g.setColor(currentAxis.getAxisColor());
 						}
 
-					} else {
 						if (ticCount > 1) {
-							ticLabel = currentAxis.getParameter().getStringValueOf(currentAxis.getMax() - ticValueDifference * ticID);
-							g.drawString(ticLabel, xPosition + 2 * ticSize, currentTicYPos + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							g.drawLine(xPosition, currentTicYPos, xPosition + ticSize, currentTicYPos);
 						} else {
-							ticLabel = currentAxis.getParameter().getStringValueOf(currentAxis.getMax());
-							g.drawString(ticLabel, xPosition + 2 * ticSize, yPosition + ((int) (chart.getAxisHeight() / 2))
-							      + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							g.drawLine(xPosition, yPosition + (int) (chart.getAxisHeight() / 2), xPosition + ticSize,
+							      yPosition + (int) (chart.getAxisHeight() / 2));
+
+						}
+
+						g.setColor(currentAxis.getAxisTicLabelFontColor());
+
+						String ticLabel;
+						g.setFont(new Font("SansSerif", Font.PLAIN, currentAxis.getTicLabelFontSize()));
+						if (currentAxis.getParameter().isNumeric()) {
+							Double ticValue;
+							if (ticCount > 1) {
+								ticValue = currentAxis.getMax() - ticValueDifference * ticID;
+								ticLabel = String.format(currentAxis.getTicLabelFormat(), ticValue);
+								g.drawString(ticLabel, xPosition + ticSize + 7, currentTicYPos + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							} else {
+								ticValue = currentAxis.getMax();
+								ticLabel = String.format(currentAxis.getTicLabelFormat(), ticValue);
+								g.drawString(ticLabel, xPosition + 2 * ticSize, yPosition + ((int) (chart.getAxisHeight() / 2))
+								      + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							}
+
+						} else {
+							if (ticCount > 1) {
+								ticLabel = currentAxis.getParameter().getStringValueOf(currentAxis.getMax() - ticValueDifference * ticID);
+								g.drawString(ticLabel, xPosition + 2 * ticSize, currentTicYPos + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							} else {
+								ticLabel = currentAxis.getParameter().getStringValueOf(currentAxis.getMax());
+								g.drawString(ticLabel, xPosition + 2 * ticSize, yPosition + ((int) (chart.getAxisHeight() / 2))
+								      + (int) (0.5 * currentAxis.getTicLabelFontSize()));
+							}
 						}
 					}
 				}
 				lastAxis = currentAxis;
 			}
 		}
-	}
-
-	/**
-	 * Finds the axis at a given location in the chart.
-	 * @param x the location
-	 * @return the found axis
-	 */
-	private Axis getAxisAtLocation(int x) throws NoAxisFoundException {
-		for (int i = 0; i < this.chart.getAxisCount(); i++) {
-			Filter uf = this.chart.getAxis(i).getUpperFilter();
-			if // check if this axis was meant by the click
-			(this.chart.getAxis(i).isActive() && x >= uf.getXPos() - 0.5 * this.chart.getAxis(i).getWidth()
-			      && x < uf.getXPos() + 0.5 * this.chart.getAxis(i).getWidth()) {
-				return this.chart.getAxis(i);
-			}
-		}
-		throw new NoAxisFoundException(x);
 	}
 
 	/*
