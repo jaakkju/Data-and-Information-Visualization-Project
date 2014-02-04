@@ -82,6 +82,23 @@ public class CustomApplet extends PApplet implements MouseWheelListener {
 		toolPanel.setLayout(new BoxLayout(toolPanel, BoxLayout.Y_AXIS));
 		add(toolPanel);
 		toolPanel.setVisible(false);
+
+		//		legendPanel = createLegend();
+		//		add(legendPanel);
+		//		legendPanel.setBounds(1000, 1000, 100, 100);
+		//		legendPanel.doLayout();
+		//		legendPanel.setVisible(true);
+
+	}
+
+	Panel legendPanel;
+
+	private Panel createLegend() {
+		Panel p = new Panel();
+		p.add(new Label("Test"));
+		p.getGraphics();
+		p.doLayout();
+		return p;
 	}
 
 	public void showTooltip(String t) {
@@ -103,12 +120,122 @@ public class CustomApplet extends PApplet implements MouseWheelListener {
 
 	Panel toolPanel;
 
+	public void triangle(float x, float y, float size) {
+		triangle(x + size / 2, y + size * MouseRenderer.SQRT_OF_12, x - size / 2, y + size * MouseRenderer.SQRT_OF_12, x, y - 2 * size
+		      * MouseRenderer.SQRT_OF_12);
+	}
+
+	public void sixCorners(float x, float y, float size) {
+		x -= size / 2;
+		y -= size / 2;
+		beginShape();
+		{
+			vertex(x, y + size / 2);
+			vertex(x + size / 3, y + size);
+			vertex(x + size / 3 * 2, y + size);
+			vertex(x + size, y + size / 2);
+			vertex(x + size / 3 * 2, y);
+			vertex(x + size / 3, y);
+		}
+		endShape();
+	}
+
+	public void drawLegend() {
+
+		//BACKGROUND
+		fill(255, 255, 255);
+		rectMode(CORNERS);
+		float x = width * 0.8f;
+		rect(x, 0, width, height);
+		rectMode(CENTER);
+
+		//
+		fill(0, 0, 0);
+		textAlign(LEFT, CENTER);
+		int LINE_HEIGHT = 15;
+		int MARGIN = 5;
+		float y = LINE_HEIGHT / 2;
+		text("Shapes", x, y);
+
+		String[] desc = { "Admin", "Workstation", "Server", "External" };
+		float symbolx = x + 10;
+		y -= MARGIN;
+		for (int i = 0; i < 4; i++) {
+			y += LINE_HEIGHT + MARGIN;
+			fill(0, 0, 0);
+			text(desc[i], x + LINE_HEIGHT + MARGIN, y);
+			fill(128, 128, 128);
+			switch (i) {
+			case 0:
+				sixCorners(symbolx, y, LINE_HEIGHT);
+				break;
+			case 1:
+				rect(symbolx, y, LINE_HEIGHT, LINE_HEIGHT);
+				break;
+			case 2:
+				triangle(symbolx, y, LINE_HEIGHT);
+				break;
+			case 3:
+				ellipse(symbolx, y, LINE_HEIGHT, LINE_HEIGHT);
+				break;
+			}
+		}
+
+		y = drawColorLegend("Nodes (amount of connections):", null, x, y, LINE_HEIGHT, MARGIN, Color.red, Color.yellow, Color.green);
+
+		drawColorLegend("Edges (total Bytes):", null, x, y, LINE_HEIGHT, MARGIN, Color.red, Color.yellow, Color.green);
+
+	}
+
+	private float drawColorLegend(String line1, String line2, float x, float y, int LINE_HEIGHT, int MARGIN, Color... c) {
+		fill(0, 0, 0);
+		y += LINE_HEIGHT + MARGIN;
+		text(line1, x + 5, y);
+		if (line2 != null) {
+			y += LINE_HEIGHT + MARGIN;
+			text(line2, x + 5, y);
+		}
+
+		y += 10;
+		int GRADIENT_WIDTH = (int) (width - x - 2 * MARGIN);
+
+		drawMultiGradient(x + MARGIN, y, GRADIENT_WIDTH, LINE_HEIGHT, c);
+		y += LINE_HEIGHT + MARGIN;
+		text("low", x + 5, y);
+		text("high", x + 5 + GRADIENT_WIDTH - 20, y);
+		return y;
+	}
+
+	private void drawMultiGradient(float x1, float y1, float width, float height, Color... colors) {
+		int div = colors.length - 1;
+		float startx = x1, starty = y1;
+		for (int i = 0; i < div; i++) {
+			setGradient((int) startx, (int) starty, width / div, height, colors[i], colors[i + 1]);
+			startx += width / div;
+		}
+	}
+
+	void setGradient(int x, int y, float w, float h, Color c1, Color c2) {
+
+		noFill();
+		int color1 = color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha());
+		int color2 = color(c2.getRed(), c2.getGreen(), c2.getBlue(), c2.getAlpha());
+
+		for (int i = x; i <= x + w; i++) {
+			float inter = map(i, x, x + w, 0, 1);
+			int c = lerpColor(color1, color2, inter);
+			stroke(c);
+			line(i, y, i, y + h);
+		}
+	}
+
 	@Override
 	public void draw() {
 		// blank the applet
 		if (background != null) {
 			background(background.getRGB(), background.getAlpha());
 		}
+		drawLegend();
 
 		// user zoom
 		PVector center = new PVector(width / 2f, height / 2f);
@@ -120,7 +247,6 @@ public class CustomApplet extends PApplet implements MouseWheelListener {
 
 		// user move
 		translate(trans.x, trans.y);
-
 		//Draw target
 		previewController.render(target);
 	}

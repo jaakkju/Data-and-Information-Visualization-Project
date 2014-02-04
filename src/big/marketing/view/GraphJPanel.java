@@ -128,7 +128,7 @@ public class GraphJPanel extends JPanel implements Observer {
 			AbstractColorTransformer<?> edgeColorTransformer = (AbstractColorTransformer<?>) rankingController.getModel().getTransformer(
 			      Ranking.EDGE_ELEMENT, Transformer.RENDERABLE_COLOR);
 			edgeColorTransformer.setColorPositions(new float[] { 0, 0.5f, 1 });
-			edgeColorTransformer.setColors(new Color[] { Color.blue, Color.cyan, Color.magenta });
+			edgeColorTransformer.setColors(new Color[] { Color.GREEN, Color.YELLOW, Color.RED });
 
 			Ranking<?> weightRanking = rankingController.getModel().getRanking(Ranking.EDGE_ELEMENT, "weight");
 			rankingController.transform(weightRanking, edgeColorTransformer);

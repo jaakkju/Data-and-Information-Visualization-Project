@@ -59,6 +59,10 @@ public class GephiImporter implements SpigotImporter {
 		if (typeColumn == null) {
 			typeColumn = nt.addColumn("hostType", AttributeType.SHORT);
 		}
+		//		trafficColumn = nt.getColumn("traffic");
+		//		if (trafficColumn == null) {
+		//			trafficColumn = nt.addColumn("traffic", AttributeType.LONG);
+		//		}
 
 		for (FlowMessage message : data.getFlowData()) {
 
@@ -73,11 +77,11 @@ public class GephiImporter implements SpigotImporter {
 				EdgeDraft edge = fact.newEdgeDraft();
 				edge.setSource(src);
 				edge.setTarget(dst);
-				edge.setWeight(1);
+				edge.setWeight(message.getTotalBytes());
 				loader.addEdge(edge);
 			} else {
 				EdgeDraft e = loader.getEdge(src, dst);
-				e.setWeight(e.getWeight() + 1);
+				e.setWeight(e.getWeight() + message.getTotalBytes());
 			}
 
 		}
